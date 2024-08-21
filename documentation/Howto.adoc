@@ -1,0 +1,11 @@
+
+
+
+
+
+[source,bash]
+----
+ ./upload_all_stacks.sh
+
+docker exec -it nexus /bin/sh
+----
