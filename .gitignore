@@ -40,3 +40,4 @@ build/
 
 .pdf
 /documentation/**/*.pdf
+/.idea/
