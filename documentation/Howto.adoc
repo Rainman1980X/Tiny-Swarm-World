@@ -1,11 +1,21 @@
+= Howto
 
+== Install the portainer
 
-
-
+The portainer app is the local webinterface to have an overview of the installed system.
+The password and the user have to be set after open portainer the first time.
+See documentation of portainer.
+*USER* = admin
+*PASSWORD* = admin1234567890 If you will not change any other inputs.
 
 [source,bash]
 ----
- ./upload_all_stacks.sh
+ ./docker/prepare/prepare_portainer.sh
+----
+
+[source,bash]
+----
+ .docker/upload_all_stacks.sh
 
 docker exec -it nexus /bin/sh
 ----

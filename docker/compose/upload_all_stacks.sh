@@ -6,6 +6,32 @@ USERNAME="admin" # own user
 PASSWORD="admin1234567890" # own password
 BASE_DIR="./"  # Base directory for all docker-compose files
 
+print_usage() {
+  printf "\nUsage: %s [-u username] [-p password]\n" " $0"
+  printf " -u username: Optional. Default is '%s'.\n" "$USERNAME"
+  printf " -p password: Optional. Default is '%s'.\n" "$PASSWORD"
+}
+
+print_default() {
+  printf " -u username: Optional. Current is '%s'.\n" "$USERNAME"
+  printf " -p password: Optional. Current is '%s'.\n\n" "$PASSWORD"
+}
+
+while getopts u:p: flag
+do
+    case "${flag}" in
+        u) USERNAME=${OPTARG};;
+        p) PASSWORD=${OPTARG};;
+        *)
+            printf "Invalid option: -%s" "${OPTARG}"
+            print_usage
+            exit 1
+            ;;
+    esac
+done
+
+print_default
+
 # Get JWT Token
 printf "Authenticating and retrieving JWT token..."
 JWT_TOKEN=$(curl -s -X POST "$PORTAINER_URL/api/auth" -H "Content-Type: application/json" -d "{
