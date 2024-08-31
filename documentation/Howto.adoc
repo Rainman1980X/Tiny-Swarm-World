@@ -3,19 +3,64 @@
 == Install the portainer
 
 The portainer app is the local webinterface to have an overview of the installed system.
-The password and the user have to be set after open portainer the first time.
-See documentation of portainer.
-*USER* = admin
-*PASSWORD* = admin1234567890 If you will not change any other inputs.
+See documentation of portainer. +
 
-[source,bash]
+At first run this script und the portainer will be installed on your docker system.
+
 ----
  ./docker/prepare/prepare_portainer.sh
 ----
 
-[source,bash]
+Open the portainer the first time and create the admin user.
+The password and the user have to be set after open portainer the first time. +
+If you do not want to change this values, keep the defaults.
+
+----
+ USER = admin
+ PASSWORD = admin1234567890
+----
+
+After that you have got a fresh portainer system running without any other stuff.
+Next step is to get life into the portainer.
+
+== Terraforming light :)
+
+If you have changed the user and password for your needs you got 2 ways to get the upload-script running.
+At the first you use the parameter of the script:
+
+----
+ ./docker/compose/upload_all_stacks.sh
+----
+
+----
+ -u username: Optional. Current is 'admin'.
+ -p password: Optional. Current is 'admin1234567890'.
+----
+
+or you open the script and change the default values.
+
+----
+USERNAME="admin"
+PASSWORD="admin1234567890"
+----
+
+and then happy running
 ----
  .docker/upload_all_stacks.sh
-
-docker exec -it nexus /bin/sh
 ----
+
+== The ports:
+
+=== Portainer
+
+http://localhost:9000[localhost:9000 portainer start]
+
+=== nexus
+
+- http://localhost:8081/[localhost:8081/ nexus]
+- http://localhost:8085/[localhost:8085/ nexus api]
+
+=== swagger
+
+- http://localhost:8082/[localhost:8082/ swagger-editor]
+- http://localhost:8083/[localhost:8083/ swagger-ui ]
