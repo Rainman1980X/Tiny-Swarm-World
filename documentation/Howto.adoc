@@ -55,12 +55,29 @@ and then happy running
 
 http://localhost:9000[localhost:9000 portainer start]
 
+User = admin Password = admin1234567890
+
 === nexus
 
 - http://localhost:8081/[localhost:8081/ nexus]
 - http://localhost:8085/[localhost:8085/ nexus api]
 
+For the password you have to log in into the docker container:
+
+----
+docker exec -it nexus-nexus-1 /bin/sh
+cat /nexus-data/admin.password
+----
+
+User = admin Password = 4d4ac9ff-7daa-4b93-9cfa-fe391d94f100 (in my case)
+
 === swagger
 
 - http://localhost:8082/[localhost:8082/ swagger-editor]
 - http://localhost:8083/[localhost:8083/ swagger-ui ]
+
+=== sonarqube
+
+- http://localhost:9001/[localhost:9001/ sonarqube ]
+
+User: admin Password: admin1

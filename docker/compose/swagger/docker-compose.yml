@@ -3,11 +3,13 @@ services:
     image: swaggerapi/swagger-editor
     ports:
       - "8082:8080"
+    restart: always
 
   swagger-ui:
     image: swaggerapi/swagger-ui
     ports:
       - "8083:8080"
+    restart: always
     volumes:
       - ./swagger/openapi.json:/openapi.json
     environment:
@@ -15,6 +17,7 @@ services:
       # API_URL: ""
 
   swagger-api:
+    restart: always
     image: danielgtaylor/apisprout
     ports:
       - "8084:8000"
@@ -27,6 +30,7 @@ services:
           - local.swagger.apisprout
 
   swagger-nginx:
+    restart: always
     image: nginx:mainline-alpine
     ports:
       - "8087:8084"
