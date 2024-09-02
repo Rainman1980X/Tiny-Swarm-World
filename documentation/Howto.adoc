@@ -81,3 +81,7 @@ User = admin Password = 4d4ac9ff-7daa-4b93-9cfa-fe391d94f100 (in my case)
 - http://localhost:9001/[localhost:9001/ sonarqube ]
 
 User: admin Password: admin1
+
+To run on linux or windows subsystem 
+ echo 'vm.max_map_count=262144' | sudo tee -a /etc/sysctl.conf
+ sudo sysctl -p
