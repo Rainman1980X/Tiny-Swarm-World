@@ -55,10 +55,11 @@ and then happy running
 
 http://localhost:9000[localhost:9000 portainer start]
 
-User = admin Password = admin1234567890
+USER: admin PASSWORD: admin1234567890
 
 === nexus
 
+- https://help.sonatype.com/en/rest-apis.html[RestApi Help]
 - http://localhost:8081/[localhost:8081/ nexus]
 - http://localhost:8085/[localhost:8085/ nexus api]
 
@@ -80,4 +81,11 @@ User = admin Password = 4d4ac9ff-7daa-4b93-9cfa-fe391d94f100 (in my case)
 
 - http://localhost:9001/[localhost:9001/ sonarqube ]
 
-User: admin Password: admin1
+USER: admin PASSWORD: admin1
+
+=== Rabbit MQ
+
+- http://localhost:5672/[localhost:5672/ rabbit api communication]
+- http://localhost:15672/[localhost:15672/ rabbit UI  ]
+
+USER: guest PASSWORD: guest
