@@ -43,3 +43,4 @@ build/
 /.idea/
 /owasp-dependency-check-logs/dependency-check-report.html
 /owasp-dependency-check-logs/dependency-check-report.json
+/.idea/
