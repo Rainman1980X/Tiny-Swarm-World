@@ -31,15 +31,16 @@ services:
 
   swagger-nginx:
     restart: always
-    image: nginx:mainline-alpine
+    build:
+      context: ./nginx  # Verzeichnis, in dem sich das Dockerfile befindet
+      dockerfile: Dockerfile
     ports:
       - "8087:8084"
-    volumes:
-      - /mnt/d/Projects/bomfile/docker/compose/swagger/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - swagger-api
     networks:
       swagger_link:
         aliases:
           - local.swagger.api
-
 networks:
   swagger_link:

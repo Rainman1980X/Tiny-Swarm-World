@@ -12,8 +12,7 @@ docker-compose -f "$PORTAINER_DIR/docker-compose.yml" pull portainer
 printf "Updating Portainer..."
 docker-compose -f "$PORTAINER_DIR/docker-compose.yml" up -d portainer
 
-printf "Waiting for 15 sec to start up...\n"
-sleep 15
+progress_bar 15
 
 printf "Init adminuser for portainer\n"
 

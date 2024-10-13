@@ -1,14 +1,53 @@
 #!/bin/bash
 
+PORTAINER_URL="http://localhost:9000"
+PORTAINER_USERNAME="admin" # own user
+PORTAINER_PASSWORD="admin1234567890" # own password
+
+STACK_NAME="nexus"
 USER_NAME="admin"
-NEXUS_CONTAINERS=$(docker ps --filter "name=nexus" --format "{{.Names}}")
+NEXUS_CONTAINERS=$(docker ps --filter "name=$STACK_NAME" --format "{{.Names}}")
 NEXUS_URL="http://localhost:8081" #See documentation about the used urls
 
 
 # Find the nexus container
 if [ -z "$NEXUS_CONTAINERS" ]; then
-    printf "No container found containing nexus.\n"
-    exit 1
+    printf "No container found containing %s.\n" "$STACK_NAME"
+    printf "Creating new container\n"
+    printf "Authenticating and retrieving JWT token..."
+
+    JWT_TOKEN=$(curl -s -X POST "$PORTAINER_URL/api/auth" -H "Content-Type: application/json" -d "{
+      \"Username\": \"$PORTAINER_USERNAME\",
+      \"Password\": \"$PORTAINER_PASSWORD\"
+    }" | jq -r '.jwt')
+    ENDPOINT_ID=$(curl -s -H "Authorization: Bearer $JWT_TOKEN" "$PORTAINER_URL/api/endpoints" | jq -r '.[0].Id')
+
+
+    COMPOSE_FILE_PATH="nexus/docker-compose.yml"
+    COMPOSE_FILE_CONTENT=$(<"$COMPOSE_FILE_PATH")
+    PAYLOAD=$(jq -n --arg name "nexus" --arg stackFileContent "$COMPOSE_FILE_CONTENT" '{
+          env: [],
+          name: $name,
+          fromAppTemplate: false,
+          stackFileContent: $stackFileContent
+       }')
+    RESPONSE=$(curl -s -X POST "$PORTAINER_URL/api/stacks/create/standalone/string?type=2&method=string&endpointId=$ENDPOINT_ID" \
+          -H "Content-Type: application/json" \
+          -H "Authorization: Bearer $JWT_TOKEN" \
+          -d "$PAYLOAD")
+
+      # Has any errors
+    if printf "Response %s" "$RESPONSE" | grep -q "message"; then
+       message=$(echo "$RESPONSE" | jq -r .message)
+       details=$(echo "$RESPONSE" | jq -r .details)
+
+       printf 'Error uploading the stack for %s: \n{\n"message":"%s",\n"details":"%s"\n}\n' "$STACK_NAME" "$message" "$details"
+
+    else
+       printf "Stack uploaded successfully for %s\n" "$STACK_NAME"
+       NEXUS_CONTAINERS=$(docker ps --filter "name=$STACK_NAME" --format "{{.Names}}")
+       printf "Nexus-Container %s\n" "$NEXUS_CONTAINERS"
+    fi
 else
     printf "Nexus-Container found: "
     printf "%s\n" "$NEXUS_CONTAINERS"
@@ -31,8 +70,8 @@ if [ "$RESPONSE" -ne 200 ]; then
     RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "$NEXUS_URL/service/rest/v1/status")
     if [ "$RESPONSE" -ne 200 ]; then
       printf "File not found. Waiting %d seconds before retrying...\n" "$WAIT_TIME"
+      progress_bar $WAIT_TIME
       attempt=$((attempt+1))
-      sleep $WAIT_TIME
     else
       printf "Nexus is up and running.\n"
       break
@@ -86,15 +125,22 @@ else
   printf "Admin account is active and running...\n"
 fi
 
-# Step 2 create the mirror of maven
-API_ENDPOINT="/service/rest/v1/repositories/maven/proxy"
-REPO_NAME="maven-mirror"
-REMOTE_URL="https://repo.maven.apache.org/maven2/"
+# Create the Base64 authentication header
+AUTH_HEADER="Authorization: Basic $(echo -n "$USER_NAME:$NEW_PASSWORD" | base64)"
 
-REPO_EXISTS=$(curl -s -u "$USER_NAME:$PASSWORD" "$NEXUS_URL$API_ENDPOINT" | grep "\"name\":\"$REPO_NAME\"")
+# Example for enabling anonymous access using Basic Authentication
+ANON_ACCESS_URL="$NEXUS_URL/service/rest/v1/security/anonymous"
+ANON_ACCESS_PAYLOAD=$(cat <<EOF
+{
+  "enabled": true
+}
+EOF
+)
 
-if [ -n "$REPO_EXISTS" ]; then
-    printf "Repository '%s' already exists.\n" "$REPO_NAME"
+# Make the API request using Basic Authentication
+RESPONSE=$(curl -s -X PUT "${ANON_ACCESS_URL}" -H "${AUTH_HEADER}" -H "Content-Type: application/json" -d "${ANON_ACCESS_PAYLOAD}")
+if echo "$RESPONSE" | jq -e '.message' > /dev/null; then
+    printf "Error enabling anonymous access: %s\n" "$(echo "$RESPONSE" | jq -r '.message')"
 else
-  printf "Here the repositories setting"
+    printf "Anonymous access enabled successfully.\n"
 fi

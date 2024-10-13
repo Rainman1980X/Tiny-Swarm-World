@@ -1,6 +1,8 @@
 services:
   sonarqube:
+    container_name: 'sonarqube'
     image: sonarqube:lts-community
+    restart: always
     depends_on:
       - sonar_db
     environment:
@@ -18,6 +20,8 @@ services:
 
   sonar_db:
     image: postgres:13
+    container_name: 'sonarqube-postgres'
+    restart: always
     environment:
       POSTGRES_USER: sonar
       POSTGRES_PASSWORD: sonar
