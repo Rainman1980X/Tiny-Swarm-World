@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# imports
+source create_dockerfiles.sh
+
+
 # Define constants
 PORTAINER_URL="http://localhost:9000"
 USERNAME="admin"  # own user
@@ -107,27 +111,6 @@ create_or_update_stack() {
 }
 
 
-# Function to recursively find and execute all prepare.sh scripts in directory structure
-execute_prepare_scripts() {
-  local directory="$1"
-
-  for entry in "$directory"/*; do
-    if [ -d "$entry" ]; then
-      # Recursive call for each subdirectory
-      execute_prepare_scripts "$entry"
-    elif [ -f "$entry" ] && [ "$(basename "$entry")" == "prepare.sh" ]; then
-      # If prepare.sh file is found, execute it
-      printf "\nExecuting prepare.sh in %s...\n" "$(dirname "$entry")"
-
-      if bash "$entry"; then
-        printf "prepare.sh executed successfully in %s\n" "$(dirname "$entry")"
-      else
-        printf "Error executing prepare.sh in %s\n" "$(dirname "$entry")"
-      fi
-    fi
-  done
-}
-
 
 # Function to process each stack directory
 process_stacks() {
@@ -156,6 +139,5 @@ print_default
 parse_arguments "$@"
 get_jwt_token
 get_endpoint_id
-# Call the function starting from BASE_DIR
 execute_prepare_scripts "$BASE_DIR"
 process_stacks

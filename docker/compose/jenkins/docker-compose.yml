@@ -1,0 +1,14 @@
+services:
+  jenkins:
+    #    restart: always
+    image: 127.0.0.1:5000/jenkins:latest
+
+    container_name: jenkins
+    user: root
+    volumes:
+      - jenkins_home:/var/lib/jenkins
+    ports:
+      - "127.0.0.1:8180:8080"
+      - "127.0.0.1:50000:50000"
+volumes:
+  jenkins_home:
