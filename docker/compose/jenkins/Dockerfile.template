@@ -1,7 +1,7 @@
-# Basis-Image verwenden
+# Use base image
 FROM ubuntu:22.04
 
-# Environment-Variablen setzen
+# Set environment variables
 ENV qqy="-qq -y -o=Dpkg::Use-Pty=0"
 ENV JAVA_HOME=/usr/lib/jvm/jdk-21
 ENV M2_HOME=/opt/maven
@@ -10,7 +10,7 @@ ENV PATH=$JAVA_HOME/bin:$M2_HOME/bin:$GRADLE_HOME/bin:$PATH
 
 USER root
 
-# System-Updates und Installation der benötigten Pakete
+# Update system and install required packages
 RUN apt-get update $qqy && apt-get install $qqy \
     curl \
     wget \
@@ -20,44 +20,43 @@ RUN apt-get update $qqy && apt-get install $qqy \
     software-properties-common \
     && rm -rf /var/lib/apt/lists/*
 
-# Jenkins GPG-Schlüssel und Repository hinzufügen
+# Add Jenkins GPG key and repository
 RUN wget -O /usr/share/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key && \
     echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/" | \
     tee /etc/apt/sources.list.d/jenkins.list > /dev/null
 
-# Java 21 (OpenJDK) von Adoptium installieren
-# Schritt 1: GPG-Schlüssel für das Adoptium-Repository hinzufügen
+# Install Java 21 (OpenJDK) from Adoptium
+# Step 1: Add GPG key for Adoptium repository
 RUN wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor -o /usr/share/keyrings/adoptium-archive-keyring.gpg
 
-# Schritt 2: Adoptium-Repository zur APT-Liste hinzufügen
+# Step 2: Add Adoptium repository to APT sources list
 RUN echo "deb [signed-by=/usr/share/keyrings/adoptium-archive-keyring.gpg] https://packages.adoptium.net/artifactory/deb jammy main" | \
     tee /etc/apt/sources.list.d/adoptium.list
 
-# Schritt 3: Paketlisten aktualisieren und OpenJDK 21 installieren
+# Step 3: Update package list and install OpenJDK 21
 RUN apt-get update $qqy && apt-get install $qqy temurin-21-jdk
 
-# Neueste Version von Maven aus der Quelle installieren
+# Install the latest version of Maven from source
 RUN wget https://dlcdn.apache.org/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz && \
     tar -xzf apache-maven-3.9.9-bin.tar.gz -C /opt/ && \
     ln -s /opt/apache-maven-3.9.9 /opt/maven && \
     rm apache-maven-3.9.9-bin.tar.gz
 
-# Neueste Version von Gradle installieren
+# Install the latest version of Gradle
 RUN apt-get update $qqy && apt-get install $qqy gradle
 
-# Jenkins installieren
+# Install Jenkins
 RUN apt-get update $qqy && apt-get install $qqy jenkins && \
     chmod 644 /usr/share/java/jenkins.war
 
-# Jenkins Port freigeben
+# Expose Jenkins ports
 EXPOSE 8080 50000
 
-# Benutzer 'jenkins' hinzufügen und Besitzer für Jenkins-Home setzen
-#RUN  chown -R jenkins:jenkins /var/lib/jenkins /usr/share/jenkins /usr/share/java/jenkins.war
+# Add 'jenkins' user and set ownership for Jenkins home
+#RUN chown -R jenkins:jenkins /var/lib/jenkins /usr/share/jenkins /usr/share/java/jenkins.war
 
-# Wechsel zu Benutzer 'jenkins'
+# Switch to 'jenkins' user
 USER jenkins
 
-# Jenkins starten
+# Start Jenkins
 ENTRYPOINT ["java", "-jar", "/usr/share/java/jenkins.war"]
-#CMD ["/bin/bash"]
