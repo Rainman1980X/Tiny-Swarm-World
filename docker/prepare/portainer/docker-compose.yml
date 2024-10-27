@@ -6,6 +6,6 @@ services:
       - portainer_data:/data
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
-      - "9000:9000"
+      - "127.0.0.1:9000:9000"
 volumes:
   portainer_data:

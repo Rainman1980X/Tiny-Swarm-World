@@ -2,13 +2,13 @@ services:
   swagger-editor:
     image: swaggerapi/swagger-editor
     ports:
-      - "8082:8080"
+      - "127.0.0.1:8082:8080"
     restart: always
 
   swagger-ui:
     image: swaggerapi/swagger-ui
     ports:
-      - "8083:8080"
+      - "127.0.0.1:8083:8080"
     restart: always
     volumes:
       - ./swagger/openapi.json:/openapi.json
@@ -20,7 +20,7 @@ services:
     restart: always
     image: danielgtaylor/apisprout
     ports:
-      - "8084:8000"
+      - "127.0.0.1:8084:8000"
     volumes:
       - ./swagger/openapi.json:/openapi.json
     command: /openapi.json
@@ -35,7 +35,7 @@ services:
       context: ./nginx  # Verzeichnis, in dem sich das Dockerfile befindet
       dockerfile: Dockerfile
     ports:
-      - "8087:8084"
+      - "127.0.0.1:8087:8084"
     depends_on:
       - swagger-api
     networks:
