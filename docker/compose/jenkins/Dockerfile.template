@@ -1,5 +1,5 @@
 # Use base image
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 # Set environment variables
 ENV qqy="-qq -y -o=Dpkg::Use-Pty=0"
@@ -51,9 +51,6 @@ RUN apt-get update $qqy && apt-get install $qqy jenkins && \
 
 # Expose Jenkins ports
 EXPOSE 8080 50000
-
-# Add 'jenkins' user and set ownership for Jenkins home
-#RUN chown -R jenkins:jenkins /var/lib/jenkins /usr/share/jenkins /usr/share/java/jenkins.war
 
 # Switch to 'jenkins' user
 USER jenkins

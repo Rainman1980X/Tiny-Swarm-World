@@ -1,6 +1,6 @@
 services:
   jenkins:
-    #    restart: always
+    restart: always
     image: 127.0.0.1:5000/jenkins:latest
 
     container_name: jenkins
