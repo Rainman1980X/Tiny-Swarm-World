@@ -88,6 +88,8 @@ To run on linux or windows subsystem
 echo 'vm.max_map_count=262144' | sudo tee -a /etc/sysctl.conf
 sudo sysctl -p
 
+echo '{"insecure-registries": ["127.0.0.1:5000"]}' | sudo tee /etc/docker/daemon.json > /dev/null sudo systemctl restart docker
+
 === Rabbit MQ
 
 - http://localhost:5672/[localhost:5672/ rabbit api communication]

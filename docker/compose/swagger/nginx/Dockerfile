@@ -1,3 +1,4 @@
+# Base image
 FROM nginx:mainline-alpine
 
 # Kopiere die NGINX-Konfigurationsdatei in das Bild

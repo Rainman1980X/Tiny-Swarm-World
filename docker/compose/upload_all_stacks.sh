@@ -1,122 +1,161 @@
 #!/bin/bash
 
-# Define variables
+# Define constants
 PORTAINER_URL="http://localhost:9000"
-USERNAME="admin" # own user
-PASSWORD="admin1234567890" # own password
+USERNAME="admin"  # own user
+PASSWORD="admin1234567890"  # own password
 BASE_DIR="./"  # Base directory for all docker-compose files
 
+# Function to print usage
 print_usage() {
-  printf "\nUsage: %s [-u username] [-p password]\n" " $0"
+  printf "\nUsage: %s [-u username] [-p password]\n" "$0"
   printf " -u username: Optional. Default is '%s'.\n" "$USERNAME"
   printf " -p password: Optional. Default is '%s'.\n" "$PASSWORD"
 }
 
+# Function to print current username and password
 print_default() {
   printf " -u username: Optional. Current is '%s'.\n" "$USERNAME"
   printf " -p password: Optional. Current is '%s'.\n\n" "$PASSWORD"
 }
 
-while getopts u:p: flag
-do
+# Function to parse input arguments
+parse_arguments() {
+  while getopts u:p: flag; do
     case "${flag}" in
-        u) USERNAME=${OPTARG};;
-        p) PASSWORD=${OPTARG};;
-        *)
-            printf "Invalid option: -%s" "${OPTARG}"
-            print_usage
-            exit 1
-            ;;
+      u) USERNAME=${OPTARG};;
+      p) PASSWORD=${OPTARG};;
+      *)
+        printf "Invalid option: -%s" "${OPTARG}"
+        print_usage
+        exit 1
+        ;;
     esac
-done
+  done
+}
 
-print_default
+# Function to authenticate and retrieve JWT token
+get_jwt_token() {
+  printf "Authenticating and retrieving JWT token..."
+  JWT_TOKEN=$(curl -s -X POST "$PORTAINER_URL/api/auth" -H "Content-Type: application/json" -d "{
+    \"Username\": \"$USERNAME\",
+    \"Password\": \"$PASSWORD\"
+  }" | jq -r '.jwt')
 
-# Get JWT Token
-printf "Authenticating and retrieving JWT token..."
-JWT_TOKEN=$(curl -s -X POST "$PORTAINER_URL/api/auth" -H "Content-Type: application/json" -d "{
-  \"Username\": \"$USERNAME\",
-  \"Password\": \"$PASSWORD\"
-}" | jq -r '.jwt')
+  if [ -z "$JWT_TOKEN" ]; then
+    printf "Failed to retrieve JWT token. Aborting.\n"
+    exit 1
+  fi
 
-if [ -z "$JWT_TOKEN" ]; then
-  printf "Failed to retrieve JWT token. Aborting.\n"
-  exit 1
-fi
+  printf "JWT token retrieved successfully.\n"
+}
 
-printf "JWT token retrieved successfully.\n"
+# Function to retrieve the Portainer endpoint ID
+get_endpoint_id() {
+  ENDPOINT_ID=$(curl -s -H "Authorization: Bearer $JWT_TOKEN" "$PORTAINER_URL/api/endpoints" | jq -r ".[] | select(.Name == \"local\") | .Id")
 
-# Find endpoint ID
-ENDPOINT_ID=$(curl -s -H "Authorization: Bearer $JWT_TOKEN" "$PORTAINER_URL/api/endpoints" | jq -r '.[0].Id')
+  if [ -z "$ENDPOINT_ID" ]; then
+    printf "Failed to retrieve Endpoint ID. Aborting.\n"
+    exit 1
+  fi
+}
 
-if [ -z "$ENDPOINT_ID" ]; then
-  printf "Failed to retrieve Endpoint ID. Aborting.\n"
-  exit 1
-fi
+# Function to delete an existing stack if it exists
+delete_existing_stack() {
+  local stack_name="$1"
+  EXISTING_STACK_ID=$(curl -s -H "Authorization: Bearer $JWT_TOKEN" "$PORTAINER_URL/api/stacks" | jq -r ".[] | select(.Name == \"$stack_name\") | .Id")
 
-# Iterate through all subdirectories in the base directory
-for APP_DIR in "$BASE_DIR"/*/; do
-  if [ -d "$APP_DIR" ]; then
-    COMPOSE_FILE_PATH="$APP_DIR/docker-compose.yml"
-
-    if [ ! -f "$COMPOSE_FILE_PATH" ]; then
-      printf "\nNo docker-compose.yml file found in %s. Skipping.\n" "$APP_DIR"
-      continue
-    fi
-
-    STACK_NAME=$(basename "$APP_DIR")
-    printf "\nStarting process for stack: %s to Portainer...\n" "$STACK_NAME"
-    printf "Checking if stack already exists...\n"
-
-    ENDPOINT_ID=$(curl -s -H "Authorization: Bearer $JWT_TOKEN" "$PORTAINER_URL/api/endpoints" | jq -r ".[] | select(.Name == \"local\") | .Id")
-
-    # check if stack already exists
-    EXISTING_STACK_ID=$(curl -s -H "Authorization: Bearer $JWT_TOKEN" "$PORTAINER_URL/api/stacks" | jq -r ".[] | select(.Name == \"${STACK_NAME}\") | .Id")
-
-    if [ "$EXISTING_STACK_ID" ]; then
-      printf "Stack already exists. Deleting old stack...\n"
-      RESPONSE=$(curl -s -X DELETE -H "Authorization: Bearer $JWT_TOKEN" "$PORTAINER_URL/api/stacks/$EXISTING_STACK_ID?external=false&endpointId=$ENDPOINT_ID")
-      if printf "Response %s" "$RESPONSE" | grep -q "message"; then
-        message=$(echo "$RESPONSE" | jq -r .message)
-        details=$(echo "$RESPONSE" | jq -r .details)
-        printf 'Error uploading the stack for %s: \n{\n"message":"%s",\n"details":"%s"\n}\n' "$STACK_NAME" "$message" "$details"
-      else
-        printf "Stack deleting was successfully for %s\n" "$STACK_NAME"
-      fi
-    else
-      printf "Stack does not exist. Proceeding with creation of new stack...\n"
-    fi
-
-    printf "Uploading docker-compose.yml from %s to Portainer...\n" "$APP_DIR"
-    COMPOSE_FILE_CONTENT=$(<"$COMPOSE_FILE_PATH")
-    # Ensure JSON contains correct strings that are properly escaped
-    # ESCAPED_COMPOSE_FILE_CONTENT=$(printf "%s" "$COMPOSE_FILE_CONTENT" | jq -R -s '.')
-
-    #printf "%s" "$ESCAPED_COMPOSE_FILE_CONTENT"
-    # Properly escape newlines for JSON compatibility
-    PAYLOAD=$(jq -n --arg name "$STACK_NAME" --arg stackFileContent "$COMPOSE_FILE_CONTENT" '{
-      env: [],
-      name: $name,
-      fromAppTemplate: false,
-      stackFileContent: $stackFileContent
-    }')
-
-    RESPONSE=$(curl -s -X POST "$PORTAINER_URL/api/stacks/create/standalone/string?type=2&method=string&endpointId=$ENDPOINT_ID" \
-      -H "Content-Type: application/json" \
-      -H "Authorization: Bearer $JWT_TOKEN" \
-      -d "$PAYLOAD")
-
-    # Has any errors
-    if printf "Response %s" "$RESPONSE" | grep -q "message"; then
+  if [ "$EXISTING_STACK_ID" ]; then
+    printf "Stack already exists. Deleting old stack...\n"
+    RESPONSE=$(curl -s -X DELETE -H "Authorization: Bearer $JWT_TOKEN" "$PORTAINER_URL/api/stacks/$EXISTING_STACK_ID?external=false&endpointId=$ENDPOINT_ID")
+    if echo "$RESPONSE" | grep -q "message"; then
       message=$(echo "$RESPONSE" | jq -r .message)
       details=$(echo "$RESPONSE" | jq -r .details)
-
-      printf 'Error uploading the stack for %s: \n{\n"message":"%s",\n"details":"%s"\n}\n' "$STACK_NAME" "$message" "$details"
-
+      printf 'Error deleting stack for %s: \n{\n"message":"%s",\n"details":"%s"\n}\n' "$stack_name" "$message" "$details"
     else
-      printf "Stack uploaded successfully for %s\n" "$STACK_NAME"
+      printf "Stack deletion successful for %s\n" "$stack_name"
     fi
+  else
+    printf "Stack does not exist. Proceeding with creation.\n"
   fi
-done
+}
 
-printf "\n\nAll stacks processed.\n"
+# Function to create or update stack
+create_or_update_stack() {
+  local stack_name="$1"
+  local compose_file_content="$2"
+
+  PAYLOAD=$(jq -n --arg name "$stack_name" --arg stackFileContent "$compose_file_content" '{
+    env: [],
+    name: $name,
+    fromAppTemplate: false,
+    stackFileContent: $stackFileContent
+  }')
+
+  RESPONSE=$(curl -s -X POST "$PORTAINER_URL/api/stacks/create/standalone/string?type=2&method=string&endpointId=$ENDPOINT_ID" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $JWT_TOKEN" \
+    -d "$PAYLOAD")
+
+  if echo "$RESPONSE" | grep -q "message"; then
+    message=$(echo "$RESPONSE" | jq -r .message)
+    details=$(echo "$RESPONSE" | jq -r .details)
+    printf 'Error uploading the stack for %s: \n{\n"message":"%s",\n"details":"%s"\n}\n' "$stack_name" "$message" "$details"
+  else
+    printf "Stack uploaded successfully for %s\n" "$stack_name"
+  fi
+}
+
+
+# Function to recursively find and execute all prepare.sh scripts in directory structure
+execute_prepare_scripts() {
+  local directory="$1"
+
+  for entry in "$directory"/*; do
+    if [ -d "$entry" ]; then
+      # Recursive call for each subdirectory
+      execute_prepare_scripts "$entry"
+    elif [ -f "$entry" ] && [ "$(basename "$entry")" == "prepare.sh" ]; then
+      # If prepare.sh file is found, execute it
+      printf "\nExecuting prepare.sh in %s...\n" "$(dirname "$entry")"
+
+      if bash "$entry"; then
+        printf "prepare.sh executed successfully in %s\n" "$(dirname "$entry")"
+      else
+        printf "Error executing prepare.sh in %s\n" "$(dirname "$entry")"
+      fi
+    fi
+  done
+}
+
+
+# Function to process each stack directory
+process_stacks() {
+  for APP_DIR in "$BASE_DIR"/*/; do
+    if [ -d "$APP_DIR" ]; then
+      COMPOSE_FILE_PATH="$APP_DIR/docker-compose.yml"
+
+      if [ ! -f "$COMPOSE_FILE_PATH" ]; then
+        printf "\nNo docker-compose.yml file found in %s. Skipping.\n" "$APP_DIR"
+        continue
+      fi
+
+      STACK_NAME=$(basename "$APP_DIR")
+      printf "\nStarting process for stack: %s to Portainer...\n" "$STACK_NAME"
+      delete_existing_stack "$STACK_NAME"
+
+      COMPOSE_FILE_CONTENT=$(<"$COMPOSE_FILE_PATH")
+      create_or_update_stack "$STACK_NAME" "$COMPOSE_FILE_CONTENT"
+    fi
+  done
+  printf "\n\nAll stacks processed.\n"
+}
+
+# Main script execution
+print_default
+parse_arguments "$@"
+get_jwt_token
+get_endpoint_id
+# Call the function starting from BASE_DIR
+execute_prepare_scripts "$BASE_DIR"
+process_stacks

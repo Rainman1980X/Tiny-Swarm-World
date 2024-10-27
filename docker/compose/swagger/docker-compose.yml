@@ -31,9 +31,7 @@ services:
 
   swagger-nginx:
     restart: always
-    build:
-      context: ./nginx  # Verzeichnis, in dem sich das Dockerfile befindet
-      dockerfile: Dockerfile
+    image: 127.0.0.1:5000/swagger-nginx:latest
     ports:
       - "127.0.0.1:8087:8084"
     depends_on:
