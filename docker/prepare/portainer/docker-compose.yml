@@ -1,6 +1,6 @@
 services:
   portainer:
-    image: portainer/portainer-ce:2.21.0
+    image: portainer/portainer-ce:2.21.4
     restart: always
     volumes:
       - portainer_data:/data
