@@ -1,4 +1,4 @@
-# Use base image
+# Use Ubuntu as base image
 FROM ubuntu:24.04
 
 # Set environment variables
@@ -7,10 +7,9 @@ ENV JAVA_HOME=/usr/lib/jvm/jdk-21
 ENV M2_HOME=/opt/maven
 ENV GRADLE_HOME=/opt/gradle
 ENV PATH=$JAVA_HOME/bin:$M2_HOME/bin:$GRADLE_HOME/bin:$PATH
+ENV JAVA_OPTS -Djenkins.install.runSetupWizard=false
 
-USER root
-
-# Update system and install required packages
+# Install required packages
 RUN apt-get update $qqy && apt-get install $qqy \
     curl \
     wget \
@@ -18,6 +17,7 @@ RUN apt-get update $qqy && apt-get install $qqy \
     unzip \
     gnupg \
     software-properties-common \
+    openjdk-21-jdk \
     && rm -rf /var/lib/apt/lists/*
 
 # Add Jenkins GPG key and repository
@@ -25,35 +25,25 @@ RUN wget -O /usr/share/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debia
     echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/" | \
     tee /etc/apt/sources.list.d/jenkins.list > /dev/null
 
-# Install Java 21 (OpenJDK) from Adoptium
-# Step 1: Add GPG key for Adoptium repository
-RUN wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor -o /usr/share/keyrings/adoptium-archive-keyring.gpg
-
-# Step 2: Add Adoptium repository to APT sources list
-RUN echo "deb [signed-by=/usr/share/keyrings/adoptium-archive-keyring.gpg] https://packages.adoptium.net/artifactory/deb jammy main" | \
-    tee /etc/apt/sources.list.d/adoptium.list
-
-# Step 3: Update package list and install OpenJDK 21
-RUN apt-get update $qqy && apt-get install $qqy temurin-21-jdk
-
-# Install the latest version of Maven from source
-RUN wget https://dlcdn.apache.org/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz && \
-    tar -xzf apache-maven-3.9.9-bin.tar.gz -C /opt/ && \
-    ln -s /opt/apache-maven-3.9.9 /opt/maven && \
-    rm apache-maven-3.9.9-bin.tar.gz
-
-# Install the latest version of Gradle
-RUN apt-get update $qqy && apt-get install $qqy gradle
-
 # Install Jenkins
-RUN apt-get update $qqy && apt-get install $qqy jenkins && \
-    chmod 644 /usr/share/java/jenkins.war
+RUN apt-get update $qqy && apt-get install $qqy jenkins && chmod 644 /usr/share/java/jenkins.war
+
+# Ensure init.groovy.d directory exists and copy Groovy script
+RUN mkdir -p /usr/share/jenkins/ref/init.groovy.d
+COPY setup.groovy /usr/share/jenkins/ref/init.groovy.d/
+
+# Set file permissions
+RUN chmod 755 /usr/share/jenkins/ref/init.groovy.d/setup.groovy
+
+# Skip Jenkins setup wizard
+RUN echo 2.0 > /var/lib/jenkins/jenkins.install.UpgradeWizard.state && chmod 644 /var/lib/jenkins/jenkins.install.UpgradeWizard.state
+
+# Ensure Jenkins home directory permissions
+RUN chown -R jenkins:jenkins /var/lib/jenkins
 
 # Expose Jenkins ports
 EXPOSE 8080 50000
 
-# Switch to 'jenkins' user
+# Switch to Jenkins user and start Jenkins
 USER jenkins
-
-# Start Jenkins
-ENTRYPOINT ["java", "-jar", "/usr/share/java/jenkins.war"]
+CMD ["java", "-jar", "/usr/share/java/jenkins.war"]

@@ -1,0 +1,11 @@
+jenkins:
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "adminPassword123"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+  systemMessage: "Jenkins configured automatically by Configuration as Code (JCasC)"
