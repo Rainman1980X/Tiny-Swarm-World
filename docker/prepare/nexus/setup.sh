@@ -14,44 +14,82 @@ NEXUS_URL="http://localhost:8081" #See documentation about the used urls
 if [ -z "$NEXUS_CONTAINERS" ]; then
     printf "No container found containing %s.\n" "$STACK_NAME"
     printf "Creating new container\n"
-    printf "Authenticating and retrieving JWT token..."
 
     JWT_TOKEN=$(curl -s -X POST "$PORTAINER_URL/api/auth" -H "Content-Type: application/json" -d "{
       \"Username\": \"$PORTAINER_USERNAME\",
       \"Password\": \"$PORTAINER_PASSWORD\"
     }" | jq -r '.jwt')
-    ENDPOINT_ID=$(curl -s -H "Authorization: Bearer $JWT_TOKEN" "$PORTAINER_URL/api/endpoints" | jq -r '.[0].Id')
 
+    ENDPOINT_ID=$(curl -s -H "Authorization: Bearer $JWT_TOKEN" "$PORTAINER_URL/api/endpoints" | jq -r '.[0].Id')
 
     COMPOSE_FILE_PATH="nexus/docker-compose.yml"
     COMPOSE_FILE_CONTENT=$(<"$COMPOSE_FILE_PATH")
-    PAYLOAD=$(jq -n --arg name "nexus" --arg stackFileContent "$COMPOSE_FILE_CONTENT" '{
+    PAYLOAD=$(jq -n --arg name "$STACK_NAME" --arg stackFileContent "$COMPOSE_FILE_CONTENT" --argjson endpointId "$ENDPOINT_ID" '{
           env: [],
           name: $name,
           fromAppTemplate: false,
-          stackFileContent: $stackFileContent
+          stackFileContent: $stackFileContent,
+          endpointId: $endpointId
        }')
-    RESPONSE=$(curl -s -X POST "$PORTAINER_URL/api/stacks/create/standalone/string?type=2&method=string&endpointId=$ENDPOINT_ID" \
+
+    RESPONSE=$(curl -s -X POST "$PORTAINER_URL/api/stacks" \
           -H "Content-Type: application/json" \
           -H "Authorization: Bearer $JWT_TOKEN" \
           -d "$PAYLOAD")
 
-      # Has any errors
-    if printf "Response %s" "$RESPONSE" | grep -q "message"; then
-       message=$(echo "$RESPONSE" | jq -r .message)
-       details=$(echo "$RESPONSE" | jq -r .details)
-
-       printf 'Error uploading the stack for %s: \n{\n"message":"%s",\n"details":"%s"\n}\n' "$STACK_NAME" "$message" "$details"
-
+    if printf "Response %s\n" "$RESPONSE" | grep -q "message"; then
+        message=$(echo "$RESPONSE" | jq -r .message)
+        details=$(echo "$RESPONSE" | jq -r .details)
+        printf 'Error creating the stack for %s: \n{\n"message":"%s",\n"details":"%s"\n}\n' "$STACK_NAME" "$message" "$details"
     else
-       printf "Stack uploaded successfully for %s\n" "$STACK_NAME"
-       NEXUS_CONTAINERS=$(docker ps --filter "name=$STACK_NAME" --format "{{.Names}}")
-       printf "Nexus-Container %s\n" "$NEXUS_CONTAINERS"
+        printf "Stack created successfully for %s\n" "$STACK_NAME"
     fi
+
 else
-    printf "Nexus-Container found: "
-    printf "%s\n" "$NEXUS_CONTAINERS"
+    printf "Nexus-Container found: %s\n" "$NEXUS_CONTAINERS"
+
+    printf "Checking if an update is needed...\n"
+
+    JWT_TOKEN=$(curl -s -X POST "$PORTAINER_URL/api/auth" -H "Content-Type: application/json" -d "{
+      \"Username\": \"$PORTAINER_USERNAME\",
+      \"Password\": \"$PORTAINER_PASSWORD\"
+    }" | jq -r '.jwt')
+
+    ENDPOINT_ID=$(curl -s -H "Authorization: Bearer $JWT_TOKEN" "$PORTAINER_URL/api/endpoints" | jq -r '.[0].Id')
+
+    STACK_ID=$(curl -s -H "Authorization: Bearer $JWT_TOKEN" "$PORTAINER_URL/api/stacks" | jq -r ".[] | select(.Name==\"$STACK_NAME\") | .Id")
+
+   if [ -n "$STACK_ID" ]; then
+          printf "Updating existing Nexus stack %s at endpointId %s...\n" "$STACK_ID" "$ENDPOINT_ID"
+
+          COMPOSE_FILE_PATH="nexus/docker-compose.yml"
+          COMPOSE_FILE_CONTENT=$(<"$COMPOSE_FILE_PATH")
+          PAYLOAD=$(jq -n --arg stackFileContent "$COMPOSE_FILE_CONTENT" '{
+                env: [],
+                prune: true,
+                pullImage: false,
+                stackFileContent: $stackFileContent
+             }')
+
+          RESPONSE=$(curl -s -X PUT "$PORTAINER_URL/api/stacks/$STACK_ID?endpointId=$ENDPOINT_ID" \
+                -H "Content-Type: application/json" \
+                -H "Authorization: Bearer $JWT_TOKEN" \
+                -d "$PAYLOAD")
+
+          if printf "Response %s\n" "$RESPONSE" | grep -q "message"; then
+              message=$(echo "$RESPONSE" | jq -r .message)
+              details=$(echo "$RESPONSE" | jq -r .details)
+              printf 'Error updating the stack for %s: \n{\n"message":"%s",\n"details":"%s"\n}\n' "$STACK_NAME" "$message" "$details"
+          else
+              printf "Stack updated successfully for %s\n" "$STACK_NAME"
+          fi
+      else
+          printf "No update needed. Stack is already up-to-date.\n"
+      fi
 fi
+
+
+
 
 # Step 1 create the new admin password.
 # Path to the admins password
