@@ -1,0 +1,122 @@
+== Setup mulipass on wsdl2 subsystem
+
+=== qemu Install Multipass in WSL2 with -Backend
+
+If you haven’t already done so, install Multipass:
+
+----
+sudo snap install multipass
+----
+
+Check if Multipass is qemu running:
+
+----
+multipass get local.driver
+
+>qemu
+----
+
+If qemu not set:
+
+----
+multipass set local.driver=qemu
+
+multipass stop --all
+multipass start --all
+----
+
+After installing the vms check the correct user and if not exits
+
+----
+getent group multipass
+
+> multipass:x:1001:currentUser
+----
+
+If not add the group and add the currentUser to the group
+
+----
+sudo groupadd multipass
+sudo usermod -aG multipass "$USER"
+----
+
+Setting correct permissions for Multipass socket
+
+----
+sudo chown root:multipass /var/run/multipass_socket || true
+sudo chmod 660 /var/run/multipass_socket || true
+sudo multipass set local.passphrase="YourSecurePassword"
+----
+
+If this done the wsl2 has to be restarted on the PowerShell with administration access.
+
+----
+wsl --shutdown
+----
+
+Restart your wsl subsystem again.
+
+To check if multipass is running
+
+----
+multipass info
+----
+
+=== prepere the 3 multipass instances
+
+==== installing
+
+Having a swarm, there is a need of three multipass instances having installed.
+The configuration of this vm has to be VM_MEMORY="2G" and VM_DISK="10G".
+
+----
+multipass launch --name swarm-manager  --memory 2G --disk 10G
+multipass launch --name swarm-worker-1 --memory 2G --disk 10G
+multipass launch --name swarm-worker-2 --memory 2G --disk 10G
+----
+
+Afterward the multipass should be running, to check this call this
+
+----
+mulitpass list
+----
+
+Output like this:
+
+----
+Name                    State             IPv4             Image
+swarm-manager           Running           10.34.157.130    Ubuntu 24.04 LTS
+                                          172.18.0.1
+                                          172.17.0.1
+swarm-worker-1          Running           10.34.157.207    Ubuntu 24.04 LTS
+                                          172.18.0.1
+                                          172.17.0.1
+swarm-worker-2          Running           10.34.157.86     Ubuntu 24.04 LTS
+                                          172.18.0.1
+                                          172.17.0.1
+----
+
+==== prepare networking
+
+The problem is that WSL2 doesn't have its own port forwarding daemon.
+First of all the socat has to be installed:
+
+----
+sudo apt update && sudo apt install -y socat
+----
+
+nohup sudo socat TCP-LISTEN:9000,fork TCP:10.34.157.130:9000 & sudo pkill socat sudo iptables -t nat -A PREROUTING -p tcp --dport 9000 -j DNAT --to-destination 10.34.157.130:9000
+
+1. Enforce WSL2 to mulipass port forwarding
+
+----
+sudo netstat -tulpn | grep :80
+----
+
+If there no result then:
+
+----
+sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination  10.34.157.130:80
+----
+
+

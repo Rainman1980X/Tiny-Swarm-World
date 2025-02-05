@@ -1,4 +1,48 @@
-= Howto
+== Setup docker swarm on local ubuntu system
+
+Bevor das Setup laufen kann, müssen am wsl subsystem einige Einstellungen vorgenommen werden.
+In diesem Installationsprozess wird **multipass** verwendet.
+Dieses Programm ermöglicht es, dass virtuelle Instanzen, des aktuellen Linux-Systems erstellt werden.
+
+Das mulitpass wird mit
+
+----
+sudo snap install multipass
+----
+
+installiert.
+
+----
+sudo apt update && sudo apt install -y socat
+----
+
+----
+sudo socat TCP-LISTEN:80,fork TCP:10.34.157.122:80
+nohup sudo socat TCP-LISTEN:80,fork TCP:10.34.157.122:80 &
+----
+
+----
+netsh interface portproxy delete v4tov4 listenport=80 listenaddress=0.0.0.0
+netsh interface portproxy add v4tov4 listenport=80 listenaddress=0.0.0.0 connectport=80 connectaddress=172.25.81.206
+
+----
+
+Im setup.sh wird dann der docker Ordner auf das Linux-Subsystem in ein echtes ext4-Format kopiert.
+
+To generate within the intellij console, you have to run intellij as administrator oder sudo
+
+Run the setup.sh script below swarm.
+To Join into multipass shell swarm-manager
+
+to clean up multipass stop <vm-name> multipass delete <vm-name> multipass purge
+
+multipass delete swarm-worker-1 swarm-worker-2 swarm-manager | multipass purge | multipass list multipass stop swarm-worker-1 swarm-worker-2 swarm-manager multipass delete swarm-worker-1 swarm-worker-2 swarm-manager | multipass purge
+
+multipass purge
+
+multipass info swarm-manager | grep "IPv4"
+
+multipass launch --name swarm-manager --cloud-init ./cloud-config.yaml multipass launch --name swarm-worker-1 --cloud-init ./cloud-config.yaml multipass launch --name swarm-worker-2 --cloud-init ./cloud-config.yaml
 
 == Install the portainer
 

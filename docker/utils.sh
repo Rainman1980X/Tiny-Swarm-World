@@ -1,5 +1,20 @@
 #!/bin/bash
 
+SWARM_MANAGER_IP=
+
+# Function: Check if Swarm is already initialized on the Manager node
+check_swarm_status() {
+    VM=$1
+    SWARM_STATUS=$(multipass exec "$VM" -- bash -c "docker info --format '{{ .Swarm.LocalNodeState }}'" 2>/dev/null)
+
+    if [ "$SWARM_STATUS" == "active" ]; then
+        printf "Swarm is already initialized on %s.\n" "$VM"
+        return 0
+    else
+        return 1
+    fi
+}
+
 # Funktion, die einen Progress Bar für eine bestimmte Anzahl von Sekunden anzeigt
 progress_bar() {
 

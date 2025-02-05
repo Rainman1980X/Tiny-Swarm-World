@@ -1,0 +1,15 @@
+:doctype: book
+:toc-title: table of contents
+:toc: macro
+:numbered:
+:sectnums:
+:sectnumlevels: 5
+:lang: en
+:chapter-label:
+
+= Setup a local cloud
+
+include::system/system.adoc[]
+
+= HowTo
+include::Howto.adoc[]

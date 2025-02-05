@@ -6,6 +6,27 @@ services:
       - portainer_data:/data
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
-      - "127.0.0.1:9000:9000"
+      - target: 9000
+        published: 9000
+        protocol: tcp
+        mode: host
+    deploy:
+      mode: replicated # Nur den Portainer-Service als Replikat bereitstellen
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+  agent:
+    image: portainer/agent:2.25.1
+    environment:
+      AGENT_CLUSTER_ADDR: tasks.agent # Swarm Communication
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+    deploy:
+      mode: global # Agent auf allen Nodes ausrollen
+      placement:
+        constraints:
+          - node.platform.os == linux
 volumes:
   portainer_data:
