@@ -1,0 +1,8 @@
+forwardings:
+  - listen_port: 9000
+    forward_host: 10.34.157.18
+    forward_port: 9000
+    protocol: tcp
+    options:
+      - reuseaddr
+      - fork

@@ -1,101 +1,140 @@
 import subprocess
-import re
+
+
+def run_command(command, **kwargs):
+    """Executes a shell command and handles errors"""
+    try:
+        return subprocess.run(command, **kwargs)
+    except subprocess.CalledProcessError as e:
+        print(f"Error executing {' '.join(command)}:", e)
+
 
 class MultipassNetworkSetup:
-    def __init__(self, interface="ens3"):
+    def __init__(self, instance_name="swarm-manager", interface="ens3",
+                 template_file="multipass/cloud-init-template.yaml", output_file="cloud-init-manager.yaml"):
         """Initialize the network configuration for Multipass Swarm-Manager"""
+        self.gateway = None
+        self.ip_address = None
+        self.instance_name = instance_name
         self.interface = interface
-        self.static_ip = self.get_current_ip()
-        self.gateway = self.get_wsl_gateway()
-        self.startup_script = "/etc/network-restart.sh"
-        self.cron_file = "/etc/crontab"
+        self.template_file = template_file
+        self.output_file = output_file
+        self.target_path = f"/etc/netplan/{output_file.split('/')[-1]}"
 
-    def get_wsl_gateway(self):
-        """Retrieves the default gateway of the WSL2 instance"""
+    def get_swarm_manager_gateway(self):
+        """Retrieves the default gateway of the swarm manager instance"""
         try:
-            result = subprocess.run(["ip", "route"], capture_output=True, text=True, check=True)
-            for line in result.stdout.split("\n"):
-                if line.startswith("default"):
-                    return line.split()[2]
+            result = run_command(
+                ["multipass", "exec", self.instance_name, "--", "ip", "-4", "route", "show", "default"],
+                capture_output=True, text=True, check=True
+            )
+            output = result.stdout.strip().split()
+            gateway = output[2] if len(output) > 2 else None
+            return gateway
         except subprocess.CalledProcessError as e:
-            print("❌ Error retrieving WSL2 gateway:", e)
-
-        # Fallback gateway
-        return "172.25.80.1"
-
-    def get_current_ip(self):
-        """Retrieves the current IP address of `swarm-manager` and converts it to a static IP"""
-        try:
-            print("🔍 Running command: multipass exec swarm-manager -- hostname -I")
-            result = subprocess.run(["multipass", "exec", "swarm-manager", "--", "hostname", "-I"],
-                                    capture_output=True, text=True, check=True)
-
-            print(f"🔹 Command output: {result.stdout.strip()}")
-            ip_address = result.stdout.strip().split()[0]  # Use the first IP address
-            return f"{ip_address}/24" if ip_address else None
-        except subprocess.CalledProcessError as e:
-            print("❌ Error retrieving the current IP of swarm-manager:", e)
+            print(f"Error retrieving the gateway: {e}")
             return None
 
-    def run_command(self, command):
-        """Executes a shell command and handles errors"""
+    def get_swarm_manager_ip_address(self):
+        """Retrieves the current IP address of `swarm-manager` to be the static IP"""
         try:
-            subprocess.run(command, check=True)
+            result = run_command(
+                ["multipass", "exec", self.instance_name, "--", "hostname", "-I"],
+                capture_output=True, text=True, check=True
+            )
+            ip_address = result.stdout.strip().split()[0] if result.stdout else None
+            return ip_address
         except subprocess.CalledProcessError as e:
-            print(f"❌ Error executing {' '.join(command)}:", e)
+            print(f"Error retrieving the IP address: {e}")
+            return None
 
-    def configure_network_interfaces(self):
-        """Sets up the static IP using /etc/network/interfaces instead of Netplan"""
-        if not self.static_ip:
-            print("⚠️ No valid IP address found. Aborting.")
+    def run_multipass_command(self, command):
+        """Helper function to execute a command within the Multipass instance."""
+        try:
+            result = run_command(
+                ["multipass", "exec", self.instance_name, "--"] + command,
+                capture_output=True, text=True, check=True
+            )
+            print(f"Command executed successfully: {' '.join(command)}")
+            print(result.stdout.strip())
+            return result.stdout.strip()
+        except subprocess.CalledProcessError as e:
+            print(f"Error executing {' '.join(command)}: {e}")
+            return None
+
+    def replace_template_variables(self):
+        """Replaces the placeholders {{ADDRESS}} and {{GATEWAY}} in the cloud-config file."""
+        if not self.ip_address or not self.gateway:
+            print("Network data is missing, replacement not possible.")
             return
 
-        print(f"🔹 Setting static IP {self.static_ip} for swarm-manager with gateway {self.gateway}...")
+        try:
+            with open(self.template_file, "r") as file:
+                template_content = file.read()
 
-        network_config = f"""auto {self.interface}
-iface {self.interface} inet static
-  address {self.static_ip.split('/')[0]}
-  netmask 255.255.255.0
-  gateway {self.gateway}
-  dns-nameservers 8.8.8.8 8.8.4.4
-"""
+            template_content = template_content.replace("{{ADDRESS}}", self.ip_address)
+            template_content = template_content.replace("{{GATEWAY}}", self.gateway)
 
-        # Write the new /etc/network/interfaces config
-        self.run_command(["multipass", "exec", "swarm-manager", "--", "sudo", "bash", "-c", f"echo '{network_config}' > /etc/network/interfaces"])
+            with open(self.output_file, "w") as file:
+                file.write(template_content)
 
-        # Restart networking
-        self.run_command(["multipass", "exec", "swarm-manager", "--", "sudo", "systemctl", "restart", "systemd-networkd"])
+            print(f"Replaced file saved under: {self.output_file}")
 
-        print("✅ Static IP configured using /etc/network/interfaces!")
+        except FileNotFoundError:
+            print(f"The template file {self.template_file} was not found.")
 
-    def create_startup_script(self):
-        """Creates a startup script inside the swarm-manager VM to configure the network at boot"""
-        if not self.static_ip:
-            print("⚠️ No valid IP address found. Aborting.")
+    def setup(self):
+        """Applies all configuration changes within the Multipass instance."""
+
+        # Ensure IP address and gateway are retrieved before proceeding
+        self.ip_address = self.get_swarm_manager_ip_address()
+        self.gateway = self.get_swarm_manager_gateway()
+
+        if not self.ip_address or not self.gateway:
+            print("Network data is missing, netplan cannot be applied.")
             return
 
-        print("🔹 Creating persistent network configuration script inside swarm-manager...")
+        # Generate the netplan.yaml file before applying the configuration
+        self.replace_template_variables()
 
-        startup_script_content = f"""#!/bin/bash
-sleep 5  # Ensure network is ready
-ip addr flush dev {self.interface}
-ip addr add {self.static_ip.split('/')[0]}/24 dev {self.interface}
-ip route add default via {self.gateway}
-"""
+        try:
+            # Step 1: Delete all existing netplan files
+            self.run_multipass_command(["sudo", "rm", "-f", "/etc/netplan/*.yaml"])
+            print("Old netplan configuration deleted.")
 
-        # Write script inside the VM
-        self.run_command(["multipass", "exec", "swarm-manager", "--", "sudo", "bash", "-c", f"echo '{startup_script_content}' > {self.startup_script}"])
-        self.run_command(["multipass", "exec", "swarm-manager", "--", "sudo", "chmod", "+x", self.startup_script])
+            # Step 2: Transfer the file to the instance
+            subprocess.run(["multipass", "transfer", self.output_file, f"{self.instance_name}:/tmp/netplan.yaml"],
+                           check=True)
+            print("New netplan file transferred to Multipass instance.")
 
-        print("✅ Network restart script created inside swarm-manager!")
+            # Step 3: Move the file to /etc/netplan
+            self.run_multipass_command(["sudo", "mv", "/tmp/netplan.yaml", self.target_path])
+            print(f"New netplan file moved to {self.target_path}.")
 
-        # Make it run on every boot using rc.local
-        self.run_command(["multipass", "exec", "swarm-manager", "--", "sudo", "bash", "-c", "echo '@reboot root /etc/network-restart.sh' >> /etc/crontab"])
+            # Step 4: Assign file ownership to root
+            self.run_multipass_command(["sudo", "chown", "root:root", self.target_path])
+            print(f"Ownership for {self.target_path} set to root.")
 
-        print("✅ Added cron job to execute network script on every reboot!")
+            # Step 5: Set permissions
+            self.run_multipass_command(["sudo", "chmod", "600", self.target_path])
+            print(f"Permissions for {self.target_path} set to 600.")
 
-    def setup_persistent_network(self):
-        """Ensures that the static IP is configured at every reboot"""
-        self.configure_network_interfaces()
-        self.create_startup_script()
-        print("🚀 Persistent network configuration completed!")
+            # Step 6: Apply netplan
+            self.run_multipass_command(["sudo", "netplan", "apply"])
+            print("New netplan configuration has been applied.")
+
+            # Step 7: Restart the swarm manager
+            self.restart_instance()
+
+        except subprocess.CalledProcessError as e:
+            print(f"Error applying the network configuration: {e}")
+
+    def restart_instance(self):
+        """Restarts the Multipass instance."""
+        try:
+            subprocess.run(["multipass", "stop", self.instance_name], check=True)
+            subprocess.run(["multipass", "start", self.instance_name], check=True)
+            print(f"Instance {self.instance_name} successfully restarted.")
+
+        except subprocess.CalledProcessError as e:
+            print(f"Error restarting the instance {self.instance_name}: {e}")

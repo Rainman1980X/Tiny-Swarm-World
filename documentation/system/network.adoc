@@ -1,0 +1,9 @@
+= networking in multipass
+
+/etc/netplan
+
+hostname -I
+
+sudo netplan status sudo netplan try -timeout sudo netplan apply sudo netplan generate
+
+renderer: networkd

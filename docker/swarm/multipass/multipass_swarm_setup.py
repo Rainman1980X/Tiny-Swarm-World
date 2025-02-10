@@ -1,9 +1,9 @@
+import curses
 import subprocess
 import threading
 import time
-import curses
 from concurrent.futures import ThreadPoolExecutor
-from multipass_network_setup import MultipassNetworkSetup
+
 
 class MultipassSwarmSetup:
     def __init__(self, manager_node="swarm-manager", worker_prefix="swarm-worker", worker_count=2):
@@ -108,10 +108,6 @@ class MultipassSwarmSetup:
 
         curses.wrapper(draw_ui)
 
-    def full_setup(self):
+    def setup(self):
         self.setup_all_vms()
         print("\nMultipass Swarm VM Setup Completed!")
-
-if __name__ == "__main__":
-    prepareMultipass = MultipassSwarmSetup()
-    prepareMultipass.full_setup()

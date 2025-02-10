@@ -24,6 +24,8 @@ nohup sudo socat TCP-LISTEN:80,fork TCP:10.34.157.122:80 &
 ----
 netsh interface portproxy delete v4tov4 listenport=80 listenaddress=0.0.0.0
 netsh interface portproxy add v4tov4 listenport=80 listenaddress=0.0.0.0 connectport=80 connectaddress=172.25.81.206
+powershell.exe -Command "schtasks /Create /TN RunNetsh /TR 'powershell -ExecutionPolicy Bypass -Command netsh interface portproxy add v4tov4 listenport=8080 listenaddress=0.0.0.0 connectport=8080 connectaddress=192.168.64.2' /SC ONCE /ST 00:00 /RL HIGHEST /F && schtasks /Run /TN RunNetsh && schtasks /Delete /TN RunNetsh /F"
+
 
 ----
 

@@ -1,9 +1,10 @@
+import curses
 import subprocess
 import threading
-import curses
 import time
 
-class DockerInstaller:
+
+class MultipassDockerInstaller:
     def __init__(self, manager_node="swarm-manager", worker_prefix="swarm-worker", worker_count=2):
         """Initializes the installation script for Docker on Ubuntu 24.04 LTS in Multipass VMs."""
         self.manager_node = manager_node
@@ -52,7 +53,7 @@ class DockerInstaller:
         for description, command in commands:
             self.run_command(instance_name, description, command)
 
-    def install_on_all_nodes(self):
+    def setup(self):
         """Starts parallel Docker installation on all Multipass VMs with live UI."""
         threads = []
         for instance in self.instances:
@@ -95,7 +96,3 @@ class DockerInstaller:
                     break
 
         curses.wrapper(draw_ui)
-
-if __name__ == "__main__":
-    installer = DockerInstaller()
-    installer.install_on_all_nodes()
