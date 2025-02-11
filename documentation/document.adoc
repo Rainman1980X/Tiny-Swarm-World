@@ -7,7 +7,9 @@
 :lang: en
 :chapter-label:
 
-= Setup a local cloud
+= Tiny Swarm World
+
+**Your tiny Docker swarm for big ideas.**
 
 include::system/system.adoc[]
 

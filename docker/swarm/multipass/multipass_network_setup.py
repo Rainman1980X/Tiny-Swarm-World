@@ -1,12 +1,6 @@
 import subprocess
 
-
-def run_command(command, **kwargs):
-    """Executes a shell command and handles errors"""
-    try:
-        return subprocess.run(command, **kwargs)
-    except subprocess.CalledProcessError as e:
-        print(f"Error executing {' '.join(command)}:", e)
+from docker.swarm.multipass.multipass_setup import run_command
 
 
 class MultipassNetworkSetup:
@@ -20,6 +14,14 @@ class MultipassNetworkSetup:
         self.template_file = template_file
         self.output_file = output_file
         self.target_path = f"/etc/netplan/{output_file.split('/')[-1]}"
+
+    @staticmethod
+    def run_command(command, **kwargs):
+        """Executes a shell command and handles errors"""
+        try:
+            return subprocess.run(command, **kwargs)
+        except subprocess.CalledProcessError as e:
+            print(f"Error executing {' '.join(command)}:", e)
 
     def get_swarm_manager_gateway(self):
         """Retrieves the default gateway of the swarm manager instance"""
