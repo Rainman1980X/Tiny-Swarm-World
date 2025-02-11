@@ -8,3 +8,5 @@ class VmEntity(BaseModel):
     vm_instance: str
     ipaddress: str = Field(default="")
     gateway: str = Field(default="")
+    memory: str = Field(default="2G")
+    disk: str = Field(default="10G")

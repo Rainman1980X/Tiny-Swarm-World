@@ -3,12 +3,23 @@ from docker.ports.port_command_runner import CommandRunner
 
 
 class MultipassInitService:
-    def __init__(self):
-        self.commandrunner = CommandRunner()
-        self.swarmmanager = VmEntity(vm_instance="swarm-manager")
-        self.swarmworker1 = VmEntity(vm_instance="swarm-worker1")
-        self.swarmworker2 = VmEntity(vm_instance="swarm-worker2")
+    def __init__(self, multipass_commandrunner=CommandRunner, async_commandrunner=CommandRunner):
+        self.multipass_commandrunner = multipass_commandrunner
+        self.async_commandrunner = async_commandrunner
+        self.swarm_entities = [
+            VmEntity(vm_instance="swarm-manager"),
+            VmEntity(vm_instance="swarm-worker1"),
+            VmEntity(vm_instance="swarm-worker2"),
+        ]
 
-    @staticmethod
-    def create_command_list():
-        return []
+    def __create_command_list(self):
+        command_list = [
+            ("Message", f"multipass launch -n {entity.vm_instance} --memory {entity.memory} --disk {entity.disk}")
+            for entity in self.swarm_entities
+        ]
+
+        return command_list
+
+    def start_service(self):
+        # commandrunner.run()
+        pass
