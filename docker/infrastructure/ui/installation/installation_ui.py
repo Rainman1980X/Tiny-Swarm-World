@@ -4,11 +4,13 @@ import time
 
 
 class InstallationUI:
-    def __init__(self, instances):
+    def __init__(self, instances, test_mode=False):
+        """test_mode: If True, the UI will exit after 2 seconds."""
         self.instances = instances
         self.status = {instance: {"current_step": "Initializing...", "result": "Pending"} for instance in instances}
         self.lock = threading.Lock()
         self.ui_thread = None
+        self.test_mode = test_mode
 
     def update_status(self, instance, step, result=None):
         """
@@ -61,7 +63,14 @@ class InstallationUI:
             time.sleep(0.5)
 
             if all(self.status[instance]["result"] in ["✔ Success", "✘ Error"] for instance in self.instances):
-                time.sleep(2)
+                # Display a success message at the bottom
+                stdscr.addstr(len(self.instances) + 4, 0, "All instances completed".center(width), curses.A_BOLD)
+                stdscr.refresh()
+                if not self.test_mode:
+                    time.sleep(2)
+                    break
+
+            if self.test_mode:
                 break
 
     def run_ui(self):

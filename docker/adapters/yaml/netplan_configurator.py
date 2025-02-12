@@ -3,6 +3,7 @@ from typing import Any
 
 from ruamel.yaml import YAML
 
+from docker.adapters.exceptions.exception_yaml_handling import YAMLHandlingError
 from docker.adapters.yaml.yaml_builder import FluentYAMLBuilder
 from docker.domain.network.network import Network
 from docker.ports.port_yaml_manager import YamlManager
@@ -52,19 +53,29 @@ class NetplanConfigurationManager(YamlManager):
 
     def load(self, file_path: str = None) -> None:
         """Loads an existing Netplan configuration file."""
-        if not file_path:
-            file_path = self.file_name
+        file_path = file_path or self.file_name
 
         if not os.path.exists(file_path):
-            raise FileNotFoundError(f"File {file_path} does not exist.")
+            raise YAMLHandlingError(file_path, Exception(f"Failed to load file: {file_path} does not exist."))
+
+        if os.path.getsize(file_path) == 0:
+            raise YAMLHandlingError(file_path, Exception(f"Failed to load file: {file_path} is empty."))
+
+        if not file_path.endswith(('.yaml', '.yml')):
+            raise YAMLHandlingError(file_path,
+                                    Exception(f"Failed to load file: Unsupported file extension for {file_path}."))
 
         try:
             with open(file_path, "r", encoding="utf-8") as file:
-                self.loaded_data = self.yaml.load(file)
-                self.is_valid = True
-        except (FileNotFoundError, Exception) as e:
+                self.loaded_data = self.yaml.load(file) or {}
+                self.is_valid = bool(self.loaded_data)  # Valid if data is not empty
+
+                if not self.is_valid:
+                    raise YAMLHandlingError(file_path, Exception("File contains invalid or empty YAML data"))
+        except Exception as e:
             self.is_valid = False
-            raise ValueError(f"Failed to load file {file_path}: {e}")
+            raise YAMLHandlingError(file_path, e)
+
 
     def save(self, data: Any, file_path: str = None) -> None:
         """Saves the generated Netplan configuration file."""
@@ -73,9 +84,9 @@ class NetplanConfigurationManager(YamlManager):
         try:
             with open(file_path, "w", encoding="utf-8") as file:
                 self.yaml.dump(data, file)
-            print(f"✅ YAML file saved successfully: {file_path}")
+            print(f"YAML file saved successfully: {file_path}")
         except Exception as e:
-            raise ValueError(f"Failed to save file {file_path}: {e}")
+            raise YAMLHandlingError(file_path, e)
 
     def validate(self, file_path: str = None) -> bool:
         """Validates the syntax of a Netplan YAML file."""
@@ -86,5 +97,5 @@ class NetplanConfigurationManager(YamlManager):
             with open(file_path, "r", encoding="utf-8") as file:
                 self.yaml.load(file)  # Try loading the YAML file
             return True
-        except Exception:
-            return False
+        except Exception as e:  # Fängt alle Fehler ab
+            raise YAMLHandlingError(file_path, e)

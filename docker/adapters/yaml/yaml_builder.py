@@ -65,29 +65,3 @@ class FluentYAMLBuilder:
         output = StringIO()
         yaml.dump(self._structure, output)
         return output.getvalue()
-
-
-# Example Usage:
-if __name__ == "__main__":
-    builder = FluentYAMLBuilder()
-
-    yaml_output = (
-        builder
-        .add_key("network")
-        .add_key("ethernets")
-        .add_key("ens3")
-        .add_list("addresses")  # ✅ Erstellt eine leere Liste
-        .add_list_item("10.34.157.239")  # ✅ Fügt Element zur Liste hinzu
-        .up()
-        .add_entry("gateway4", "10.34.157.1")
-        .add_key("nameservers")
-        .add_list("addresses")  # ✅ Erstellt eine leere Liste
-        .add_list_item("8.8.8.8")  # ✅ Fügt Element zur Liste hinzu
-        .add_list_item("8.8.4.4")  # ✅ Fügt weiteres Element zur Liste hinzu
-        .up().up().up().up()
-        .add_entry("renderer", "networkd")
-        .add_entry("version", 2)
-        .to_yaml()
-    )
-
-    print(yaml_output)
