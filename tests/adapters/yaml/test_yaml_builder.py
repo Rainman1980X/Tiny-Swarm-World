@@ -4,65 +4,70 @@ from docker.adapters.yaml.yaml_builder import FluentYAMLBuilder
 
 
 class TestFluentYAMLBuilder(unittest.TestCase):
+
     def setUp(self):
-        self.builder = FluentYAMLBuilder()
+        self.builder = FluentYAMLBuilder("root")
 
-    def test_init_default_structure(self):
-        self.assertEqual(self.builder.build(), {})
+    def test_initialization(self):
+        """Test that the builder initializes with the correct root name."""
+        self.assertEqual(self.builder.root.name, "root")
+        self.assertIsNone(self.builder.root.value)
+        self.assertEqual(len(self.builder.root.children), 0)
 
-    def test_add_key(self):
-        self.builder.add_key("key")
-        self.assertEqual(self.builder.build(), {"key": {}})
+    def test_add_child(self):
+        """Test that a child node is correctly added."""
+        self.builder.add_child("child1", "value1")
+        self.assertEqual(len(self.builder.root.children), 1)
+        self.assertEqual(self.builder.root.children[0].name, "child1")
+        self.assertEqual(self.builder.root.children[0].value.to_dict(), "value1")
 
-    def test_add_nested_key(self):
-        self.builder.add_key("parent").add_key("child")
-        self.assertEqual(self.builder.build(), {"parent": {"child": {}}})
+    def test_add_child_with_stay(self):
+        """Test add_child with stay=True ensuring the current node remains unchanged."""
+        self.builder.add_child("child1", "value1", stay=True)
+        self.assertEqual(self.builder.current, self.builder.root)
 
-    def test_add_list(self):
-        self.builder.add_list("items")
-        self.assertEqual(self.builder.build(), {"items": []})
+    def test_up(self):
+        """Test moving up the node hierarchy."""
+        self.builder.add_child("child1", "value1")
+        self.builder.up()
+        self.assertEqual(self.builder.current, self.builder.root)
 
-    def test_add_list_item(self):
-        self.builder.add_list("items").add_list_item("item1")
-        self.assertEqual(self.builder.build(), {"items": ["item1"]})
+    def test_to_dict_single_node(self):
+        """Test to_dict method with a single node."""
+        result = self.builder.to_dict()
+        self.assertEqual(result, {"root": {}})
 
-    def test_add_entry(self):
-        self.builder.add_entry("key", "value")
-        self.assertEqual(self.builder.build(), {"key": "value"})
-
-    def test_add_list_with_entries(self):
-        self.builder.add_list("items").add_list_item({"key1": "value1"}).add_list_item({"key2": "value2"})
-        self.assertEqual(self.builder.build(), {"items": [{"key1": "value1"}, {"key2": "value2"}]})
-
-    def test_up_navigation(self):
-        self.builder.add_key("parent").add_key("child").up()
-        self.builder.add_entry("sibling", "value")
-        self.assertEqual(self.builder.build(), {"parent": {"child": {}, "sibling": "value"}})
+    def test_to_dict_with_children(self):
+        """Test to_dict with multiple children."""
+        (self.builder
+         .add_child("child1")
+         .add_child("child2", "value2")
+         .up().up()
+         .add_child("child3", "value3"))
+        result = self.builder.to_dict()
+        expected = {
+            "root": {
+                "child1": {
+                    "child2": "value2"
+                },
+                "child3": "value3"
+            }
+        }
+        self.assertEqual(expected, result)
 
     def test_to_yaml(self):
-        self.builder.add_key("key").add_entry("subkey", "value")
+        """Test generating YAML output."""
+        self.builder.add_child("child1").add_child("child2", "value2")
+        self.builder.up().up()
+        self.builder.add_child("child3", "value3")
         yaml_output = self.builder.to_yaml()
-        self.assertIn("key:\n  subkey: value", yaml_output)
-
-    def test_raise_error_when_adding_key_on_non_dict(self):
-        self.builder.add_list("items")
-        with self.assertRaises(ValueError):
-            self.builder.add_key("key_in_list")
-
-    def test_raise_error_when_adding_list_on_non_dict(self):
-        self.builder.add_list("items")
-        with self.assertRaises(ValueError):
-            self.builder.add_list("list_in_list")
-
-    def test_raise_error_when_adding_entry_on_non_dict(self):
-        self.builder.add_list("items")
-        with self.assertRaises(ValueError):
-            self.builder.add_entry("key", "value")
-
-    def test_raise_error_when_adding_item_to_non_list(self):
-        self.builder.add_key("key")
-        with self.assertRaises(ValueError):
-            self.builder.add_list_item("item")
+        expected_yaml = (
+            "root:\n"
+            "  child1:\n"
+            "    child2: value2\n"
+            "  child3: value3\n"
+        )
+        self.assertEqual(expected_yaml.strip(), yaml_output.strip())
 
 
 if __name__ == "__main__":

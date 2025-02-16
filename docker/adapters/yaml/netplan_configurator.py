@@ -20,7 +20,7 @@ class NetplanConfigurationManager(YamlManager):
         self.gateway = None
         self.loaded_data = None
         self.is_valid = False
-        self.builder = FluentYAMLBuilder()
+        self.builder = FluentYAMLBuilder("network")
         self.yaml = YAML()  # Use ruamel.yaml
         self.yaml.default_flow_style = False  # Ensure correct indentation
         self.yaml.indent(mapping=2, sequence=4, offset=2)  # Better formatting
@@ -31,23 +31,16 @@ class NetplanConfigurationManager(YamlManager):
         print(f"Creating Netplan configuration")
         return (
             self.builder
-            .add_key("network")  # Top-level "network" key
-            .add_entry("version", 2)  # Netplan version
-            .add_entry("renderer", "networkd")  # Renderer (networkd or NetworkManager)
-            .add_key("ethernets")  # Add `ethernets`
-            .add_key("ens3")  # Add a specific interface (e.g., ens3)
-            .add_entry("dhcp4", "no")  # Disable DHCP
-            .add_list("addresses")  # Define a list for IP addresses
-            .add_list_item(f"{data.ip_address}/24")  # Add static IP with subnet mask
-            .up()  # Move up to "ens3"
-            .add_list("routes")  # Erstellt die `routes`-Liste
-            .add_list_item({"to": "0.0.0.0/0", "via": data.gateway})
-            .up()
-            .add_key("nameservers")  # Add nameservers section
-            .add_list("addresses")  # Create a nameservers list
-            .add_list_item("8.8.8.8")  # Add Google DNS
-            .add_list_item("8.8.4.4")  # Add secondary Google DNS
-            .up().up().up()  # Move back up to the root
+            .add_child("version", 2, stay=True)  # Netplan version
+            .add_child("renderer", "networkd", stay=True)  # Renderer (networkd or NetworkManager)
+            .add_child("ethernets")  # Add `ethernets`
+            .add_child("ens3")  # Add a specific interface (e.g., ens3)
+            .add_child("dhcp4", "no", stay=True)  # Disable DHCP
+            .add_child("addresses", [f"{data.ip_address}/24"], stay=True)
+            .add_child("routes", [{"to": "0.0.0.0/0", "via": f"{data.gateway}"}],
+                       stay=True)  # Define a list for IP addresses
+            .add_child("nameservers")
+            .add_child("addresses", ["8.8.8.8", "8.8.4.4"], stay=True)
             .build()
         )
 
@@ -76,26 +69,13 @@ class NetplanConfigurationManager(YamlManager):
             self.is_valid = False
             raise YAMLHandlingError(file_path, e)
 
-
-    def save(self, data: Any, file_path: str = None) -> None:
+    def save(self, file_path: str = None) -> None:
         """Saves the generated Netplan configuration file."""
         if not file_path:
             file_path = self.file_name
         try:
             with open(file_path, "w", encoding="utf-8") as file:
-                self.yaml.dump(data, file)
+                file.write(self.builder.to_yaml())
             print(f"YAML file saved successfully: {file_path}")
         except Exception as e:
-            raise YAMLHandlingError(file_path, e)
-
-    def validate(self, file_path: str = None) -> bool:
-        """Validates the syntax of a Netplan YAML file."""
-        if not file_path:
-            file_path = self.file_name
-
-        try:
-            with open(file_path, "r", encoding="utf-8") as file:
-                self.yaml.load(file)  # Try loading the YAML file
-            return True
-        except Exception as e:  # Fängt alle Fehler ab
             raise YAMLHandlingError(file_path, e)
