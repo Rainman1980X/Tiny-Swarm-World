@@ -1,0 +1,3 @@
+== Introduction & Goals
+
+This document describes the architecture of Docker Swarm with Multipass.

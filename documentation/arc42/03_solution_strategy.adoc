@@ -1,0 +1,3 @@
+== Solution Strategy
+
+The chosen architecture is based on a hexagonal design.
