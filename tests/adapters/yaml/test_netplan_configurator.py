@@ -75,6 +75,26 @@ class TestNetplanConfigurationManager(unittest.TestCase):
 
     @patch("os.path.exists", return_value=True)
     @patch("os.path.getsize", return_value=1)
+    @patch("builtins.open", new_callable=mock_open, read_data="")  # Simulates an empty YAML file
+    @patch("ruamel.yaml.YAML.load", return_value={})  # YAML.load() returns an empty dictionary
+    def test_load_empty_yaml_data_raises_error(self, mock_yaml_load, mock_open_file, mock_getsize, mock_exists):
+        """Test that loading a YAML file with valid syntax but empty content raises YAMLHandlingError."""
+
+        with self.assertRaises(YAMLHandlingError) as context:
+            self.manager.load("empty_yaml.yaml")
+
+        self.assertEqual(context.exception.file_name, "empty_yaml.yaml")
+        self.assertIn("File contains invalid or empty YAML data", str(context.exception))
+
+        # Verify that all mock functions were called as expected
+        mock_exists.assert_called_once_with("empty_yaml.yaml")
+        mock_getsize.assert_called_once_with("empty_yaml.yaml")
+        mock_open_file.assert_called_once_with("empty_yaml.yaml", "r", encoding="utf-8")
+        mock_yaml_load.assert_called_once()
+
+
+    @patch("os.path.exists", return_value=True)
+    @patch("os.path.getsize", return_value=1)
     @patch("builtins.open", new_callable=mock_open, read_data="valid: yaml")
     @patch("ruamel.yaml.YAML.load", return_value={"valid": "yaml"})
     def test_load_valid_yaml(self, mock_yaml_load, mock_open_file, mock_getsize, mock_exists):

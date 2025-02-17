@@ -55,6 +55,24 @@ class TestFluentYAMLBuilder(unittest.TestCase):
         }
         self.assertEqual(expected, result)
 
+    def test_to_dict_with_multiple_children(self):
+        self.builder.add_child("child1", "value1", stay=True).add_child("child2", "value2")
+        result = self.builder.to_dict(self.builder.root)
+        self.assertEqual({"root": {"child1": "value1", "child2": "value2"}}, result)
+
+    def test_to_dict_with_duplicate_children(self):
+        self.builder.add_child(name="child", value="value1", stay=True)
+        self.builder.add_child(name="child", value="value2")
+
+        result = self.builder.to_dict()
+        self.assertEqual(result, {"root": {"child": ["value1", "value2"]}})
+
+    def test_build(self):
+        self.builder.add_child("key", value="value")
+        result = self.builder.build()
+        expected = {"root": {"key": "value"}}
+        self.assertEqual(expected, result)
+
     def test_to_yaml(self):
         """Test generating YAML output."""
         self.builder.add_child("child1").add_child("child2", "value2")
