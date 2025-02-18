@@ -1,8 +1,7 @@
-import subprocess
-from threading import Lock
+import asyncio
 
-from docker.adapters.exceptions.exception_command_execution import CommandExecutionError  # Exception-Import
-from docker.ports.port_command_runner import CommandRunner  # Import der CommandRunner-Basisklasse
+from docker.adapters.exceptions.exception_command_execution import CommandExecutionError
+from docker.ports.port_command_runner import CommandRunner
 
 
 class MultipassCommandRunner(CommandRunner):
@@ -17,50 +16,43 @@ class MultipassCommandRunner(CommandRunner):
             "result": None,
         }
 
-        self.lock = Lock()
+        # Use asyncio.Lock for asynchronous operations
+        self.lock = asyncio.Lock()
 
-    def run(self, command: str) -> str:
+    async def run(self, command: str) -> str:
         full_command = f"multipass exec {self.instance} -- bash -c '{command}'"
 
-        with self.lock:
+        async with self.lock:
             self.status["current_step"] = "Executing command"
             self.status["result"] = "Running..."
 
         try:
-            # Execute the command with subprocess
-            result = subprocess.run(
+            # Execute the command using asyncio.create_subprocess_shell
+            process = await asyncio.create_subprocess_shell(
                 full_command,
-                shell=True,
-                check=True,
-                text=True,
-                capture_output=True,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
             )
+            stdout, stderr = await process.communicate()
 
-            with self.lock:
-                self.status["result"] = "Success"
-
-            print(f"Command output for instance '{self.instance}': {result.stdout.strip()}")
-
-            return result.stdout.strip()
-
-        except subprocess.CalledProcessError as e:
-            # Update the status in case of failure
-            with self.lock:
-                self.status["result"] = "Error"
-
-            # Raise a CommandExecutionError with detailed information
-            raise CommandExecutionError(
-                command=full_command,
-                return_code=e.returncode,
-                stdout=e.stdout,
-                stderr=e.stderr,
-            ) from e
+            if process.returncode == 0:
+                async with self.lock:
+                    self.status["result"] = "Success"
+                print(f"Command output for instance '{self.instance}': {stdout.decode().strip()}")
+                return stdout.decode().strip()
+            else:
+                async with self.lock:
+                    self.status["result"] = "Error"
+                raise CommandExecutionError(
+                    command=full_command,
+                    return_code=process.returncode,
+                    stdout=stdout.decode(),
+                    stderr=stderr.decode()
+                )
 
         except Exception as e:
-            # General error handling
-            with self.lock:
+            async with self.lock:
                 self.status["result"] = "Error"
-
             raise CommandExecutionError(
                 command=full_command,
                 return_code=-1,

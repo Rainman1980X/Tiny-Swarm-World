@@ -29,6 +29,20 @@ class YAMLNode:
         self.children.append(child)
         return child
 
+    def find_child(self, name: str) -> Optional["YAMLNode"]:
+        """Find a child node by name."""
+        for child in self.children:
+            if child.name == name:
+                return child
+        return None
+
+    def remove_child(self, name: str) -> bool:
+        """Remove a child node by name."""
+        for i, child in enumerate(self.children):
+            if child.name == name:
+                del self.children[i]
+                return True
+        return False
 
 class FluentYAMLBuilder:
     """Fluent API Builder for constructing properly formatted YAML structures using ruamel.yaml."""
@@ -43,6 +57,69 @@ class FluentYAMLBuilder:
         if not stay:
             self.current = new_child
         return self
+
+    def navigate_to(self, path: List[str]) -> "FluentYAMLBuilder":
+        """Navigate to a specific entry by path."""
+        node = self.root
+        traversed_path = []  # Hält den erfolgreichen Navigationspfad
+
+        for key in path:
+            child = node.find_child(key)
+            if child:  # Wenn ein Kind gefunden wurde, navigiere weiter
+                node = child
+                traversed_path.append(key)  # Füge den Schlüssel dem navigierten Pfad hinzu
+            else:
+                # Gebe detaillierte Fehlermeldung zu dem Punkt aus, an dem der Fehler auftritt
+                raise KeyError(
+                    f"Path not found at segment '{key}' after traversing: {'/'.join(traversed_path)}"
+                )
+
+        self.current = node  # Aktualisiere den aktuellen Knoten
+        return self
+
+    def navigate_to_recursively(self, name: str) -> "FluentYAMLBuilder":
+        """Recursively find a node by its name, starting from the root."""
+
+        def recursive_search(node, name_rc):
+            if node.name == name_rc:
+                return node
+            for child in node.children:
+                result_rc = recursive_search(child, name)
+                if result_rc:
+                    return result_rc
+            return None
+
+        result = recursive_search(self.root, name)
+        if not result:
+            raise KeyError(f"Node '{name}' not found in the tree.")
+        self.current = result
+        return self
+
+    def delete_current(self) -> "FluentYAMLBuilder":
+        """Deletes the current node and its subtree."""
+        if self.current.parent:
+            parent = self.current.parent
+            parent.remove_child(self.current.name)
+            self.current = parent
+        else:
+            raise ValueError("Cannot delete root node")
+        return self
+
+    def insert_at_current(self, name: str, value: Any = None) -> "FluentYAMLBuilder":
+        """Inserts a new node at the current position."""
+        self.current.add_child(name, value)
+        return self
+
+    def find_entry(self, name: str) -> Optional[Dict[str, Any]]:
+        """Finds an entry by name and returns its dictionary representation."""
+        for child in self.root.children:
+            if child.name == name:
+                return self.to_dict(child)
+        return None
+
+    def find_all_entries(self) -> List[Dict[str, Any]]:
+        """Returns all entries as a list of dictionaries."""
+        return [self.to_dict(child) for child in self.root.children]
 
     def up(self) -> "FluentYAMLBuilder":
         """Moves up one level in the tree if a parent exists."""

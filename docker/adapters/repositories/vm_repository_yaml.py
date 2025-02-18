@@ -1,9 +1,8 @@
 import os
-from typing import List
+from typing import List, Optional
 
 from ruamel.yaml import YAML
 
-from docker.adapters.exceptions.exception_yaml_handling import YAMLHandlingError
 from docker.adapters.yaml.yaml_builder import FluentYAMLBuilder
 from docker.domain.multipass.vm_entity import VmEntity
 from docker.ports.port_vm_repository import IVMRepository
@@ -12,7 +11,7 @@ CONFIG_PATH = "config/vms.yaml"
 
 
 class VMRepositoryYaml(IVMRepository):
-    """YAML-based implementation of the VM repository using FluentYAMLBuilder."""
+    """YAML-based VM repository using FluentYAMLBuilder."""
 
     def __init__(self, config_path=CONFIG_PATH):
         self.config_path = config_path
@@ -22,76 +21,78 @@ class VMRepositoryYaml(IVMRepository):
         self.__load()
 
     def __load(self) -> None:
-        """Loads an existing VMRepositories configuration file."""
-
+        """Loads the YAML configuration file."""
         if not os.path.exists(self.config_path):
-            raise YAMLHandlingError(self.config_path,
-                                    Exception(f"Failed to load file: {self.config_path} does not exist."))
-
-        if os.path.getsize(self.config_path) == 0:
-            raise YAMLHandlingError(self.config_path, Exception(f"Failed to load file: {self.config_path} is empty."))
-
-        if not self.config_path.endswith(('.yaml', '.yml')):
-            raise YAMLHandlingError(self.config_path,
-                                    Exception(
-                                        f"Failed to load file: Unsupported file extension for {self.config_path}."))
+            raise FileNotFoundError(f"YAML file {self.config_path} does not exist.")
 
         try:
             with open(self.config_path, "r", encoding="utf-8") as file:
                 self.loaded_data = self.yaml.load(file) or {}
-                self.is_valid = bool(self.loaded_data)  # Valid if data is not empty
-
-                if not self.is_valid:
-                    raise YAMLHandlingError(self.config_path, Exception("File contains invalid or empty YAML data"))
         except Exception as e:
-            self.is_valid = False
-            raise YAMLHandlingError(self.config_path, e)
+            raise Exception(f"Error loading YAML file: {str(e)}")
 
-    def save(self, config_path: str = None) -> None:
-        """Saves the generated Netplan configuration file."""
-        if not config_path:
-            config_path = self.config_path
+    def save(self) -> None:
+        """Saves the YAML configuration file."""
         try:
-            with open(config_path, "w", encoding="utf-8") as file:
+            with open(self.config_path, "w", encoding="utf-8") as file:
                 file.write(self.yaml_builder.to_yaml())
-            print(f"YAML file saved successfully: {config_path}")
         except Exception as e:
-            raise YAMLHandlingError(config_path, e)
+            raise Exception(f"Error saving YAML file: {str(e)}")
 
     def get_all_vms(self) -> List[VmEntity]:
-        """Retrieves all VMs from the configuration."""
+        """Retrieves all VMs as VmEntity objects."""
         return [VmEntity(**vm) for vm in self.loaded_data.get("vms", [])]
 
-    def get_vm_by_name(self, name: str) -> VmEntity:
+    def get_vm_by_name(self, vm_instance: str) -> Optional[VmEntity]:
         """Finds a VM by its name."""
         for vm in self.get_all_vms():
-            if vm.name == name:
+            if vm.vm_instance == vm_instance:
                 return vm
-        raise ValueError(f"VM {name} not found")
+        return None
 
     def add_vm(self, vm: VmEntity) -> None:
-        """Adds a new VM to the configuration."""
-        data = self._load_config()
-        if any(existing_vm["name"] == vm.name for existing_vm in data["vms"]):
-            raise ValueError(f"VM {vm.name} already exists")
-        data["vms"].append(vm.__dict__)
-        self._save_config(data)
+        """Adds a new VM to the YAML configuration."""
+        self.yaml_builder.add_child("vms", stay=True) \
+            .add_child("vm", stay=True) \
+            .add_child("id", str(vm.id)) \
+            .up() \
+            .add_child("vm_instance", vm.vm_instance) \
+            .up() \
+            .add_child("ipaddress", vm.ipaddress) \
+            .up() \
+            .add_child("gateway", vm.gateway) \
+            .up() \
+            .add_child("memory", vm.memory) \
+            .up() \
+            .add_child("disk", vm.disk) \
+            .up()
+        self.save()
 
     def remove_vm(self, name: str) -> None:
-        """Removes a VM by its name."""
-        data = self._load_config()
-        updated_vms = [vm for vm in data.get("vms", []) if vm["name"] != name]
-        if len(updated_vms) == len(data["vms"]):
-            raise ValueError(f"VM {name} not found")
-        data["vms"] = updated_vms
-        self._save_config(data)
+        """Deletes a VM by name."""
+        all_vms = self.get_all_vms()
+        for vm in all_vms:
+            if vm.vm_instance == name:
+                try:
+                    self.yaml_builder.navigate_to(["vms", "vm", "id", str(vm.id)]).delete_current()
+                    self.save()
+                    return
+                except KeyError:
+                    raise ValueError(f"VM {name} not found.")
+        raise ValueError(f"VM {name} not found.")
 
     def update_vm(self, vm: VmEntity) -> None:
-        """Updates an existing VM configuration."""
-        data = self._load_config()
-        for i, existing_vm in enumerate(data["vms"]):
-            if existing_vm["name"] == vm.name:
-                data["vms"][i] = vm.__dict__
-                self._save_config(data)
-                return
-        raise ValueError(f"VM {vm.name} not found, cannot update")
+        """Updates an existing VM."""
+        self.remove_vm(vm.vm_instance)
+        self.add_vm(vm)
+
+    def find_vm(self, vm_id: str) -> Optional[VmEntity]:
+        """Finds a VM by its unique ID."""
+        for vm in self.get_all_vms():
+            if str(vm.id) == vm_id:
+                return vm
+        return None
+
+    def find_all_vms(self) -> List[VmEntity]:
+        """Retrieves all VMs from the YAML file."""
+        return self.get_all_vms()
