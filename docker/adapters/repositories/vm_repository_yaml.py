@@ -7,7 +7,7 @@ from docker.adapters.yaml.yaml_builder import FluentYAMLBuilder
 from docker.domain.multipass.vm_entity import VmEntity
 from docker.ports.port_vm_repository import IVMRepository
 
-CONFIG_PATH = "config/vms.yaml"
+CONFIG_PATH = "config/vms_repository.yaml"
 
 
 class VMRepositoryYaml(IVMRepository):

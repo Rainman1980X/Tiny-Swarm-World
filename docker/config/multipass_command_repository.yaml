@@ -1,0 +1,35 @@
+swarm-manager:
+  tasks:
+    - step-index: 1
+      description: "Running the first task"
+      command: "multipass launch -n swarm-manager --memory 4G --disk 50G"
+      runner: "async"
+
+    - step-index: 2
+      description: "Running the next task"
+      command: "swarm-manager -- ip -4 route show default"
+      runner: "multipass"
+
+swarm-worker-1:
+  tasks:
+    - step-index: 1
+      description: "Running the first task"
+      command: "multipass launch -n swarm-worker-1 --memory 4G --disk 50G"
+      runner: "async"
+
+    - step-index: 2
+      description: "Running the next task"
+      command: "swarm-worker-1 -- ip -4 route show default"
+      runner: "multipass"
+
+swarm-worker-2:
+  tasks:
+    - step-index: 1
+      description: "Running the first task"
+      command: "multipass launch -n swarm-worker-1 --memory 4G --disk 50G"
+      runner: "async"
+
+    - step-index: 2
+      description: "Running the next task"
+      command: "swarm-worker-2 -- ip -4 route show default"
+      runner: "multipass"
