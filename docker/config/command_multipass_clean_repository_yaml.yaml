@@ -1,0 +1,32 @@
+commands:
+  - index: 1
+    description: "Retrive the list of VMs"
+    command: "multipass list"
+    runner: "async"
+    command_type: "hostos"
+    vm_type: 
+      - "none"
+
+  - index: 2
+    description: "Deleting all VMs"
+    command: "multipass delete --all"
+    runner: "async"
+    command_type: "hostos"
+    vm_type: 
+      - "none"
+
+  - index: 3
+    description: "Deleting {vm_instance}"
+    command: "multipass delete {vm_instance}"
+    runner: "async"
+    command_type: "hostos"
+    vm_type: 
+      - "none"
+  
+  - index: 4
+    description: "Purging all VMs"
+    command: "multipass purge"
+    runner: "async"
+    command_type: "hostos"
+    vm_type: 
+      - "none"
