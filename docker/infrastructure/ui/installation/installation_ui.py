@@ -1,23 +1,33 @@
-import curses
 import threading
 import time
+import platform
 
+if platform.system() == "Windows":
+    try:
+        import windows_curses
+    except ImportError:
+        import curses
+       # print("Bitte installieren Sie 'windows-curses', um curses unter Windows zu nutzen.")
+       # exit(1)
+else:
+    import curses
 
 class InstallationUI:
     def __init__(self, instances, test_mode=False):
         """test_mode: If True, the UI will exit after 2 seconds."""
         self.instances = instances
-        self.status = {instance: {"current_step": "Initializing...", "result": "Pending"} for instance in instances}
+        self.status = {instance: {"current_task": "Starting...", "current_step": "Initializing...", "result": "Pending"} for instance in instances}
         self.lock = threading.Lock()
         self.ui_thread = None
         self.test_mode = test_mode
 
-    def update_status(self, instance, step, result=None):
+    def update_status(self, instance, task, step, result=None):
         """
         Updates the status of an instance.
         """
         with self.lock:
             if instance in self.status:
+                self.status[instance]["current_task"] = task
                 self.status[instance]["current_step"] = step
                 if result:
                     self.status[instance]["result"] = result
@@ -43,26 +53,30 @@ class InstallationUI:
                 stdscr.addstr(0, idx * col_width, instance.center(col_width), curses.A_BOLD)
 
             changed = False
-            with self.lock:
+            with (self.lock):
                 for idx, instance in enumerate(self.instances):
+                    current_task = self.status[instance]["current_task"]
                     current_step = self.status[instance]["current_step"]
                     current_result = self.status[instance]["result"]
 
                     if (previous_status[instance]["current_step"] != current_step or
-                            previous_status[instance]["result"] != current_result):
+                            previous_status[instance]["result"] != current_result or
+                            previous_status[instance]["current_task"] != current_task):
                         changed = True
+                        previous_status[instance]["current_task"] = current_task
                         previous_status[instance]["current_step"] = current_step
                         previous_status[instance]["result"] = current_result
 
-                    stdscr.addstr(2, idx * col_width, f"Step: {current_step[:col_width - 7]}")
-                    stdscr.addstr(3, idx * col_width, f"Status: {current_result[:col_width - 7]}")
+                    stdscr.addstr(2, idx * col_width, f"Task: {current_task[:col_width - 7]}")
+                    stdscr.addstr(3, idx * col_width, f"Step: {current_step[:col_width - 7]}")
+                    stdscr.addstr(4, idx * col_width, f"Status: {current_result[:col_width - 7]}")
 
             if changed:
                 stdscr.refresh()
 
             time.sleep(0.5)
 
-            if all(self.status[instance]["result"] in ["✔ Success", "✘ Error"] for instance in self.instances):
+            if all(self.status[instance]["result"] in ["Success", "Error"] for instance in self.instances):
                 # Display a success message at the bottom
                 stdscr.addstr(len(self.instances) + 4, 0, "All instances completed".center(width), curses.A_BOLD)
                 stdscr.refresh()

@@ -1,0 +1,17 @@
+commands:  
+  - index: 1
+    description: "Creating {vm_instance}"
+    command: "multipass launch -n {vm_instance} --memory 4G --disk 50G"
+    runner: "async"
+    command_type: "hostos"
+    vm_type: 
+      - "manager"
+      - "worker"
+
+  - index: 2
+    description: "Getting the IP address of {vm_instance}"
+    command: "{vm_instance} -- ip -4 route show default"
+    runner: "multipass"
+    command_type: "hostos"
+    vm_type: 
+      - "manager"

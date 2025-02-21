@@ -1,38 +1,33 @@
-from docker.adapters.command_runner.async_command_runner import AsyncCommandRunner
-from docker.adapters.command_runner.multipass_command_runner import MultipassCommandRunner
-from docker.adapters.repositories.task_repository_yaml import TaskRepositoryYaml
-from docker.adapters.repositories.vm_repository_yaml import VMRepositoryYaml
-from docker.adapters.yaml.netplan_configurator import NetplanConfigurationManager
-from docker.application.multipass.multipass_init_service import MultipassInitService
-from docker.application.network.network_service import NetworkService
-from docker.domain.network.network import Network
+# from docker.adapters.command_builder.command_builder import CommandBuilder
+# from docker.adapters.command_runner.async_command_runner import AsyncCommandRunner
+# from docker.adapters.command_runner.multipass_command_runner import MultipassCommandRunner
+# from docker.adapters.repositories.command_multipass_init_repository_yaml import CommandRepositoryYaml
+# from docker.adapters.repositories.vm_repository_yaml import VMRepositoryYaml
+from application.multipass.multipass_init_vms import MultipassInitVms
 
 
 def main():
-    # Runner for the bash
-    multipass_commandrunner = MultipassCommandRunner("swarm-manager")
-    async_commandrunner = AsyncCommandRunner()
-
-    # loading config files
-    task_repository = TaskRepositoryYaml(async_commandrunner=async_commandrunner,
-                                         multipass_commandrunner=multipass_commandrunner)
-    vms_repository = VMRepositoryYaml()
-
-    # initialisation of multipass
-    multipass_init_service: MultipassInitService = MultipassInitService(
-        multipass_commandrunner=multipass_commandrunner,
-        async_commandrunner=async_commandrunner,
-        vms_repository=vms_repository
-        , task_repository=task_repository)
-
-    multipass_init_service.start_service()
-
-    yaml_manager = NetplanConfigurationManager()
-    network = NetworkService(yaml_manager)
-    network_configuration = Network(ip_address="10.34.157.239", gateway="10.34.157.1", vm_instance="swarm-manager")
-
-    network.run(network_configuration)
-
+    # # loading vm repository
+    # vms_repository = VMRepositoryYaml()
+    #
+    # # loading command repository
+    # # Runner for the bash
+    # multipass_commandrunner = MultipassCommandRunner()
+    # async_commandrunner = AsyncCommandRunner()
+    #
+    # multipass_command_repository = CommandRepositoryYaml(
+    #     config_path="config/command_multipass_init_repository_yaml.yaml")
+    #
+    # # initialisation of multipass
+    #
+    # command_builder: CommandBuilder = CommandBuilder(
+    #     command_repository=multipass_command_repository,
+    #     vm_repository=vms_repository)
+    #
+    # commands = command_builder.get_command_list
+    # print(commands)
+    multipass_init_vms = MultipassInitVms()
+    multipass_init_vms.run()
 
 if __name__ == "__main__":
     main()

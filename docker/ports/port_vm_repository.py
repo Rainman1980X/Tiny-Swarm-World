@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
-from docker.domain.multipass.vm_entity import VmEntity
+from domain.multipass.vm_entity import VmEntity
+from domain.multipass.vm_type import VmType
 
 
-class IVMRepository(ABC):
+class VmRepository(ABC):
     """Interface for managing VM entities."""
 
     @abstractmethod
@@ -43,3 +44,10 @@ class IVMRepository(ABC):
     def find_all_vms(self) -> List[VmEntity]:
         """Retrieves all VMs as objects."""
         pass
+
+    @abstractmethod
+    def find_vm_instances_by_type(self, vm_type: VmType) -> List[str]:
+        """
+        Returns a list of all vm_instance names that belong to a specific vm_type.
+        """
+    pass

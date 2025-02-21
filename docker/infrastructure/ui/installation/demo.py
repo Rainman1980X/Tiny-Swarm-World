@@ -5,7 +5,7 @@ import time
 from installation_ui import InstallationUI
 
 # Instanzen definieren
-instances = ["VM1", "VM2", "VM3"]
+instances = ["VM1", "VM2", "VM3","VM4"]
 ui = InstallationUI(instances)
 
 # Starte die UI in einem separaten Thread
@@ -18,7 +18,7 @@ def simulate_installation(instance):
         time.sleep(random.uniform(1, 3))  # Simuliere Zeitaufwand für den Schritt
         ui.update_status(instance, step, "In Progress")
     time.sleep(2)  # Simuliere einen kurzen Abschluss
-    ui.update_status(instance, "Completed", "✔ Success" if random.random() > 0.2 else "✘ Error")
+    ui.update_status(instance, "Completed", "Success" if random.random() > 0.2 else "Error")
 
 
 # Starte die Simulation für jede VM in separaten Threads

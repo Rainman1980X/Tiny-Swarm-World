@@ -1,16 +1,16 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Dict
 
-from docker.domain.multipass.command_task_entity import TaskEntity
+from domain.command.command_entity import CommandEntity
 
 
-class CommandTaskRepository(ABC):
+class CommandRepository(ABC):
     """
     Interface for a task repository.
     """
 
     @abstractmethod
-    def get_all_tasks(self) -> List[TaskEntity]:
+    def get_all_commands(self) -> Dict[int, CommandEntity]:
         """
         Returns all saved tasks.
         """

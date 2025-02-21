@@ -3,10 +3,10 @@ from typing import Any
 
 from ruamel.yaml import YAML
 
-from docker.adapters.exceptions.exception_yaml_handling import YAMLHandlingError
-from docker.adapters.yaml.yaml_builder import FluentYAMLBuilder
-from docker.domain.network.network import Network
-from docker.ports.port_yaml_manager import YamlManager
+from adapters.exceptions.exception_yaml_handling import YAMLHandlingError
+from adapters.yaml.yaml_builder import FluentYAMLBuilder
+from domain.network.network import Network
+from ports.port_yaml_manager import YamlManager
 
 
 class NetplanConfigurationManager(YamlManager):

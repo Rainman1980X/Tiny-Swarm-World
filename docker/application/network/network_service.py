@@ -1,5 +1,5 @@
-from docker.domain.network.network import Network
-from docker.ports.port_yaml_manager import YamlManager
+from domain.network.network import Network
+from ports.port_yaml_manager import YamlManager
 
 
 class NetworkService:
