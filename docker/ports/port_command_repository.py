@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Dict
+from typing import Dict
 
 from domain.command.command_entity import CommandEntity
 

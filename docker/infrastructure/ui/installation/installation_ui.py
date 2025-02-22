@@ -42,7 +42,7 @@ class InstallationUI:
         stdscr.nodelay(True)
         stdscr.timeout(500)
 
-        previous_status = {instance: {"current_step": "", "result": ""} for instance in self.instances}
+        previous_status = {instance: {"current_task": "","current_step": "", "result": ""} for instance in self.instances}
 
         while True:
             height, width = stdscr.getmaxyx()
@@ -78,7 +78,7 @@ class InstallationUI:
                         previous_status[instance]["current_step"] = current_step
                         previous_status[instance]["result"] = current_result
 
-                    # Sicherstellen, dass Inhalte die Spaltenbreite nicht überschreiten
+                    # Ensure content does not exceed column width
                     stdscr.addstr(2, idx * col_width, f"Task: {current_task[:col_width - 7]}")
                     stdscr.addstr(3, idx * col_width, f"Step: {current_step[:col_width - 7]}")
                     stdscr.addstr(4, idx * col_width, f"Status: {current_result[:col_width - 7]}")
@@ -118,6 +118,6 @@ class InstallationUI:
           """
         loop = asyncio.get_running_loop()
         executor = ThreadPoolExecutor(max_workers=1)
-        self.ui_thread = loop.run_in_executor(executor, self.run_ui)  # Führt die (synchron gebliebene) UI-Logik in einem Thread aus
+        self.ui_thread = loop.run_in_executor(executor, self.run_ui)
 
 
