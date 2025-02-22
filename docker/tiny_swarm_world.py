@@ -3,10 +3,12 @@
 # from adapters.command_runner.multipass_command_runner import MultipassCommandRunner
 # from adapters.repositories.command_multipass_init_repository_yaml import CommandRepositoryYaml
 # from adapters.repositories.vm_repository_yaml import VMRepositoryYaml
+import asyncio
+
 from application.multipass.multipass_init_vms import MultipassInitVms
 
 
-def main():
+async def main():
     # # loading vm repository
     # vms_repository = VMRepositoryYaml()
     #
@@ -27,7 +29,8 @@ def main():
     # commands = command_builder.get_command_list
     # print(commands)
     multipass_init_vms = MultipassInitVms()
-    multipass_init_vms.run()
+    await multipass_init_vms.run()
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
+

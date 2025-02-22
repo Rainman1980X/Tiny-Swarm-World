@@ -1,6 +1,8 @@
+import asyncio
 import threading
 import time
 import platform
+from concurrent.futures import ThreadPoolExecutor
 
 if platform.system() == "Windows":
     try:
@@ -44,16 +46,25 @@ class InstallationUI:
 
         while True:
             height, width = stdscr.getmaxyx()
-            col_width = max(width // len(self.instances), 20)  # Set min width
+
+            # Begrenzen der Spaltenbreite zwischen 20 und 50 Zeichen
+            col_width = max(20, min(width // len(self.instances), 50))
 
             stdscr.clear()
+
+            # Check if the terminal is large enough
+            if height < len(self.instances) + 5:
+                stdscr.addstr(0, 0, f"Terminal too small ({height}x{width})!".center(width), curses.A_BOLD)
+                stdscr.refresh()
+                time.sleep(3)
+                return
 
             # Print headers
             for idx, instance in enumerate(self.instances):
                 stdscr.addstr(0, idx * col_width, instance.center(col_width), curses.A_BOLD)
 
             changed = False
-            with (self.lock):
+            with self.lock:
                 for idx, instance in enumerate(self.instances):
                     current_task = self.status[instance]["current_task"]
                     current_step = self.status[instance]["current_step"]
@@ -67,6 +78,7 @@ class InstallationUI:
                         previous_status[instance]["current_step"] = current_step
                         previous_status[instance]["result"] = current_result
 
+                    # Sicherstellen, dass Inhalte die Spaltenbreite nicht überschreiten
                     stdscr.addstr(2, idx * col_width, f"Task: {current_task[:col_width - 7]}")
                     stdscr.addstr(3, idx * col_width, f"Step: {current_step[:col_width - 7]}")
                     stdscr.addstr(4, idx * col_width, f"Status: {current_result[:col_width - 7]}")
@@ -76,9 +88,16 @@ class InstallationUI:
 
             time.sleep(0.5)
 
+            # Handle successful completion of all instances
             if all(self.status[instance]["result"] in ["Success", "Error"] for instance in self.instances):
-                # Display a success message at the bottom
-                stdscr.addstr(len(self.instances) + 4, 0, "All instances completed".center(width), curses.A_BOLD)
+                # Ensure "All instances completed" fits within the terminal
+                if len(self.instances) + 4 < height:
+                    stdscr.addstr(len(self.instances) + 4, 0, "All instances completed".center(width)[:width],
+                                  curses.A_BOLD)
+                else:
+                    # Print in the last line if there's no space
+                    stdscr.addstr(height - 1, 0, "All instances completed".center(width)[:width], curses.A_BOLD)
+
                 stdscr.refresh()
                 if not self.test_mode:
                     time.sleep(2)
@@ -95,7 +114,10 @@ class InstallationUI:
 
     def run_in_thread(self):
         """
-        Starts the UI in a separate thread.
-        """
-        self.ui_thread = threading.Thread(target=self.run_ui, daemon=True)
-        self.ui_thread.start()
+          Starts the UI in a thread asynchronously using asyncio.
+          """
+        loop = asyncio.get_running_loop()
+        executor = ThreadPoolExecutor(max_workers=1)
+        self.ui_thread = loop.run_in_executor(executor, self.run_ui)  # Führt die (synchron gebliebene) UI-Logik in einem Thread aus
+
+
