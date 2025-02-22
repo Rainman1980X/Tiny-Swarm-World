@@ -1,6 +1,6 @@
 import subprocess
 
-from docker.swarm.multipass.multipass_setup import run_command
+from swarm.multipass.multipass_setup import run_command
 
 
 class MultipassNetworkSetup:

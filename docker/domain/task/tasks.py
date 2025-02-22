@@ -1,5 +1,5 @@
-from docker.domain.command.command_entity import CommandEntity
-from docker.ports.port_command_runner import CommandRunner
+from domain.command.command_entity import CommandEntity
+from ports.port_command_runner import CommandRunner
 
 
 class Task:

@@ -2,14 +2,14 @@ import asyncio
 import unittest
 from unittest.mock import patch, MagicMock, AsyncMock
 
-from docker.adapters.command_runner.multipass_command_runner import MultipassCommandRunner
-from docker.adapters.exceptions.exception_command_execution import CommandExecutionError
+from adapters.command_runner.multipass_command_runner import MultipassCommandRunner
+from adapters.exceptions.exception_command_execution import CommandExecutionError
 
 
 class TestMultipassCommandRunner(unittest.TestCase):
     def setUp(self):
         self.instance_name = "test-instance"
-        self.runner = MultipassCommandRunner(self.instance_name)
+        self.runner = MultipassCommandRunner()
         self.mock_process = MagicMock()
         # Kommunizieren async korrigiert
         self.mock_process.communicate = AsyncMock(return_value=(b"", b"Error output"))
@@ -63,7 +63,7 @@ class TestMultipassCommandRunner(unittest.TestCase):
         self.assertEqual(context.exception.returnCode, -1)
 
     def test_instance_initialization(self):
-        self.assertEqual(self.runner.instance, self.instance_name)
+
         self.assertIsNotNone(self.runner.lock)
         self.assertEqual(self.runner.status["current_step"], "Initialized")
         self.assertIsNone(self.runner.status["result"])

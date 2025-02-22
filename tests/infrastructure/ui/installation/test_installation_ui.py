@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
 
-from docker.infrastructure.ui.installation.installation_ui import InstallationUI
+from infrastructure.ui.installation.installation_ui import InstallationUI
 
 
 class TestInstallationUI(unittest.TestCase):
@@ -50,12 +50,12 @@ class TestInstallationUI(unittest.TestCase):
 
         self.ui.run_ui()
 
-        self.assertEqual(self.ui.status["Instance1"]["result"], "✔ Success")
-        self.assertEqual(self.ui.status["Instance2"]["result"], "✘ Error")
+        self.assertEqual(self.ui.status["Instance1"]["result"], "Success")
+        self.assertEqual(self.ui.status["Instance2"]["result"], "Error")
 
-    @patch("docker.infrastructure.ui.installation.installation_ui.curses.curs_set")
-    @patch("docker.infrastructure.ui.installation.installation_ui.curses.initscr")
-    @patch("docker.infrastructure.ui.installation.installation_ui.curses.endwin")
+    @patch("infrastructure.ui.installation.installation_ui.curses.curs_set")
+    @patch("infrastructure.ui.installation.installation_ui.curses.initscr")
+    @patch("infrastructure.ui.installation.installation_ui.curses.endwin")
     def test_draw_ui_basic_execution(self, mock_endwin, mock_initscr, mock_curs_set):
         def stdscr_mock(*args, **kwargs):
             pass
@@ -79,9 +79,9 @@ class TestInstallationUI(unittest.TestCase):
         mock_stdscr.nodelay.assert_called_once_with(True)
         mock_stdscr.timeout.assert_called_once_with(500)
 
-    @patch("docker.infrastructure.ui.installation.installation_ui.curses.curs_set")
-    @patch("docker.infrastructure.ui.installation.installation_ui.curses.initscr")
-    @patch("docker.infrastructure.ui.installation.installation_ui.curses.endwin")
+    @patch("infrastructure.ui.installation.installation_ui.curses.curs_set")
+    @patch("infrastructure.ui.installation.installation_ui.curses.initscr")
+    @patch("infrastructure.ui.installation.installation_ui.curses.endwin")
     def test_draw_ui_content_check(self, mock_endwin, mock_initscr, mock_curs_set):
         # Mock for `stdscr`
         mock_stdscr = MagicMock()
@@ -90,7 +90,7 @@ class TestInstallationUI(unittest.TestCase):
 
         # Set instances and statuses
         self.ui.status = {
-            "Instance1": {"current_step": "Downloading", "result": "✔ Success"},
+            "Instance1": {"current_step": "Downloading", "result": "Success"},
             "Instance2": {"current_step": "Installing", "result": "In Progress"},
         }
 
@@ -102,13 +102,13 @@ class TestInstallationUI(unittest.TestCase):
 
         # Check for the presence of specific content
         mock_stdscr.addstr.assert_any_call(2, 0, "Step: Downloading")  # Content for first instance
-        mock_stdscr.addstr.assert_any_call(3, 0, "Status: ✔ Success")  # Status for first instance
+        mock_stdscr.addstr.assert_any_call(3, 0, "Status: Success")  # Status for first instance
         mock_stdscr.addstr.assert_any_call(2, 40, "Step: Installing")  # Content for second instance
         mock_stdscr.addstr.assert_any_call(3, 40, "Status: In Progress")  # Status for second instance
 
-    @patch("docker.infrastructure.ui.installation.installation_ui.curses.curs_set")
-    @patch("docker.infrastructure.ui.installation.installation_ui.curses.initscr")
-    @patch("docker.infrastructure.ui.installation.installation_ui.curses.endwin")
+    @patch("infrastructure.ui.installation.installation_ui.curses.curs_set")
+    @patch("infrastructure.ui.installation.installation_ui.curses.initscr")
+    @patch("infrastructure.ui.installation.installation_ui.curses.endwin")
     def test_draw_ui_terminates_on_completion(self, mock_endwin, mock_initscr, mock_curs_set):
         mock_stdscr = MagicMock()
         mock_stdscr.getmaxyx.return_value = (24, 80)
@@ -116,8 +116,8 @@ class TestInstallationUI(unittest.TestCase):
 
         # Mock status for the instances, both completing successfully
         self.ui.status = {
-            "Instance1": {"current_step": "Finalizing", "result": "✔ Success"},
-            "Instance2": {"current_step": "Stopping", "result": "✔ Success"},
+            "Instance1": {"current_step": "Finalizing", "result": "Success"},
+            "Instance2": {"current_step": "Stopping", "result": "Success"},
         }
         self.ui.lock = MagicMock()
 

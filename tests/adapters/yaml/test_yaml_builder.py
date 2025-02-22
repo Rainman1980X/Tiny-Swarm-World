@@ -1,6 +1,6 @@
 import unittest
 
-from docker.adapters.yaml.yaml_builder import FluentYAMLBuilder, YAMLNode
+from adapters.yaml.yaml_builder import FluentYAMLBuilder, YAMLNode
 
 
 class TestFluentYAMLBuilder(unittest.TestCase):

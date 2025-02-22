@@ -1,8 +1,8 @@
-# from docker.adapters.command_builder.command_builder import CommandBuilder
-# from docker.adapters.command_runner.async_command_runner import AsyncCommandRunner
-# from docker.adapters.command_runner.multipass_command_runner import MultipassCommandRunner
-# from docker.adapters.repositories.command_multipass_init_repository_yaml import CommandRepositoryYaml
-# from docker.adapters.repositories.vm_repository_yaml import VMRepositoryYaml
+# from adapters.command_builder.command_builder import CommandBuilder
+# from adapters.command_runner.async_command_runner import AsyncCommandRunner
+# from adapters.command_runner.multipass_command_runner import MultipassCommandRunner
+# from adapters.repositories.command_multipass_init_repository_yaml import CommandRepositoryYaml
+# from adapters.repositories.vm_repository_yaml import VMRepositoryYaml
 from application.multipass.multipass_init_vms import MultipassInitVms
 
 

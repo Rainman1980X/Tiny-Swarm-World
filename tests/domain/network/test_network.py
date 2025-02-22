@@ -1,7 +1,7 @@
 import unittest
 import uuid
 
-from docker.domain.network.network import Network
+from domain.network.network import Network
 
 
 class TestNetwork(unittest.TestCase):

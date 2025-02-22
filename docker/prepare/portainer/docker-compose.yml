@@ -4,7 +4,7 @@ services:
     restart: always
     volumes:
       - portainer_data:/data
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/sock:/var/run/sock
     ports:
       - target: 9000
         published: 9000
@@ -21,7 +21,7 @@ services:
     environment:
       AGENT_CLUSTER_ADDR: tasks.agent # Swarm Communication
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/sock:/var/run/sock
       - /var/lib/docker/volumes:/var/lib/docker/volumes
     deploy:
       mode: global # Agent auf allen Nodes ausrollen

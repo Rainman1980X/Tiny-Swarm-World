@@ -1,9 +1,9 @@
 import unittest
 from unittest.mock import Mock
 
-from docker.application.network.network_service import NetworkService
-from docker.domain.network.network import Network
-from docker.ports.port_yaml_manager import YamlManager
+from application.network.network_service import NetworkService
+from domain.network.network import Network
+from ports.port_yaml_manager import YamlManager
 
 
 class TestNetworkService(unittest.TestCase):

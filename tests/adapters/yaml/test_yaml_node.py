@@ -1,6 +1,6 @@
 import unittest
 
-from docker.adapters.yaml.yaml_builder import YAMLNode, Value
+from adapters.yaml.yaml_builder import YAMLNode, Value
 
 
 class TestYAMLNode(unittest.TestCase):
