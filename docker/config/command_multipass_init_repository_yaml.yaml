@@ -10,7 +10,7 @@ commands:
 
   - index: 2
     description: "Getting the IP address of {vm_instance}"
-    command: " multipass exec {vm_instance} -- ip -4 route show default"
+    command: "multipass exec {vm_instance} -- ip -4 route show default"
     runner: "async"
     command_type: "hostos"
     vm_type: 

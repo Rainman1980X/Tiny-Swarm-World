@@ -1,0 +1,22 @@
+commands:
+  - index: 1
+    description: "Install socat"
+    command: "sudo apt update && sudo apt install -y socat"
+    runner: "async"
+    command_type: "hostos"
+    vm_type:
+      - "none"
+  - index: 2
+    description: "Geting the gateway of the manager"
+    command: "multipass exec {vm_instance} -- ip -4 route show default"
+    runner: "async"
+    command_type: "hostos"
+    vm_type:
+      - "manager"
+  - index: 3
+    description: "Getting the ip of the manager"
+    command: "multipass exec {vm_instance} -- hostname -I"
+    runner: "async"
+    command_type: "hostos"
+    vm_type:
+      - "manager"

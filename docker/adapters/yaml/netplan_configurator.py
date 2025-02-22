@@ -6,6 +6,7 @@ from ruamel.yaml import YAML
 from adapters.exceptions.exception_yaml_handling import YAMLHandlingError
 from adapters.yaml.yaml_builder import FluentYAMLBuilder
 from domain.network.network import Network
+from infrastructure.logging.logger_factory import LoggerFactory
 from ports.port_yaml_manager import YamlManager
 
 
@@ -24,11 +25,12 @@ class NetplanConfigurationManager(YamlManager):
         self.yaml = YAML()  # Use ruamel.yaml
         self.yaml.default_flow_style = False  # Ensure correct indentation
         self.yaml.indent(mapping=2, sequence=4, offset=2)  # Better formatting
+        self.logger = LoggerFactory.get_logger(self.__class__)
 
     def create(self, data: Network) -> Any:
         """Creates a Netplan configuration with static IP, routes, and nameservers."""
 
-        print(f"Creating Netplan configuration")
+        self.logger.info(f"Creating Netplan configuration : {data}")
         return (
             self.builder
             .add_child("version", 2, stay=True)  # Netplan version
@@ -43,6 +45,8 @@ class NetplanConfigurationManager(YamlManager):
             .add_child("addresses", ["8.8.8.8", "8.8.4.4"], stay=True)
             .build()
         )
+
+
 
     def load(self, file_path: str = None) -> None:
         """Loads an existing Netplan configuration file."""
@@ -71,11 +75,14 @@ class NetplanConfigurationManager(YamlManager):
 
     def save(self, file_path: str = None) -> None:
         """Saves the generated Netplan configuration file."""
+        self.logger.info(f"Saving Netplan configuration : {self.builder}")
         if not file_path:
             file_path = self.file_name
+            self.logger.info(f"File path not specified. Saving to {file_path}")
         try:
             with open(file_path, "w", encoding="utf-8") as file:
                 file.write(self.builder.to_yaml())
-            print(f"YAML file saved successfully: {file_path}")
+            self.logger.info(f"YAML file saved successfully: {file_path}")
         except Exception as e:
+            self.logger.exception(f"Exception: ",e)
             raise YAMLHandlingError(file_path, e)

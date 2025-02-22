@@ -15,14 +15,6 @@ commands:
     vm_type: 
       - "none"
 
-#  - index: 3
-#    description: "Deleting {vm_instance}"
-#    command: "multipass delete {vm_instance}"
-#    runner: "async"
-#    command_type: "hostos"
-#    vm_type:
-#      - "none"
-  
   - index: 4
     description: "Purging all VMs"
     command: "multipass purge"

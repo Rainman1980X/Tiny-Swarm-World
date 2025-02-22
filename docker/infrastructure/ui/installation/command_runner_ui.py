@@ -3,6 +3,7 @@ from typing import Dict
 
 from adapters.command_executer.command_executer import CommandExecuter
 from domain.command.excecuteable_commands import ExecutableCommandEntity
+from infrastructure.logging.logger_factory import LoggerFactory
 from infrastructure.ui.installation.installation_ui import InstallationUI
 
 
@@ -21,6 +22,8 @@ class CommandRunnerUI:
         self.instances = list(command_list.keys())
         self.ui = InstallationUI(self.instances)
         self.command_execute = CommandExecuter(ui=self.ui)
+        self.logger = LoggerFactory.get_logger(self.__class__)
+        self.logger.info(f"CommandRunnerUI initialized {self.instances} instances")
 
     async def run(self):
         """
@@ -36,7 +39,8 @@ class CommandRunnerUI:
         ]
 
         # Wait for all tasks to complete
-        await asyncio.gather(*tasks)
+        results = await asyncio.gather(*tasks, return_exceptions=True)
 
         # Close the UI thread after the last execution
         await self.ui.ui_thread
+        return results
