@@ -4,7 +4,7 @@ from typing import Dict
 from domain.command.command_entity import CommandEntity
 
 
-class CommandRepository(ABC):
+class PortCommandRepository(ABC):
     """
     Interface for a task repository.
     """

@@ -1,9 +1,9 @@
 from typing import Dict
 
-from adapters.command_builder.command_builder import CommandBuilder
-from adapters.repositories.command_multipass_init_repository_yaml import CommandRepositoryYaml
-from adapters.repositories.vm_repository_yaml import VMRepositoryYaml
-from adapters.yaml.netplan_configurator import NetplanConfigurationManager
+from domain.command.command_builder.command_builder import CommandBuilder
+from infrastructure.adapters.repositories.command_multipass_init_repository_yaml import PortCommandRepositoryYaml
+from infrastructure.adapters.repositories.vm_repository_yaml import PortVmRepositoryYaml
+from infrastructure.adapters.yaml.netplan_configurator import NetplanConfigurationManagerPortYamlManager
 from domain.command.excecuteable_commands import ExecutableCommandEntity
 from domain.multipass.vm_type import VmType
 from domain.network.network import Network
@@ -14,7 +14,7 @@ from infrastructure.ui.installation.command_runner_ui import CommandRunnerUI
 class NetworkService:
     def __init__(self):
         self.ui = None
-        self.vm_repository = VMRepositoryYaml()
+        self.vm_repository = PortVmRepositoryYaml()
         self.command_execute = None
         self.logger = LoggerFactory.get_logger(self.__class__)
 
@@ -35,12 +35,12 @@ class NetworkService:
 
         network_data = Network(vm_instance=vm_instance_names[0],ip_address=ip, gateway=gateway_ip)
         self.logger.info("saving network data")
-        data = NetplanConfigurationManager()
+        data = NetplanConfigurationManagerPortYamlManager()
         data.create(network_data)
         data.save()
 
     def __setup_commands_init(self, config_path: str) -> Dict[str, Dict[int, ExecutableCommandEntity]]:
-        multipass_command_repository = CommandRepositoryYaml(config_path=config_path)
+        multipass_command_repository = PortCommandRepositoryYaml(config_path=config_path)
 
         command_builder: CommandBuilder = CommandBuilder(
             vm_repository=self.vm_repository,

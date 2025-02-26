@@ -3,13 +3,13 @@ import unittest
 from asyncio import TimeoutError, Lock
 from unittest.mock import AsyncMock, patch, MagicMock
 
-from adapters.command_runner.async_command_runner import AsyncCommandRunner
-from adapters.exceptions.exception_command_execution import CommandExecutionError
+from infrastructure.adapters.command_runner.async_command_runner import AsyncPortCommandRunner
+from infrastructure.adapters.exceptions.exception_command_execution import CommandExecutionError
 
 
 class TestAsyncCommandRunner(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
-        self.command_runner = AsyncCommandRunner()
+        self.command_runner = AsyncPortCommandRunner()
 
     @patch('subprocess.run')
     def test_run_successful_command(self, mock_run):

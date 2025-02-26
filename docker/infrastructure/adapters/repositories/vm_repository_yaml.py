@@ -3,15 +3,15 @@ from typing import List, Optional
 
 from ruamel.yaml import YAML
 
-from adapters.yaml.yaml_builder import FluentYAMLBuilder
+from infrastructure.adapters.yaml.yaml_builder import FluentYAMLBuilder
 from domain.multipass.vm_entity import VmEntity
 from domain.multipass.vm_type import VmType
-from ports.port_vm_repository import VmRepository
+from application.ports.port_vm_repository import PortVmRepository
 
 CONFIG_PATH = "config/vms_repository.yaml"
 
 
-class VMRepositoryYaml(VmRepository):
+class PortVmRepositoryYaml(PortVmRepository):
     """YAML-based VM repository using FluentYAMLBuilder."""
 
     def __init__(self, config_path=CONFIG_PATH):

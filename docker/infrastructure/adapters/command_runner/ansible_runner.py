@@ -1,10 +1,10 @@
 import asyncio
 from sys import stdout
 
-from ports.port_command_runner import CommandRunner
+from application.ports.port_command_runner import PortCommandRunner
 
 
-class RestApiCommandRunner(CommandRunner):
+class AnsiblePortCommandRunner(PortCommandRunner):
 
     def __init__(self):
         super().__init__()
@@ -16,7 +16,7 @@ class RestApiCommandRunner(CommandRunner):
             self.status["current_step"] = "Executing command"
             self.status["result"] = "Running..."
 
-        #do something
+        # do something
         async with self.lock:
             self.status["result"] = "Success"
 

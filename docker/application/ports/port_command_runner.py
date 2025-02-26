@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class CommandRunner(ABC):
+class PortCommandRunner(ABC):
 
     def __init__(self):
         self.status = {

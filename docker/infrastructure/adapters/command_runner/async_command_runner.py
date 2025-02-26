@@ -1,11 +1,11 @@
 import asyncio
 
-from adapters.exceptions.exception_command_execution import CommandExecutionError
+from infrastructure.adapters.exceptions.exception_command_execution import CommandExecutionError
 from infrastructure.logging.logger_factory import LoggerFactory
-from ports.port_command_runner import CommandRunner
+from application.ports.port_command_runner import PortCommandRunner
 
 
-class AsyncCommandRunner(CommandRunner):
+class AsyncPortCommandRunner(PortCommandRunner):
     """
     A class for asynchronously running shell commands and handling their outputs and errors.
     """

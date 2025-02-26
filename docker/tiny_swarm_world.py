@@ -1,7 +1,7 @@
 import asyncio
 
-from application.multipass.multipass_init_vms import MultipassInitVms
-from application.network.network_service import NetworkService
+from application.services.multipass.multipass_init_vms import MultipassInitVms
+from application.services.network.network_service import NetworkService
 
 
 async def main():

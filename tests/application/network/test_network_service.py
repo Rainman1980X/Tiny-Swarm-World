@@ -1,16 +1,16 @@
 import unittest
 from unittest.mock import Mock
 
-from application.network.network_service import NetworkService
+from application.services.network.network_service import NetworkService
 from domain.network.network import Network
-from ports.port_yaml_manager import YamlManager
+from application.ports.port_yaml_manager import PortYamlManager
 
 
 class TestNetworkService(unittest.TestCase):
 
     def setUp(self):
         # Mock the methods from the abstract YamlManager
-        self.mock_yaml_manager = Mock(spec=YamlManager)
+        self.mock_yaml_manager = Mock(spec=PortYamlManager)
         self.mock_yaml_manager.create = Mock(return_value={"mock": "data"})
         self.mock_yaml_manager.save = Mock()
         self.mock_yaml_manager.load = Mock(return_value={})

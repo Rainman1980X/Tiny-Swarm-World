@@ -5,7 +5,7 @@ from domain.multipass.vm_entity import VmEntity
 from domain.multipass.vm_type import VmType
 
 
-class VmRepository(ABC):
+class PortVmRepository(ABC):
     """Interface for managing VM entities."""
 
     @abstractmethod

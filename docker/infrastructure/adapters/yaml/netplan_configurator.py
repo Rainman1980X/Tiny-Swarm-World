@@ -3,14 +3,14 @@ from typing import Any
 
 from ruamel.yaml import YAML
 
-from adapters.exceptions.exception_yaml_handling import YAMLHandlingError
-from adapters.yaml.yaml_builder import FluentYAMLBuilder
+from infrastructure.adapters.exceptions.exception_yaml_handling import YAMLHandlingError
+from infrastructure.adapters.yaml.yaml_builder import FluentYAMLBuilder
 from domain.network.network import Network
 from infrastructure.logging.logger_factory import LoggerFactory
-from ports.port_yaml_manager import YamlManager
+from application.ports.port_yaml_manager import PortYamlManager
 
 
-class NetplanConfigurationManager(YamlManager):
+class NetplanConfigurationManagerPortYamlManager(PortYamlManager):
     """
     Manages the creation, validation, and saving of Netplan configuration files.
     """

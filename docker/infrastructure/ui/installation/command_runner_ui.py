@@ -1,7 +1,7 @@
 import asyncio
 from typing import Dict
 
-from adapters.command_executer.command_executer import CommandExecuter
+from domain.command.command_executer.command_executer import CommandExecuter
 from domain.command.excecuteable_commands import ExecutableCommandEntity
 from infrastructure.logging.logger_factory import LoggerFactory
 from infrastructure.ui.installation.installation_ui import InstallationUI

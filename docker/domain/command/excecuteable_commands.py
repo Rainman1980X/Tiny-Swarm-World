@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from ports.port_command_runner import CommandRunner
+from application.ports.port_command_runner import PortCommandRunner
 
 
 class ExecutableCommandEntity(BaseModel):
@@ -16,7 +16,7 @@ class ExecutableCommandEntity(BaseModel):
     vm_instance_name: str = Field(default=None)
     description: str = Field(default=None)
     command: str = Field(default=None)
-    runner: CommandRunner = Field(default=None)
+    runner: PortCommandRunner = Field(default=None)
 
     # Model configuration to allow arbitrary types
     model_config = {

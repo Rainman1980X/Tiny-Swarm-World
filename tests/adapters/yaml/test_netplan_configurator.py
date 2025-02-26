@@ -4,8 +4,8 @@ from unittest.mock import mock_open, patch, Mock
 
 from ruamel.yaml import YAML
 
-from adapters.exceptions.exception_yaml_handling import YAMLHandlingError
-from adapters.yaml.netplan_configurator import NetplanConfigurationManager
+from infrastructure.adapters.exceptions.exception_yaml_handling import YAMLHandlingError
+from infrastructure.adapters.yaml.netplan_configurator import NetplanConfigurationManagerPortYamlManager
 from domain.network.network import Network
 
 
@@ -13,7 +13,7 @@ class TestNetplanConfigurationManager(unittest.TestCase):
 
     def setUp(self):
         # Create a new instance of NetplanConfigurationManager
-        self.manager = NetplanConfigurationManager()
+        self.manager = NetplanConfigurationManagerPortYamlManager()
         self.test_file = "cloud-init-manager.yaml"
         self.test_network = Network(
             ip_address="192.168.1.10",

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 
-class YamlManager(ABC):
+class PortYamlManager(ABC):
 
     @abstractmethod
     def create(self, data) -> Any:

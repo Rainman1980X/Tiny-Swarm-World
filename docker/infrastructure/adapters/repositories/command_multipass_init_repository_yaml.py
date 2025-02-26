@@ -4,9 +4,9 @@ from typing import Dict
 from ruamel.yaml import YAML
 
 from domain.command.command_entity import CommandEntity
-from ports.port_command_repository import CommandRepository
+from application.ports.port_command_repository import PortCommandRepository
 
-class CommandRepositoryYaml(CommandRepository):
+class PortCommandRepositoryYaml(PortCommandRepository):
     """
     Loads and manages the task list from a YAML file using ruamel.yaml.
     """
