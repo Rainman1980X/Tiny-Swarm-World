@@ -6,11 +6,12 @@ from ruamel.yaml import YAML
 from infrastructure.adapters.exceptions.exception_yaml_handling import YAMLHandlingError
 from infrastructure.adapters.yaml.yaml_builder import FluentYAMLBuilder
 from domain.network.network import Network
+from infrastructure.adapters.yaml.yaml_config_loader import YAMLFileLoader
 from infrastructure.logging.logger_factory import LoggerFactory
-from application.ports.port_yaml_manager import PortYamlManager
+from application.ports.repositories.port_yaml_repository import PortYamlRepository
 
 
-class NetplanConfigurationManagerPortYamlManager(PortYamlManager):
+class PortNetplanRepositoryYaml(PortYamlRepository):
     """
     Manages the creation, validation, and saving of Netplan configuration files.
     """
@@ -22,6 +23,7 @@ class NetplanConfigurationManagerPortYamlManager(PortYamlManager):
         self.loaded_data = None
         self.is_valid = False
         self.builder = FluentYAMLBuilder("network")
+        self.yaml_config_loader = YAMLFileLoader()
         self.yaml = YAML()  # Use ruamel.yaml
         self.yaml.default_flow_style = False  # Ensure correct indentation
         self.yaml.indent(mapping=2, sequence=4, offset=2)  # Better formatting
@@ -84,5 +86,5 @@ class NetplanConfigurationManagerPortYamlManager(PortYamlManager):
                 file.write(self.builder.to_yaml())
             self.logger.info(f"YAML file saved successfully: {file_path}")
         except Exception as e:
-            self.logger.exception(f"Exception: ",e)
+            self.logger.exception(f"Exception: ")
             raise YAMLHandlingError(file_path, e)

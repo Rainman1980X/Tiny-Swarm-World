@@ -3,15 +3,15 @@ from typing import Dict
 from domain.command.command_builder.strategies.command_builder_strategy import VmTypeStrategy
 from domain.command.command_entity import CommandEntity
 from domain.command.command_runner_type_enum import CommandRunnerType
-from domain.command.excecuteable_commands import ExecutableCommandEntity
+from domain.command.command_executer.excecuteable_commands import ExecutableCommandEntity
 from domain.multipass.vm_type import VmType
-from application.ports.port_vm_repository import PortVmRepository
+from application.ports.repositories.port_vm_repository import PortVmRepository
 
 
 class WorkerStrategy(VmTypeStrategy):
 
-    def __init__(self, vm_type: VmType, vm_repository: PortVmRepository = None):
-        super().__init__(vm_type=vm_type, vm_repository=vm_repository)
+    def __init__(self, vm_type: VmType, vm_repository: PortVmRepository = None,command_runner_factory=None):
+        super().__init__(vm_type=vm_type, vm_repository=vm_repository,command_runner_factory=command_runner_factory)
 
     def categorize(self, command: CommandEntity, executable_commands: Dict[str, Dict[int, ExecutableCommandEntity]]):
         vm_instance_names = self.vm_repository.find_vm_instances_by_type(self.vm_type)

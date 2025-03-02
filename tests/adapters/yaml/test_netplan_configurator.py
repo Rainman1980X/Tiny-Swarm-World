@@ -5,15 +5,15 @@ from unittest.mock import mock_open, patch, Mock
 from ruamel.yaml import YAML
 
 from infrastructure.adapters.exceptions.exception_yaml_handling import YAMLHandlingError
-from infrastructure.adapters.yaml.netplan_configurator import NetplanConfigurationManagerPortYamlManager
 from domain.network.network import Network
+from infrastructure.adapters.repositories.netplan_repository import PortNetplanRepositoryYaml
 
 
 class TestNetplanConfigurationManager(unittest.TestCase):
 
     def setUp(self):
         # Create a new instance of NetplanConfigurationManager
-        self.manager = NetplanConfigurationManagerPortYamlManager()
+        self.manager = PortNetplanRepositoryYaml()
         self.test_file = "cloud-init-manager.yaml"
         self.test_network = Network(
             ip_address="192.168.1.10",
@@ -149,7 +149,7 @@ class TestNetplanConfigurationManager(unittest.TestCase):
 
         expected_output = (
             f"YAMLLoadError: Error while loading '{file_name}'\n"
-            f"Error Type: {type(error).__name__}\n"
+            f"Error Type: EmptyOrInvalidYAML\n" 
             f"Details: {str(error)}"
         )
         self.assertEqual(str(exception), expected_output)

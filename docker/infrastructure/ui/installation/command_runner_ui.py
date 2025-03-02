@@ -2,7 +2,7 @@ import asyncio
 from typing import Dict
 
 from domain.command.command_executer.command_executer import CommandExecuter
-from domain.command.excecuteable_commands import ExecutableCommandEntity
+from domain.command.command_executer.excecuteable_commands import ExecutableCommandEntity
 from infrastructure.logging.logger_factory import LoggerFactory
 from infrastructure.ui.installation.installation_ui import InstallationUI
 
@@ -40,6 +40,7 @@ class CommandRunnerUI:
 
         # Wait for all tasks to complete
         results = await asyncio.gather(*tasks, return_exceptions=True)
+        self.ui.update_status(task="finished",step="execution",result="success",instance="all")
 
         # Close the UI thread after the last execution
         await self.ui.ui_thread

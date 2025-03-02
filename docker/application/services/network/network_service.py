@@ -1,12 +1,14 @@
 from typing import Dict
 
 from domain.command.command_builder.command_builder import CommandBuilder
+from infrastructure.adapters.command_runner.command_runner_factory import CommandRunnerFactory
 from infrastructure.adapters.repositories.command_multipass_init_repository_yaml import PortCommandRepositoryYaml
+from infrastructure.adapters.repositories.netplan_repository import PortNetplanRepositoryYaml
 from infrastructure.adapters.repositories.vm_repository_yaml import PortVmRepositoryYaml
-from infrastructure.adapters.yaml.netplan_configurator import NetplanConfigurationManagerPortYamlManager
-from domain.command.excecuteable_commands import ExecutableCommandEntity
+from domain.command.command_executer.excecuteable_commands import ExecutableCommandEntity
 from domain.multipass.vm_type import VmType
 from domain.network.network import Network
+from infrastructure.adapters.yaml.yaml_config_loader import YAMLFileLoader
 from infrastructure.logging.logger_factory import LoggerFactory
 from infrastructure.ui.installation.command_runner_ui import CommandRunnerUI
 
@@ -35,16 +37,17 @@ class NetworkService:
 
         network_data = Network(vm_instance=vm_instance_names[0],ip_address=ip, gateway=gateway_ip)
         self.logger.info("saving network data")
-        data = NetplanConfigurationManagerPortYamlManager()
+        data = PortNetplanRepositoryYaml()
         data.create(network_data)
         data.save()
 
-    def __setup_commands_init(self, config_path: str) -> Dict[str, Dict[int, ExecutableCommandEntity]]:
-        multipass_command_repository = PortCommandRepositoryYaml(config_path=config_path)
-
+    def __setup_commands_init(self,config_file: str) -> Dict[str, Dict[int, ExecutableCommandEntity]]:
+        multipass_command_repository = PortCommandRepositoryYaml(config_loader=YAMLFileLoader(config_file))
+        self.logger.info(f"getting command list from {config_file}")
         command_builder: CommandBuilder = CommandBuilder(
             vm_repository=self.vm_repository,
-            command_repository=multipass_command_repository)
+            command_repository=multipass_command_repository,
+            command_runner_factory=CommandRunnerFactory())
 
         return command_builder.get_command_list()
 

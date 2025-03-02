@@ -9,8 +9,6 @@ if platform.system() == "Windows":
         import windows_curses
     except ImportError:
         import curses
-       # print("Bitte installieren Sie 'windows-curses', um curses unter Windows zu nutzen.")
-       # exit(1)
 else:
     import curses
 
@@ -47,7 +45,7 @@ class InstallationUI:
         while True:
             height, width = stdscr.getmaxyx()
 
-            # Begrenzen der Spaltenbreite zwischen 20 und 50 Zeichen
+            # Limiting the column width between 20 and 50 characters
             col_width = max(20, min(width // len(self.instances), 50))
 
             stdscr.clear()

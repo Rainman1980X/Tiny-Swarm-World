@@ -1,20 +1,23 @@
-import os
 from typing import Dict
 
 from ruamel.yaml import YAML
 
+from application.ports.repositories.port_command_repository import PortCommandRepository
+from application.ports.files.port_file_loader import PortFileLoader
 from domain.command.command_entity import CommandEntity
-from application.ports.port_command_repository import PortCommandRepository
+
 
 class PortCommandRepositoryYaml(PortCommandRepository):
     """
     Loads and manages the task list from a YAML file using ruamel.yaml.
     """
-    def __init__(self, config_path=None):
+
+    def __init__(self, config_loader: PortFileLoader = None):
         """
-        :param config_path: Path to the YAML file
+        :param config_loader: config loader
         """
-        self.config_path = os.path.abspath(config_path)
+
+        self.config_loader = config_loader
         self.yaml = YAML()
         self.data = None
 
@@ -22,17 +25,8 @@ class PortCommandRepositoryYaml(PortCommandRepository):
         self.__load()
 
     def __load(self) -> None:
-
         """Loads the YAML configuration file."""
-
-        if not os.path.exists(self.config_path):
-            raise FileNotFoundError(f"YAML file {self.config_path} does not exist.")
-
-        try:
-            with open(self.config_path, "r", encoding="utf-8") as file:
-                self.data = self.yaml.load(file) or {}
-        except Exception as e:
-            raise Exception(f"Error loading YAML file: {str(e)}")
+        self.data = self.config_loader.load()
 
     def get_all_commands(self) -> Dict[int, CommandEntity]:
         """

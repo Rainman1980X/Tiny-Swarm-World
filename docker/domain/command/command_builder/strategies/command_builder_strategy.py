@@ -2,9 +2,9 @@ from abc import ABC, abstractmethod
 from typing import Dict
 
 from application.ports.port_command_factory import PortCommandRunnerFactory
-from application.ports.port_vm_repository import PortVmRepository
+from application.ports.repositories.port_vm_repository import PortVmRepository
 from domain.command.command_entity import CommandEntity
-from domain.command.excecuteable_commands import ExecutableCommandEntity
+from domain.command.command_executer.excecuteable_commands import ExecutableCommandEntity
 from domain.multipass.vm_type import VmType
 
 
@@ -15,6 +15,7 @@ class VmTypeStrategy(ABC):
                  , vm_type: VmType
                  , command_runner_factory: PortCommandRunnerFactory
                  , vm_repository: PortVmRepository = None):
+
         self.command_runner_factory = command_runner_factory
         self.vm_type = vm_type
         self.vm_repository = vm_repository

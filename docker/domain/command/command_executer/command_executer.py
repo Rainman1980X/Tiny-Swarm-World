@@ -1,6 +1,6 @@
 import time
 
-from domain.command.excecuteable_commands import ExecutableCommandEntity
+from domain.command.command_executer.excecuteable_commands import ExecutableCommandEntity
 from infrastructure.logging.logger_factory import LoggerFactory
 from infrastructure.ui.installation.installation_ui import InstallationUI
 

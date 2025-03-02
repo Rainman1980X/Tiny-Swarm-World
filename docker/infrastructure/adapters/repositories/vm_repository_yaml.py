@@ -1,4 +1,3 @@
-import os
 from typing import List, Optional
 
 from ruamel.yaml import YAML
@@ -6,16 +5,18 @@ from ruamel.yaml import YAML
 from infrastructure.adapters.yaml.yaml_builder import FluentYAMLBuilder
 from domain.multipass.vm_entity import VmEntity
 from domain.multipass.vm_type import VmType
-from application.ports.port_vm_repository import PortVmRepository
+from application.ports.repositories.port_vm_repository import PortVmRepository
+from application.ports.files.port_file_loader import PortFileLoader
+from infrastructure.adapters.yaml.yaml_config_loader import YAMLFileLoader
 
 CONFIG_PATH = "config/vms_repository.yaml"
-
 
 class PortVmRepositoryYaml(PortVmRepository):
     """YAML-based VM repository using FluentYAMLBuilder."""
 
-    def __init__(self, config_path=CONFIG_PATH):
-        self.config_path = config_path
+    def __init__(self, config_loader :PortFileLoader = YAMLFileLoader(yaml_filename=CONFIG_PATH)):
+        self.config_path = CONFIG_PATH
+        self.config_loader = config_loader
         self.yaml_builder = FluentYAMLBuilder("vms")
         self.yaml = YAML()
         self.loaded_data = None
@@ -23,19 +24,12 @@ class PortVmRepositoryYaml(PortVmRepository):
 
     def __load(self) -> None:
         """Loads the YAML configuration file."""
-        if not os.path.exists(self.config_path):
-            raise FileNotFoundError(f"YAML file {self.config_path} does not exist.")
-
-        try:
-            with open(self.config_path, "r", encoding="utf-8") as file:
-                self.loaded_data = self.yaml.load(file) or {}
-        except Exception as e:
-            raise Exception(f"Error loading YAML file: {str(e)}")
+        self.loaded_data = self.config_loader.load()
 
     def save(self) -> None:
         """Saves the YAML configuration file."""
         try:
-            with open(self.config_path, "w", encoding="utf-8") as file:
+            with open(self.config_loader.yaml_path, "w", encoding="utf-8") as file:
                 file.write(self.yaml_builder.to_yaml())
         except Exception as e:
             raise Exception(f"Error saving YAML file: {str(e)}")
@@ -64,7 +58,7 @@ class PortVmRepositoryYaml(PortVmRepository):
         for vm in all_vms:
             if vm.vm_instance == name:
                 try:
-                    self.yaml_builder.navigate_to(["vms", "id", str(vm.id)]).delete_current()
+                    self.yaml_builder.navigate_to(["vms", "vm_instance", str(vm.vm_instance)]).delete_current()
                     self.save()
                     return
                 except KeyError:
@@ -75,13 +69,6 @@ class PortVmRepositoryYaml(PortVmRepository):
         """Updates an existing VM."""
         self.remove_vm(vm.vm_instance)
         self.add_vm(vm)
-
-    def find_vm(self, vm_id: str) -> Optional[VmEntity]:
-        """Finds a VM by its unique ID."""
-        for vm in self.get_all_vms():
-            if str(vm.id) == vm_id:
-                return vm
-        return None
 
     def find_all_vms(self) -> List[VmEntity]:
         """Retrieves all VMs from the YAML file."""

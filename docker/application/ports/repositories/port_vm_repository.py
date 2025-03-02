@@ -36,11 +36,6 @@ class PortVmRepository(ABC):
         pass
 
     @abstractmethod
-    def find_vm(self, vm_id: str) -> Optional[VmEntity]:
-        """Finds a VM by its unique ID."""
-        pass
-
-    @abstractmethod
     def find_all_vms(self) -> List[VmEntity]:
         """Retrieves all VMs as objects."""
         pass
