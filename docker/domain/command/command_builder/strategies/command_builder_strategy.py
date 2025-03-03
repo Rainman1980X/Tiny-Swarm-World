@@ -9,7 +9,7 @@ from domain.multipass.vm_type import VmType
 
 
 class VmTypeStrategy(ABC):
-    """"Abstract strategy class for processing VM types."""
+    """Abstract strategy class for processing VM types."""
 
     def __init__(self
                  , vm_type: VmType
