@@ -29,7 +29,7 @@ class PortVmRepositoryYaml(PortVmRepository):
     def save(self) -> None:
         """Saves the YAML configuration file."""
         try:
-            with open(self.config_loader.yaml_path, "w", encoding="utf-8") as file:
+            with open(self.config_loader.path, "w", encoding="utf-8") as file:
                 file.write(self.yaml_builder.to_yaml())
         except Exception as e:
             raise Exception(f"Error saving YAML file: {str(e)}")

@@ -4,8 +4,8 @@ class PortFileLoader(ABC):
 
     @property
     @abstractmethod
-    def yaml_path(self) -> str:
-        """Returns the path to the YAML file."""
+    def path(self) -> str:
+        """Returns the path to the file."""
         pass
 
     @abstractmethod

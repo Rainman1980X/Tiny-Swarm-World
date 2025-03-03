@@ -19,23 +19,23 @@ class YAMLFileLoader(PortFileLoader):
         self.config_locator = ConfigFileLocator(yaml_filename)
 
     @property
-    def yaml_path(self) -> str:
+    def path(self) -> str:
         return self.config_locator.find_file_path()
 
     def load(self):
         """Loads a YAML file and handles errors."""
         try:
-            with open(self.yaml_path, 'r') as yaml_file:
+            with open(self.path, 'r') as yaml_file:
                 data = self.yaml.load(yaml_file)
 
                 # Case 1: File is empty or contains only whitespace
                 if data is None or data == "":
-                    raise YAMLHandlingError(self.yaml_path,
+                    raise YAMLHandlingError(self.path,
                                             ValueError("The YAML file is empty or contains only whitespace."))
 
                 # Case 2: File contains invalid YAML data but no syntax errors
                 if not isinstance(data, (dict, list)):  # YAML should normally be a dictionary or list
-                    raise YAMLHandlingError(self.yaml_path,
+                    raise YAMLHandlingError(self.path,
                                             ValueError(
                                                 "The YAML file contains invalid data, but it is not a syntax error."))
                 return data
@@ -44,16 +44,14 @@ class YAMLFileLoader(PortFileLoader):
             raise e
         except ScannerError as e:
             # Case 3: YAML parsing error (e.g., incorrect indentation, invalid characters)
-            raise YAMLHandlingError(self.yaml_path, ParserError(f"YAML Syntax Error: {e}")) from e
-
+            raise YAMLHandlingError(self.path, ParserError(f"YAML Syntax Error: {e}")) from e
         except YAMLError as e:
             # Case 4: General YAML error (e.g., unknown YAML constructions)
-            raise YAMLHandlingError(self.yaml_path, e) from e
-
+            raise YAMLHandlingError(self.path, e) from e
         except FileNotFoundError as e:
-            # Spezifischer Block, der bereits FileNotFoundError behandelt
-            raise YAMLHandlingError(self.yaml_path, e) from e
-
+            # Specific block that already handles FileNotFoundError
+            raise YAMLHandlingError(self.path, e) from e
         except Exception as e:
             # Case 5: Unexpected error (e.g., filesystem issues)
-            raise YAMLHandlingError(self.yaml_path, e) from e
+            raise YAMLHandlingError(self.path, e) from e
+

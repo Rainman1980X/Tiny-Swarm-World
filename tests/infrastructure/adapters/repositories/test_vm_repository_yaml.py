@@ -55,7 +55,7 @@ class TestPortVmRepositoryYaml(unittest.TestCase):
         self.repo.yaml_builder.to_yaml = MagicMock(return_value="yaml_data")
 
         # Mock the path in the loader instance
-        self.mock_loader_instance.yaml_path = "mocked_path.yaml"
+        self.mock_loader_instance.path = "mocked_path.yaml"
 
         # Call the save method
         self.repo.save()
