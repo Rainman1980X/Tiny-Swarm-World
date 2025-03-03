@@ -11,27 +11,27 @@ from infrastructure.ui.installation.command_runner_ui import CommandRunnerUI
 
 
 class MultipassInitVms:
-    def __init__(self):
+    def __init__(self, vm_repository=None, command_runner_factory=None):
+        self.vm_repository = vm_repository or PortVmRepositoryYaml()
+        self.command_runner_factory = command_runner_factory or CommandRunnerFactory()
         self.ui = None
-        self.vm_repository = PortVmRepositoryYaml()
-        self.command_runner_factory = CommandRunnerFactory()
         self.command_execute = None
         self.logger = LoggerFactory.get_logger(self.__class__)
 
     async def run(self):
         self.logger.info("init clean up")
-        command_list = self.__setup_commands_init("config/command_multipass_clean_repository_yaml.yaml")
+        command_list = self._setup_commands_init("config/command_multipass_clean_repository_yaml.yaml")
         runner_ui = CommandRunnerUI(command_list)
         result = await runner_ui.run()
         self.logger.info(f"multipass clean up result: {result}")
 
         self.logger.info("initialisation of multipass")
-        command_list = self.__setup_commands_init("config/command_multipass_init_repository_yaml.yaml")
+        command_list = self._setup_commands_init("config/command_multipass_init_repository_yaml.yaml")
         runner_ui = CommandRunnerUI(command_list)
         result = await runner_ui.run()
         self.logger.info(f"initialisation of multipass: {result}")
 
-    def __setup_commands_init(self, config_file: str) -> Dict[str, Dict[int, ExecutableCommandEntity]]:
+    def _setup_commands_init(self, config_file: str) -> Dict[str, Dict[int, ExecutableCommandEntity]]:
         multipass_command_repository = PortCommandRepositoryYaml(config_loader=YAMLFileLoader(config_file))
 
         command_builder: CommandBuilder = CommandBuilder(
