@@ -4,6 +4,7 @@ from unittest.mock import Mock, AsyncMock, patch
 
 from application.ports.repositories.port_yaml_repository import PortYamlRepository
 from application.services.network.network_service import NetworkService
+from domain.network.ip_value import IpValue
 from domain.network.network import Network
 
 
@@ -55,8 +56,8 @@ class TestNetworkService(unittest.IsolatedAsyncioTestCase):
 
         # Bereite valide Daten für die Network-Klasse vor
         network_data = Network(
-            ip_address="192.168.1.1",  # Gültige IPv4-Adresse
-            gateway="192.168.1.254",  # Gültige IPv4-Adresse
+            ip_address=IpValue(ip_address="192.168.1.1"),  # Gültige IPv4-Adresse
+            gateway=IpValue(ip_address="192.168.1.254"),  # Gültige IPv4-Adresse
             vm_instance="my-vm-instance"  # Gültiger VM-Name
         )
 

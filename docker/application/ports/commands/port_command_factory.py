@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from domain.command.command_runner_type_enum import CommandRunnerType
-from application.ports.port_command_runner import PortCommandRunner
+from application.ports.commands.port_command_runner import PortCommandRunner
 
 class PortCommandRunnerFactory(ABC):
     @abstractmethod

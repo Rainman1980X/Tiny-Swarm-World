@@ -2,7 +2,7 @@ import asyncio
 
 from infrastructure.adapters.exceptions.exception_command_execution import CommandExecutionError
 from infrastructure.logging.logger_factory import LoggerFactory
-from application.ports.port_command_runner import PortCommandRunner
+from application.ports.commands.port_command_runner import PortCommandRunner
 
 
 class AsyncPortCommandRunner(PortCommandRunner):

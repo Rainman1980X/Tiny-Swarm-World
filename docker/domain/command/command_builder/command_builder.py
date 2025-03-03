@@ -1,6 +1,6 @@
 from typing import Dict
 
-from application.ports.port_command_factory import PortCommandRunnerFactory
+from application.ports.commands.port_command_factory import PortCommandRunnerFactory
 from application.ports.repositories.port_command_repository import PortCommandRepository
 from application.ports.repositories.port_vm_repository import PortVmRepository
 from domain.command.command_builder.strategies.manager_strategy import ManagerStrategy

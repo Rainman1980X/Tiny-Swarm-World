@@ -33,9 +33,8 @@ class ConfigFileLocator(PortFileLocator):
         """
         for directory in self.search_paths:
             normalized_directory = self._normalize_to_linux_path(directory)
-            file_path = self._normalize_to_linux_path(os.path.join(normalized_directory, self.filename))  # ✅ Fix!
-
-            if os.path.isdir(normalized_directory) and os.path.isfile(file_path):  # ✅ Fix!
+            file_path = self._normalize_to_linux_path(os.path.join(normalized_directory, self.filename))
+            if os.path.isdir(normalized_directory) and os.path.isfile(file_path):
                 return file_path
 
         raise FileNotFoundError(f"Configuration file '{self.filename}' not found in expected paths: {self.search_paths}")

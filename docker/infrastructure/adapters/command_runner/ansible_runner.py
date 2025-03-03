@@ -1,7 +1,7 @@
 import asyncio
 from sys import stdout
 
-from application.ports.port_command_runner import PortCommandRunner
+from application.ports.commands.port_command_runner import PortCommandRunner
 
 
 class AnsiblePortCommandRunner(PortCommandRunner):

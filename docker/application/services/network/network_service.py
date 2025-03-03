@@ -1,6 +1,8 @@
 from typing import Dict
 
 from domain.command.command_builder.command_builder import CommandBuilder
+from domain.network.ip_extractor.ip_extractor_builder import IpExtractorBuilder
+from domain.network.ip_extractor.strategies.ip_extstractor_types import IpExtractorTypes
 from infrastructure.adapters.command_runner.command_runner_factory import CommandRunnerFactory
 from infrastructure.adapters.repositories.command_multipass_init_repository_yaml import PortCommandRepositoryYaml
 from infrastructure.adapters.repositories.netplan_repository import PortNetplanRepositoryYaml
@@ -19,29 +21,30 @@ class NetworkService:
         self.vm_repository = PortVmRepositoryYaml()
         self.command_execute = None
         self.logger = LoggerFactory.get_logger(self.__class__)
+        self.ip_extractor_builder = IpExtractorBuilder()
 
     async def run(self):
 
         self.logger.info("initialisation of network")
-        command_list = self.__setup_commands_init("config/command_network_setup_yaml.yaml")
+        command_list = self._setup_commands_init("config/command_network_setup_yaml.yaml")
         runner_ui = CommandRunnerUI(command_list)
         result = await runner_ui.run()
         self.logger.info(f"initialisation of multipass : {result}")
 
-        vm_instance_names = self.vm_repository.find_vm_instances_by_type(VmType.MANAGER)
-
-        gateway_ip = self.__extract_gateway_ip(result)
+        # getting the necessary IPs
+        gateway_ip = self.ip_extractor_builder.build(result=result, ip_extractor_types=IpExtractorTypes.GATEWAY)
         self.logger.info(f"extracted gateway ip: {gateway_ip}")
-        ip = self.__extract_ip(result)
+        ip = self.ip_extractor_builder.build(result=result, ip_extractor_types=IpExtractorTypes.SWAM_MANAGER)
         self.logger.info(f"extracted ip: {ip}")
 
+        vm_instance_names = self.vm_repository.find_vm_instances_by_type(VmType.MANAGER)
         network_data = Network(vm_instance=vm_instance_names[0],ip_address=ip, gateway=gateway_ip)
         self.logger.info("saving network data")
         data = PortNetplanRepositoryYaml()
         data.create(network_data)
         data.save()
 
-    def __setup_commands_init(self,config_file: str) -> Dict[str, Dict[int, ExecutableCommandEntity]]:
+    def _setup_commands_init(self,config_file: str) -> Dict[str, Dict[int, ExecutableCommandEntity]]:
         multipass_command_repository = PortCommandRepositoryYaml(config_loader=YAMLFileLoader(config_file))
         self.logger.info(f"getting command list from {config_file}")
         command_builder: CommandBuilder = CommandBuilder(
@@ -50,14 +53,3 @@ class NetworkService:
             command_runner_factory=CommandRunnerFactory())
 
         return command_builder.get_command_list()
-
-
-    def __extract_gateway_ip(self,result):
-        self.logger.info(f"extract gateway ip: {result[1]}")
-        value2 = result[1][2].strip().split()
-        return value2[2] if len(value2) > 2 else None
-
-
-    def __extract_ip(self,result):
-        self.logger.info(f"extract ip: {result[1]}")
-        return result[1][3].strip().split()[0]

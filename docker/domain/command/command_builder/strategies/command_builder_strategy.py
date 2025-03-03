@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict
 
-from application.ports.port_command_factory import PortCommandRunnerFactory
+from application.ports.commands.port_command_factory import PortCommandRunnerFactory
 from application.ports.repositories.port_vm_repository import PortVmRepository
 from domain.command.command_entity import CommandEntity
 from domain.command.command_executer.excecuteable_commands import ExecutableCommandEntity

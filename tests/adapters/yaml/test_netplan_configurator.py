@@ -4,6 +4,7 @@ from unittest.mock import mock_open, patch, Mock
 
 from ruamel.yaml import YAML
 
+from domain.network.ip_value import IpValue
 from infrastructure.adapters.exceptions.exception_yaml_handling import YAMLHandlingError
 from domain.network.network import Network
 from infrastructure.adapters.repositories.netplan_repository import PortNetplanRepositoryYaml
@@ -16,8 +17,8 @@ class TestNetplanConfigurationManager(unittest.TestCase):
         self.manager = PortNetplanRepositoryYaml()
         self.test_file = "cloud-init-manager.yaml"
         self.test_network = Network(
-            ip_address="192.168.1.10",
-            gateway="192.168.1.1",
+            ip_address=IpValue(ip_address="192.168.1.10"),
+            gateway=IpValue(ip_address="192.168.1.1"),
             vm_instance="test-vm"
         )
         self.yaml = YAML()

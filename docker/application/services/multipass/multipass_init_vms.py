@@ -20,13 +20,13 @@ class MultipassInitVms:
 
     async def run(self):
         self.logger.info("init clean up")
-        command_list = self._setup_commands_init("config/command_multipass_clean_repository_yaml.yaml")
+        command_list = self._setup_commands_init("command_multipass_clean_repository_yaml.yaml")
         runner_ui = CommandRunnerUI(command_list)
         result = await runner_ui.run()
         self.logger.info(f"multipass clean up result: {result}")
 
         self.logger.info("initialisation of multipass")
-        command_list = self._setup_commands_init("config/command_multipass_init_repository_yaml.yaml")
+        command_list = self._setup_commands_init("command_multipass_init_repository_yaml.yaml")
         runner_ui = CommandRunnerUI(command_list)
         result = await runner_ui.run()
         self.logger.info(f"initialisation of multipass: {result}")

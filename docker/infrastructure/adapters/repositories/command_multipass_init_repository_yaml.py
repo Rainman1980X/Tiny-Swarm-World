@@ -19,13 +19,6 @@ class PortCommandRepositoryYaml(PortCommandRepository):
 
         self.config_loader = config_loader
         self.yaml = YAML()
-        self.data = None
-
-        # Load existing data
-        self.__load()
-
-    def __load(self) -> None:
-        """Loads the YAML configuration file."""
         self.data = self.config_loader.load()
 
     def get_all_commands(self) -> Dict[int, CommandEntity]:

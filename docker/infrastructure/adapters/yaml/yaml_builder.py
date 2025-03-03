@@ -147,11 +147,12 @@ class FluentYAMLBuilder:
             key, value = next(iter(child_dict.items()))
 
             if key in result:
-                if not isinstance(result[key], list):
-                    result[key] = [result[key]]  # Convert to a list if multiple entries exist
-                result[key].append(value)
+                if isinstance(result[key], list):
+                    result[key].append(value)
+                else:
+                    result[key] = [result[key], value]  # Always convert a single value to a list
             else:
-                result[key] = value  # No forced list conversion here!
+                result[key] = value  # Assign on first encounter
 
         return {node.name: result} if result else {node.name: {}}
 

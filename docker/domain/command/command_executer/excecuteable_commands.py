@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from application.ports.port_command_runner import PortCommandRunner
+from application.ports.commands.port_command_runner import PortCommandRunner
 
 
 class ExecutableCommandEntity(BaseModel):
