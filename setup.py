@@ -1,10 +1,12 @@
 from setuptools import setup, find_packages
 
+
 setup(
-    name="infrastructure",
+    name="infra-core",
     version="0.1",
-    packages=find_packages(where="docker"),
-    package_dir={"": "docker"},
+    packages=find_packages(where="."),  # Suche in allen Verzeichnissen
+    package_dir={"": "."},  # Setze das Root-Verzeichnis als Basis
     include_package_data=True,
     install_requires=[],
 )
+
