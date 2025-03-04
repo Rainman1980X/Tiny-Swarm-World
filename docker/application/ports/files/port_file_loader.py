@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Any
 
 class PortFileLoader(ABC):
 
@@ -9,6 +10,6 @@ class PortFileLoader(ABC):
         pass
 
     @abstractmethod
-    def load(self) -> dict:
+    def load(self) -> Any:
         """Loads the configuration and returns it as a dictionary."""
         pass

@@ -1,6 +1,7 @@
 import os
 
 from application.ports.files.port_file_locator import PortFileLocator
+from infrastructure.adapters.file_management.path_normalizer import PathNormalizer
 
 
 class ConfigFileLocator(PortFileLocator):
@@ -12,14 +13,14 @@ class ConfigFileLocator(PortFileLocator):
         self.filename = filename
 
         self.search_paths = [
-            self._normalize_to_linux_path(os.path.join(os.getcwd(), "config")),  # Default config directory
-            self._normalize_to_linux_path(os.getcwd())  # Root working directory
+            PathNormalizer(os.path.join(os.getcwd(), "config")).normalize(),  # Default config directory
+            PathNormalizer(os.getcwd()).normalize()  # Root working directory
         ]
 
-        self.search_paths.insert(1, self._normalize_to_linux_path(os.path.dirname(os.path.abspath(__file__))))
+        self.search_paths.insert(1, PathNormalizer(os.path.dirname(os.path.abspath(__file__))).normalize())
 
         if additional_paths:
-            self.search_paths.extend([self._normalize_to_linux_path(path) for path in additional_paths])
+            self.search_paths.extend([PathNormalizer(path).normalize() for path in additional_paths])
 
     def find_file_path(self) -> str:
         """
@@ -32,10 +33,9 @@ class ConfigFileLocator(PortFileLocator):
             FileNotFoundError: If the file is not found.
         """
         for directory in self.search_paths:
-            normalized_directory = self._normalize_to_linux_path(directory)
-            file_path = self._normalize_to_linux_path(os.path.join(normalized_directory, self.filename))
+            normalized_directory = PathNormalizer(directory).normalize()
+            file_path = PathNormalizer(os.path.join(normalized_directory, self.filename)).normalize()
             if os.path.isdir(normalized_directory) and os.path.isfile(file_path):
                 return file_path
 
         raise FileNotFoundError(f"Configuration file '{self.filename}' not found in expected paths: {self.search_paths}")
-
