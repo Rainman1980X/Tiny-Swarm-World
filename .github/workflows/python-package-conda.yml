@@ -33,9 +33,9 @@ jobs:
         run: |
           pip install -e .
 
-      - name: Set PYTHONPATH
+      - name: Set Correct PYTHONPATH
         run: |
-          echo "PYTHONPATH=$(pwd)/docker:$(pwd)" >> $GITHUB_ENV
+          echo "PYTHONPATH=$(pwd | sed 's/\/infra-core\/infra-core/\/infra-core/'):$(pwd | sed 's/\/infra-core\/infra-core/\/infra-core/')/docker" >> $GITHUB_ENV
 
       - name: Verify PYTHONPATH
         run: |
