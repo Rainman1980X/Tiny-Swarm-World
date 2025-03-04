@@ -3,6 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - python=3.10
+  - flake8
   - pip
   - pip:
       - annotated-types==0.7.0
