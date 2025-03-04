@@ -35,7 +35,7 @@ jobs:
 
       - name: Set PYTHONPATH
         run: |
-          echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
+          echo "PYTHONPATH=$(pwd)/docker" >> $GITHUB_ENV
 
       - name: Run tests with unittest
         run: |
