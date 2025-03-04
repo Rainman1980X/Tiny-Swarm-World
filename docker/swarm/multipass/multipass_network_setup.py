@@ -100,7 +100,7 @@ class MultipassNetworkSetup:
         self.replace_template_variables()
 
         try:
-            # Step 1: Delete all existing netplan files
+            # Step 1: Delete all existing netplan file_management
             self.run_multipass_command(["sudo", "rm", "-f", "/etc/netplan/*.yaml"])
             print("Old netplan configuration deleted.")
 

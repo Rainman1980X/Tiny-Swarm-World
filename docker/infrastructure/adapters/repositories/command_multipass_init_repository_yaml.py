@@ -3,8 +3,9 @@ from typing import Dict
 from ruamel.yaml import YAML
 
 from application.ports.repositories.port_command_repository import PortCommandRepository
-from application.ports.files.port_file_loader import PortFileLoader
+
 from domain.command.command_entity import CommandEntity
+from infrastructure.adapters.file_management.yaml.yaml_file_manager import YamlFileManager
 
 
 class PortCommandRepositoryYaml(PortCommandRepository):
@@ -12,14 +13,14 @@ class PortCommandRepositoryYaml(PortCommandRepository):
     Loads and manages the task list from a YAML file using ruamel.yaml.
     """
 
-    def __init__(self, config_loader: PortFileLoader = None):
+    def __init__(self, yaml_file_manager: YamlFileManager = None):
         """
-        :param config_loader: config loader
+        :param yaml_file_manager: The YAML file manager to use.
         """
 
-        self.config_loader = config_loader
+        self.yaml_file_manager = yaml_file_manager
         self.yaml = YAML()
-        self.data = self.config_loader.load()
+        self.data = self.yaml_file_manager.load()
 
     def get_all_commands(self) -> Dict[int, CommandEntity]:
         """

@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 class PortFileLocator(ABC):
     """
-    Defines the interface for finding files in different sources (local, cloud, etc.).
+    Defines the interface for finding file_management in different sources (local, cloud, etc.).
     """
 
     @abstractmethod

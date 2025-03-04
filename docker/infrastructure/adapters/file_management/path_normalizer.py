@@ -52,8 +52,16 @@ class PathNormalizer:
     def parent_directory(self) -> str:
         """
         Returns the parent directory of the given path.
+        Ensures the result is absolute if the input was relative.
 
         Returns:
             str: The parent directory path.
         """
-        return Path(self.raw_path).parent.as_posix()
+        parent_path = Path(self.raw_path).parent
+
+        # If the input path was relative, resolve it to absolute
+        if not parent_path.is_absolute():
+            parent_path = parent_path.resolve()
+
+        return parent_path.as_posix()
+

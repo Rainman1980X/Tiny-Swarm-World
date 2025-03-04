@@ -8,7 +8,7 @@ source create_dockerfiles.sh
 PORTAINER_URL="http://localhost:9000"
 USERNAME="admin"  # own user
 PASSWORD="admin1234567890"  # own password
-BASE_DIR="./"  # Base directory for all docker-compose files
+BASE_DIR="./"  # Base directory for all docker-compose file_management
 
 # Function to print usage
 print_usage() {

@@ -10,7 +10,7 @@ DOCKERFILE_TEMPLATE="Dockerfile.template"
 # Function to create Docker images from each found Dockerfile.template.orig.test.old
 execute_prepare_scripts() {
   local directory="$1"
-  local found_file=false   # Status variable to track if any Dockerfile.template.orig.test.old files are found
+  local found_file=false   # Status variable to track if any Dockerfile.template.orig.test.old file_management are found
 
   for entry in "$directory"/*; do
     if [ -d "$entry" ]; then
@@ -48,7 +48,7 @@ execute_prepare_scripts() {
     fi
   done
 
-  # Output message if no Dockerfile.template.orig.test.old files were found
+  # Output message if no Dockerfile.template.orig.test.old file_management were found
   if [ "$found_file" = false ]; then
     printf "\nNo Dockerfile.template files found in %s or its subdirectories.\n" "$directory"
   else

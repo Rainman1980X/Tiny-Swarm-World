@@ -1,12 +1,12 @@
 import os
 
-from application.ports.files.port_file_locator import PortFileLocator
+from application.ports.file_management.port_file_locator import PortFileLocator
 from infrastructure.adapters.file_management.path_normalizer import PathNormalizer
 
 
-class ConfigFileLocator(PortFileLocator):
+class YamlFileLocator(PortFileLocator):
     """
-    Adapter for locating configuration files in standard locations.
+    Adapter for locating configuration file_management in standard locations.
     """
 
     def __init__(self, filename: str, additional_paths: list = None):

@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 
-from docker.infrastructure.adapters.yaml.config_file_locator import ConfigFileLocator
+from infrastructure.adapters.file_management.yaml.yaml_file_locator import YamlFileLocator
 from infrastructure.adapters.file_management.path_normalizer import PathNormalizer
 
 
@@ -9,7 +9,7 @@ class TestConfigFileLocator(unittest.TestCase):
 
     def setUp(self):
         self.filename = "test_config.yaml"
-        self.locator = ConfigFileLocator(self.filename)
+        self.locator = YamlFileLocator(self.filename)
 
     @patch("os.getcwd", return_value="/current")  # Mock `os.getcwd()`
     @patch("os.path.isdir")
@@ -18,7 +18,7 @@ class TestConfigFileLocator(unittest.TestCase):
         """
         Test if `ConfigFileLocator` correctly finds the configuration file in the default directory.
         """
-        locator = ConfigFileLocator(self.filename)
+        locator = YamlFileLocator(self.filename)
 
         normalized_default_path = PathNormalizer("/current/config").normalize()
         normalized_file_path = PathNormalizer(f"/current/config/{self.filename}").normalize()
@@ -51,7 +51,7 @@ class TestConfigFileLocator(unittest.TestCase):
         mock_isdir.side_effect = lambda path: path in [normalized_script_dir, normalized_script_config_dir]
         mock_isfile.side_effect = lambda path: path == normalized_file_path
 
-        locator = ConfigFileLocator(self.filename)
+        locator = YamlFileLocator(self.filename)
         locator.search_paths.insert(1, normalized_script_config_dir)
 
         resolved_path = locator.find_file_path()
@@ -74,7 +74,7 @@ class TestConfigFileLocator(unittest.TestCase):
         Test if `ConfigFileLocator` correctly finds a configuration file in additional paths.
         """
         additional_path = "/custom/path"
-        locator_with_extra_path = ConfigFileLocator(self.filename, additional_paths=[additional_path])
+        locator_with_extra_path = YamlFileLocator(self.filename, additional_paths=[additional_path])
 
         normalized_additional_path = PathNormalizer(additional_path).normalize()
         normalized_default_path = PathNormalizer("/mocked/project/config").normalize()
@@ -98,7 +98,7 @@ class TestConfigFileLocator(unittest.TestCase):
         mock_isdir.side_effect = lambda path: path == "/non/default"
         mock_isfile.side_effect = lambda path: path == "/non/default/test_config.yaml"
 
-        locator_non_default = ConfigFileLocator(self.filename, additional_paths=["/non/default"])
+        locator_non_default = YamlFileLocator(self.filename, additional_paths=["/non/default"])
         resolved_path = locator_non_default.find_file_path()
 
         expected_path = "/non/default/test_config.yaml"

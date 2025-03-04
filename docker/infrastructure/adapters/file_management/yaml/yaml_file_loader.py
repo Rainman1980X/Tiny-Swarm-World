@@ -2,12 +2,12 @@ from ruamel.yaml import YAML, YAMLError
 from ruamel.yaml.parser import ParserError
 from ruamel.yaml.scanner import ScannerError
 
-from application.ports.files.port_file_loader import PortFileLoader
+from application.ports.file_management.port_file_loader import PortFileLoader
 from infrastructure.adapters.exceptions.exception_yaml_handling import YAMLHandlingError
-from infrastructure.adapters.yaml.config_file_locator import ConfigFileLocator
+from infrastructure.adapters.file_management.yaml.yaml_file_locator import YamlFileLocator
 
 
-class YAMLFileLoader(PortFileLoader):
+class YamlFileLoader(PortFileLoader):
 
     def __init__(self, yaml_filename: str = None):
         """
@@ -16,11 +16,11 @@ class YAMLFileLoader(PortFileLoader):
         """
         self.yaml = YAML()
         self.yaml_filename = yaml_filename
-        self.config_locator = ConfigFileLocator(yaml_filename)
+        self.file_locator = YamlFileLocator(yaml_filename)
 
     @property
     def path(self) -> str:
-        return self.config_locator.find_file_path()
+        return self.file_locator.find_file_path()
 
     def load(self):
         """Loads a YAML file and handles errors."""

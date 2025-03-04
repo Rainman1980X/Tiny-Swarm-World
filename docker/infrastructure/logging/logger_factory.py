@@ -14,7 +14,7 @@ class LoggerFactory:
         Creates or returns a logger for the given class.
 
         :param cls: The class reference or class name as a string.
-        :param log_dir: Directory for log files.
+        :param log_dir: Directory for log file_management.
         :param level: Logging level.
         :return: Configured logger.
         """

@@ -1,6 +1,6 @@
 import unittest
 
-from infrastructure.adapters.yaml.yaml_builder import FluentYAMLBuilder, YAMLNode
+from infrastructure.adapters.file_management.yaml.yaml_builder import FluentYAMLBuilder, YAMLNode
 
 
 class TestFluentYAMLBuilder(unittest.TestCase):

@@ -1,6 +1,6 @@
 import unittest
 
-from infrastructure.adapters.yaml.yaml_builder import YAMLNode, Value
+from infrastructure.adapters.file_management.yaml.yaml_builder import YAMLNode, Value
 
 
 class TestYAMLNode(unittest.TestCase):

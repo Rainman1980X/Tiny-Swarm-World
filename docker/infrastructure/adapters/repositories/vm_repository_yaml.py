@@ -2,35 +2,28 @@ from typing import List, Optional
 
 from ruamel.yaml import YAML
 
-from infrastructure.adapters.yaml.yaml_builder import FluentYAMLBuilder
+from infrastructure.adapters.file_management.yaml.yaml_builder import FluentYAMLBuilder
 from domain.multipass.vm_entity import VmEntity
 from domain.multipass.vm_type import VmType
 from application.ports.repositories.port_vm_repository import PortVmRepository
-from application.ports.files.port_file_loader import PortFileLoader
-from infrastructure.adapters.yaml.yaml_config_loader import YAMLFileLoader
+from infrastructure.adapters.file_management.yaml.yaml_file_manager import YamlFileManager
 
-CONFIG_PATH = "config/vms_repository.yaml"
+CONFIG_PATH = "vms_repository.yaml"
 
 class PortVmRepositoryYaml(PortVmRepository):
     """YAML-based VM repository using FluentYAMLBuilder."""
 
-    def __init__(self, config_loader :PortFileLoader = YAMLFileLoader(yaml_filename=CONFIG_PATH)):
+    def __init__(self, yaml_file_manager :YamlFileManager = YamlFileManager(filename=CONFIG_PATH)):
         self.config_path = CONFIG_PATH
-        self.config_loader = config_loader
+        self.yaml_file_manager = yaml_file_manager
         self.yaml_builder = FluentYAMLBuilder("vms")
         self.yaml = YAML()
-        self.loaded_data = None
-        self.__load()
-
-    def __load(self) -> None:
-        """Loads the YAML configuration file."""
-        self.loaded_data = self.config_loader.load()
+        self.loaded_data = yaml_file_manager.load()
 
     def save(self) -> None:
         """Saves the YAML configuration file."""
         try:
-            with open(self.config_loader.path, "w", encoding="utf-8") as file:
-                file.write(self.yaml_builder.to_yaml())
+            self.yaml_file_manager.save(self.yaml_builder.to_yaml())
         except Exception as e:
             raise Exception(f"Error saving YAML file: {str(e)}")
 

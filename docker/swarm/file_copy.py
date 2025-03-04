@@ -17,7 +17,7 @@ class FileSetup:
             exit(1)
 
     def copy_and_set_permissions(self):
-        """Copies setup files and sets permissions."""
+        """Copies setup file_management and sets permissions."""
         if not os.path.exists(self.source_folder):
             print(f"Error: Source folder {self.source_folder} does not exist.")
             exit(1)

@@ -5,7 +5,7 @@ from domain.command.command_executer.excecuteable_commands import ExecutableComm
 from infrastructure.adapters.command_runner.command_runner_factory import CommandRunnerFactory
 from infrastructure.adapters.repositories.command_multipass_init_repository_yaml import PortCommandRepositoryYaml
 from infrastructure.adapters.repositories.vm_repository_yaml import PortVmRepositoryYaml
-from infrastructure.adapters.yaml.yaml_config_loader import YAMLFileLoader
+from infrastructure.adapters.file_management.yaml.yaml_file_manager import YamlFileManager
 from infrastructure.logging.logger_factory import LoggerFactory
 from infrastructure.ui.installation.command_runner_ui import CommandRunnerUI
 
@@ -32,7 +32,17 @@ class MultipassInitVms:
         self.logger.info(f"initialisation of multipass: {result}")
 
     def _setup_commands_init(self, config_file: str) -> Dict[str, Dict[int, ExecutableCommandEntity]]:
-        multipass_command_repository = PortCommandRepositoryYaml(config_loader=YAMLFileLoader(config_file))
+        """
+        Sets up the initial multipass commands by reading from the YAML configuration.
+
+        Args:
+            config_file (str): The path to the YAML configuration file.
+
+        Returns:
+            Dict[str, Dict[int, ExecutableCommandEntity]]: The command list.
+        """
+        yaml_manager = YamlFileManager(filename=config_file)
+        multipass_command_repository = PortCommandRepositoryYaml(yaml_file_manager=yaml_manager)
 
         command_builder: CommandBuilder = CommandBuilder(
             vm_repository=self.vm_repository,

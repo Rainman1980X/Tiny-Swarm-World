@@ -3,7 +3,7 @@ from ruamel.yaml.parser import ParserError
 
 class YAMLHandlingError(Exception):
     """
-    Custom exception for errors occurring during the loading of YAML files.
+    Custom exception for errors occurring during the loading of YAML file_management.
     """
 
     def __init__(self, file_name: str, error: Exception = None):
