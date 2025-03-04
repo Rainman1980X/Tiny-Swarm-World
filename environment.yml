@@ -5,6 +5,7 @@ dependencies:
   - python=3.10
   - flake8
   - pip
+  - ruamel.yaml
   - pip:
       - annotated-types==0.7.0
       - argcomplete==3.1.4
@@ -62,7 +63,6 @@ dependencies:
       - PyYAML==6.0.1
       - requests==2.32.0
       - rich==13.7.1
-      - ruamel.yaml==0.17.21
       - setuptools==70.0.0
       - six==1.16.0
       - texttable==1.6.7
