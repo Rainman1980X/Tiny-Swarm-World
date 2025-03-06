@@ -7,7 +7,7 @@ from infrastructure.adapters.repositories.command_multipass_init_repository_yaml
 from infrastructure.adapters.repositories.vm_repository_yaml import PortVmRepositoryYaml
 from infrastructure.adapters.file_management.yaml.yaml_file_manager import YamlFileManager
 from infrastructure.logging.logger_factory import LoggerFactory
-from infrastructure.ui.installation.command_runner_ui import CommandRunnerUI
+from infrastructure.adapters.ui.command_runner_ui import CommandRunnerUI
 
 
 class MultipassInitVms:

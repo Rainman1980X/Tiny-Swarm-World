@@ -69,3 +69,4 @@ websocket-client==1.7.0
 wheel==0.42.0
 zipp==1.0.0
 zope.interface==6.1
+pydevd-pycharm~=251.23536.40

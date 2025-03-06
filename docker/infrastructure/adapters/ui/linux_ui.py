@@ -1,8 +1,7 @@
-import asyncio
-import threading
-import time
 import platform
-from concurrent.futures import ThreadPoolExecutor
+import time
+
+from application.ports.ui.port_ui import PortUI
 
 if platform.system() == "Windows":
     try:
@@ -12,14 +11,11 @@ if platform.system() == "Windows":
 else:
     import curses
 
-class InstallationUI:
+
+class LinuxUI(PortUI):
     def __init__(self, instances, test_mode=False):
         """test_mode: If True, the UI will exit after 2 seconds."""
-        self.instances = instances
-        self.status = {instance: {"current_task": "Starting...", "current_step": "Initializing...", "result": "Pending"} for instance in instances}
-        self.lock = threading.Lock()
-        self.ui_thread = None
-        self.test_mode = test_mode
+        super().__init__(instances, test_mode)
 
     def update_status(self, instance, task, step, result=None):
         """
@@ -40,7 +36,8 @@ class InstallationUI:
         stdscr.nodelay(True)
         stdscr.timeout(500)
 
-        previous_status = {instance: {"current_task": "","current_step": "", "result": ""} for instance in self.instances}
+        previous_status = {instance: {"current_task": "", "current_step": "", "result": ""} for instance in
+                           self.instances}
 
         while True:
             height, width = stdscr.getmaxyx()
@@ -104,18 +101,8 @@ class InstallationUI:
             if self.test_mode:
                 break
 
-    def run_ui(self):
+    def start(self):
         """
         Runs the curses-based UI.
         """
         curses.wrapper(self._draw_ui)
-
-    def run_in_thread(self):
-        """
-          Starts the UI in a thread asynchronously using asyncio.
-          """
-        loop = asyncio.get_running_loop()
-        executor = ThreadPoolExecutor(max_workers=1)
-        self.ui_thread = loop.run_in_executor(executor, self.run_ui)
-
-

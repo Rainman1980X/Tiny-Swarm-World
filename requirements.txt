@@ -40,7 +40,7 @@ progress==1.6
 psutil==5.9.8
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
-pydantic==2.10.6
+pydantic~=2.11.0a2
 pydantic_core==2.27.2
 Pygments==2.17.2
 PyHamcrest==2.1.0
@@ -51,8 +51,8 @@ pyrsistent==0.20.0
 pyserial==3.5
 python-dotenv==1.0.1
 pytz==2024.1
-PyYAML==6.0.1
-requests==2.31.0
+PyYAML~=6.0.2
+requests~=2.32.3
 rich==13.7.1
 ruamel.yaml==0.17.21
 service-identity==24.1.0
@@ -69,3 +69,5 @@ websocket-client==1.7.0
 wheel==0.42.0
 zipp==1.0.0
 zope.interface==6.1
+
+pydevd-pycharm~=251.23536.40

@@ -1,0 +1,125 @@
+= arc42: Komponenten-Deployment mit Git und Docker Swarm
+
+:sectnums:
+:toc:
+
+== Einführung und Ziele
+
+Dieses Dokument beschreibt eine **umfassende Git-Branching-Strategie** und ein **automatisiertes Deployment-Konzept** für eine komponentenbasierte Softwarelösung, die über **Docker Swarm** bereitgestellt wird.
+
+=== Ziele
+
+* Sicherstellen, dass **nur kompatible Komponenten gemeinsam deployt** werden können.
+* Verwendung eines **Verwaltungs-Repositorys** (`dependencies.json`), das die kompatiblen Versionen aller Komponenten definiert.
+* Automatisierung der **Kompatibilitätsprüfung von Komponenten** über verschiedene Methoden (API-Diff, Dependency-Graph, Integrationstests, SemVer-Prüfung).
+* Etablierung einer **Git-Branching-Strategie**, die verschiedene Staging-Umgebungen unterstützt (**Develop, QA, Release**).
+* Automatisierung des Deployments mit **Jenkins und Docker Swarm**, um eine konsistente Bereitstellung sicherzustellen.
+* Implementierung eines **Rollback-Mechanismus**, um fehlerhafte Deployments einfach zurückzusetzen.
+
+== Randbedingungen
+
+* Jede Komponente kann entweder in einem **Monorepo oder in mehreren Repositories (Multi-Repo)** verwaltet werden.
+* Das **Verwaltungs-Repository** speichert die **Abhängigkeitsinformationen** zwischen den Komponenten (`dependencies.json`).
+* **Automatisierte Kompatibilitätsprüfung**:
+  **API-Änderungserkennung**:: Vergleich von OpenAPI-Dokumenten zur Erkennung von Breaking Changes.
+  **Dependency-Graph-Analyse**:: Verwendung von Neo4j oder ähnlichen Tools zur Überprüfung von Abhängigkeitsbeziehungen.
+  **Integrationstests**:: Automatische Tests gegen frühere Versionen der Komponenten, um unerwartete Fehler zu erkennen.
+  **Semantische Versionierung**:: Prüfung, ob nur kompatible Versionen in `dependencies.json` eingetragen werden.
+* **Staging-Umgebungen:**
+  **Develop**:: Für die aktive Entwicklung und Unit-Tests.
+  **QA**:: Für Integrationstests und Qualitätssicherung.
+  **Release**:: Stabile Versionen für die Produktion.
+* **Deployment:**
+  **Jenkins-Pipelines**:: Automatisierte Builds und Deployments.
+  **Docker Swarm**:: Container-Orchestrierung.
+  **Quality Gates**:: Sicherstellen, dass nur getestete Software deployt wird.
+
+== Architekturübersicht
+
+=== Hauptkomponenten
+
+* **Git Repositories**: Jedes Team oder jede Komponente kann in einem eigenen Repository arbeiten.
+* **Verwaltungs-Repository**: Beinhaltet `dependencies.json`, um sicherzustellen, dass nur kompatible Versionen deployt werden.
+* **Jenkins Build-Pipelines**: Automatisierung des Build- und Deployment-Prozesses mit Quality Gates.
+* **Docker Swarm Cluster**: Dient als Laufzeitumgebung für alle deployten Komponenten.
+* **Automatisierte Kompatibilitätsprüfungen**: Gewährleisten, dass nur kompatible Komponenten miteinander kombiniert werden.
+
+=== Git-Branching-Strategie
+
+Die folgende Git-Strategie basiert auf einem erweiterten **Git-Flow**-Modell, angepasst für den komponentenbasierten Ansatz:
+
+[options="header"]
+|===
+| Branch | Zweck
+| `main/release` | Produktions-Branch mit stabilen und freigegebenen Versionen.
+| `develop` | Hauptentwicklungs-Branch, in dem alle Features zusammengeführt werden.
+| `feature/*` | Branches für die Entwicklung neuer Features.
+| `hotfix/*` | Spezielle Branches für dringende Bugfixes, die zurück in `release` und `develop` gemergt werden.
+| `qa` | Branch für Integrationstests mit bestätigten Versionen aus `dependencies.json`.
+| `dev-teamX` | Separate Branches für Team-spezifische Entwicklungen.
+|===
+
+=== Versionsverwaltung und `dependencies.json` im Verwaltungs-Repository
+
+Die Verwaltung der kompatiblen Versionen erfolgt über ein JSON-basiertes Konfigurationsfile im zentralen **Meta-Repository**. Dieses Datei (`dependencies.json`) enthält alle genehmigten Komponenten-Versionen:
+
+==== Beispiel für `dependencies.json`
+
+[source,json]
+----
+{
+  "version": "1.2.3",
+  "components": {
+    "auth-service": "2.4.0",
+    "user-service": "3.1.5",
+    "payment-service": "1.8.2",
+    "notification-service": "2.2.1"
+  }
+}
+----
+
+* Jede Komponente hat eine definierte Version.
+* Die Version des Meta-Repos (`1.2.3`) spiegelt eine **bestätigte Kombination von Komponenten** wider.
+* Änderungen an dieser Datei erfordern einen **Pull-Request und eine Genehmigung**.
+* Vor dem Merge in `qa` und `release` werden **automatisierte Kompatibilitätsprüfungen durchgeführt**.
+
+== Laufzeitarchitektur
+
+=== Deployment-Pipeline mit Jenkins & Docker Swarm
+
+Das Deployment läuft über eine automatisierte **Jenkins-Pipeline**, die Änderungen im **Meta-Repository (`dependencies.json`)** überwacht und validiert.
+
+==== Deployment-Prozess für jede Umgebung:
+
+. Jenkins erkennt Änderungen am `dependencies.json` im Meta-Repository.
+. Automatisierte **Kompatibilitätsprüfungen** werden durchgeführt.
+. Alle relevanten Komponenten werden basierend auf der Versionsdatei gebaut.
+. Die Docker-Images (`my-component:v1.2.3`) werden in die **Docker Registry** gepusht.
+. Jenkins stößt den **Docker Swarm-Deployment-Job** mit `docker stack deploy` an.
+
+=== Staging-Umgebungen
+
+[options="header"]
+|===
+| Umgebung | Zweck
+| `Develop` | Entwicklerversionen mit den neuesten Features, getestet mit Unit-Tests.
+| `QA` | Integrationstests mit validierten Komponenten aus `dependencies.json`.
+| `Release` | Produktions-Cluster mit freigegebenen Versionen.
+|===
+
+=== Rollback-Mechanismus
+
+* Jede Release-Version erhält ein **Docker-Tag (`v1.2.3`)**.
+* Falls ein Deployment fehlschlägt, kann Jenkins automatisch die **vorherige Version** reaktivieren.
+* Der `release`-Branch enthält immer die letzte funktionierende Version.
+
+== Qualitätsanforderungen
+
+* **Automatische Tests**: Unit-Tests in der Develop-Phase, Integrationstests in QA.
+* **Quality Gates**: Jede Staging-Umgebung benötigt einen **Pull-Request mit validierten Komponenten**.
+* **Automatisierte Kompatibilitätsprüfungen**: API-Diff, Dependency-Graph, Integrationstests und SemVer-Prüfung.
+
+== Fazit
+
+Das vorgestellte Deployment-Modell stellt sicher, dass **nur kompatible Komponenten gemeinsam deployt werden**. Durch die Kombination aus `dependencies.json`, einer klar strukturierten **Git-Branching-Strategie** und automatisierten **Jenkins-Pipelines** sowie **Kompatibilitätsprüfungen** wird eine **sichere und skalierbare Continuous Deployment-Strategie mit Docker Swarm** ermöglicht.
+

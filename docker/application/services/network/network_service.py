@@ -12,7 +12,7 @@ from domain.command.command_executer.excecuteable_commands import ExecutableComm
 from domain.multipass.vm_type import VmType
 from domain.network.network import Network
 from infrastructure.logging.logger_factory import LoggerFactory
-from infrastructure.ui.installation.command_runner_ui import CommandRunnerUI
+from infrastructure.adapters.ui.command_runner_ui import CommandRunnerUI
 
 
 class NetworkService:
@@ -25,7 +25,7 @@ class NetworkService:
 
     async def run(self):
         self.logger.info("initialisation of network")
-        command_list = self._setup_commands_init("config/command_network_setup_yaml.yaml")
+        command_list = self._setup_commands_init("command_network_setup_yaml.yaml")
         runner_ui = CommandRunnerUI(command_list)
         result = await runner_ui.run()
         self.logger.info(f"initialisation of multipass : {result}")
@@ -38,12 +38,11 @@ class NetworkService:
 
         vm_instance_names = self.vm_repository.find_vm_instances_by_type(VmType.MANAGER)
         network_data = Network(vm_instance=vm_instance_names[0], ip_address=ip, gateway=gateway_ip)
-        self.logger.info("saving network data")
+        self.logger.info("creating network data")
 
-        # Using YamlFileManager to handle configuration storage
-        yaml_manager = YamlFileManager(filename="config/netplan.yaml")
-        data = PortNetplanRepositoryYaml(yaml_file_manager=yaml_manager)
+        data = PortNetplanRepositoryYaml()
         data.create(network_data)
+        self.logger.info("saving network data")
         data.save()
 
     def _setup_commands_init(self, config_file: str) -> Dict[str, Dict[int, ExecutableCommandEntity]]:

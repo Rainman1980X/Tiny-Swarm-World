@@ -2,14 +2,14 @@ import random
 import threading
 import time
 
-from installation_ui import InstallationUI
+from linux_ui import LinuxUI
 
 # Instanzen definieren
 instances = ["VM1", "VM2", "VM3","VM4"]
-ui = InstallationUI(instances)
+ui = LinuxUI(instances)
 
 # Starte die UI in einem separaten Thread
-ui.run_in_thread()
+ui.start_in_thread()
 
 
 def simulate_installation(instance):

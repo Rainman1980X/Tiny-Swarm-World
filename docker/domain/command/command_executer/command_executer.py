@@ -1,13 +1,13 @@
 import time
 
+from application.ports.ui.port_ui import PortUI
 from domain.command.command_executer.excecuteable_commands import ExecutableCommandEntity
 from infrastructure.logging.logger_factory import LoggerFactory
-from infrastructure.ui.installation.installation_ui import InstallationUI
 
 class CommandExecuter:
 
     executable_commands: [dict[str, dict[int, ExecutableCommandEntity]]]
-    def __init__(self,ui:InstallationUI ):
+    def __init__(self, ui:PortUI):
         self.ui = ui
         self.logger = LoggerFactory.get_logger(self.__class__)
 

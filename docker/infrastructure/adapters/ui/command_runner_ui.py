@@ -4,7 +4,8 @@ from typing import Dict
 from domain.command.command_executer.command_executer import CommandExecuter
 from domain.command.command_executer.excecuteable_commands import ExecutableCommandEntity
 from infrastructure.logging.logger_factory import LoggerFactory
-from infrastructure.ui.installation.installation_ui import InstallationUI
+from infrastructure.adapters.ui.factory_ui import FactoryUI
+
 
 
 class CommandRunnerUI:
@@ -18,9 +19,10 @@ class CommandRunnerUI:
 
         :param command_list: Dictionary mapping instances to their respective command entities.
         """
+
         self.command_list = command_list
         self.instances = list(command_list.keys())
-        self.ui = InstallationUI(self.instances)
+        self.ui = FactoryUI().get_ui(instances=self.instances, test_mode=False)
         self.command_execute = CommandExecuter(ui=self.ui)
         self.logger = LoggerFactory.get_logger(self.__class__)
         self.logger.info(f"CommandRunnerUI initialized {self.instances} instances")
@@ -30,7 +32,7 @@ class CommandRunnerUI:
         Runs the UI and executes commands asynchronously.
         """
         # Start the UI in a separate thread
-        self.ui.run_in_thread()
+        self.ui.start_in_thread()
 
         # Execute all commands concurrently as asyncio tasks
         tasks = [
