@@ -7,7 +7,7 @@ from application.ports.repositories.port_yaml_repository import PortYamlReposito
 from domain.network.network import Network
 from infrastructure.adapters.exceptions.exception_yaml_handling import YAMLHandlingError
 from infrastructure.adapters.file_management.file_manager import FileManager
-from infrastructure.adapters.file_management.yaml.yaml_builder import FluentYAMLBuilder
+from infrastructure.adapters.yaml.yaml_builder import FluentYAMLBuilder
 from infrastructure.logging.logger_factory import LoggerFactory
 
 

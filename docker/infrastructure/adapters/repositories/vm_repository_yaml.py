@@ -4,7 +4,7 @@ from typing import List, Optional
 from ruamel.yaml import YAML
 
 from infrastructure.adapters.file_management.file_manager import FileManager
-from infrastructure.adapters.file_management.yaml.yaml_builder import FluentYAMLBuilder
+from infrastructure.adapters.yaml.yaml_builder import FluentYAMLBuilder
 from domain.multipass.vm_entity import VmEntity
 from domain.multipass.vm_type import VmType
 from application.ports.repositories.port_vm_repository import PortVmRepository

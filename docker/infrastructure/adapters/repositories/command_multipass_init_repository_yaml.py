@@ -7,7 +7,7 @@ from application.ports.repositories.port_command_repository import PortCommandRe
 
 from domain.command.command_entity import CommandEntity
 from infrastructure.adapters.file_management.file_manager import FileManager
-from infrastructure.adapters.file_management.yaml.yaml_builder import FluentYAMLBuilder
+from infrastructure.adapters.yaml.yaml_builder import FluentYAMLBuilder
 from infrastructure.logging.logger_factory import LoggerFactory
 
 

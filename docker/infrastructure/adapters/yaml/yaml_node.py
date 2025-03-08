@@ -1,6 +1,6 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional
 
-from infrastructure.adapters.file_management.yaml.yaml_value import YamlValue
+from infrastructure.adapters.yaml.yaml_value import YamlValue
 
 
 class YAMLNode:

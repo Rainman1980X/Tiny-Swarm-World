@@ -3,8 +3,8 @@ from typing import Any, Dict, List, Optional
 from ruamel.yaml import YAML
 from ruamel.yaml.compat import StringIO
 
-from infrastructure.adapters.file_management.yaml.yaml_node import YAMLNode
-from infrastructure.adapters.file_management.yaml.yaml_value import YamlValue
+from infrastructure.adapters.yaml.yaml_node import YAMLNode
+from infrastructure.adapters.yaml.yaml_value import YamlValue
 
 
 class FluentYAMLBuilder:
