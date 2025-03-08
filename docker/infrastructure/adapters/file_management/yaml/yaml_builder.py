@@ -3,59 +3,26 @@ from typing import Any, Dict, List, Optional
 from ruamel.yaml import YAML
 from ruamel.yaml.compat import StringIO
 
+from infrastructure.adapters.file_management.yaml.yaml_node import YAMLNode
+from infrastructure.adapters.file_management.yaml.yaml_value import YamlValue
 
-class Value:
-    """Represents a generic data structure for YAML entries."""
-
-    def __init__(self, value: Any):
-        self.data = value  # Stores the direct value
-
-    def to_dict(self):
-        return self.data
-
-
-class YAMLNode:
-    """Represents a single node in a YAML tree structure."""
-
-    def __init__(self, name: str, value: Any = None):
-        self.name = name
-        self.value = Value(value) if value is not None else None
-        self.parent: Optional["YAMLNode"] = None
-        self.children: List["YAMLNode"] = []
-
-    def add_child(self, name: str, value: Any = None) -> "YAMLNode":
-        child = YAMLNode(name, value)
-        child.parent = self
-        self.children.append(child)
-        return child
-
-    def find_child(self, name: str) -> Optional["YAMLNode"]:
-        """Find a child node by name."""
-        for child in self.children:
-            if child.name == name:
-                return child
-        return None
-
-    def remove_child(self, name: str) -> bool:
-        """Remove a child node by name."""
-        for i, child in enumerate(self.children):
-            if child.name == name:
-                del self.children[i]
-                return True
-        return False
 
 class FluentYAMLBuilder:
     """Fluent API Builder for constructing properly formatted YAML structures using ruamel.yaml."""
 
-    def __init__(self, root_name: str):
-        self.root = YAMLNode(root_name)
+    def __init__(self, root_name: Optional[str] = None):
+        self.root = YAMLNode(root_name) if root_name else None
         self.current = self.root
 
     def add_child(self, name: str, value: Any = None, stay: bool = False) -> "FluentYAMLBuilder":
-        """Adds a child node and optionally remains at the current node."""
-        new_child = self.current.add_child(name, value)
-        if not stay:
-            self.current = new_child
+        """Adds a child node and ensures that a root node exists if missing."""
+        if self.root is None:
+            self.root = YAMLNode(name, value)  # First child becomes the root
+            self.current = self.root
+        else:
+            new_child = self.current.add_child(name, value)
+            if not stay:
+                self.current = new_child
         return self
 
     def navigate_to(self, path: List[str]) -> "FluentYAMLBuilder":
@@ -135,12 +102,16 @@ class FluentYAMLBuilder:
         """Converts the tree structure into a correctly formatted dictionary for YAML export."""
         if node is None:
             node = self.root
+
         result = {}
 
-        # If the node has a value, store it
-        if node.value and node.value.to_dict() is not None:
-            value = node.value.to_dict()
-            return {node.name: value}  # Avoid unnecessary list conversion!
+        #  Check if value is a list (CommentedSeq) and return it directly
+        if isinstance(node.value, list):
+            return {node.name: node.value}  # Lists should be returned as is
+
+        # Check if value has a `to_dict()` method before calling it
+        if node.value and hasattr(node.value, "to_dict"):
+            return {node.name: node.value.to_dict()}
 
         for child in node.children:
             child_dict = self.to_dict(child)
@@ -150,9 +121,9 @@ class FluentYAMLBuilder:
                 if isinstance(result[key], list):
                     result[key].append(value)
                 else:
-                    result[key] = [result[key], value]  # Always convert a single value to a list
+                    result[key] = [result[key], value]
             else:
-                result[key] = value  # Assign on first encounter
+                result[key] = value
 
         return {node.name: result} if result else {node.name: {}}
 
@@ -165,3 +136,31 @@ class FluentYAMLBuilder:
         output = StringIO()
         yaml.dump(self.to_dict(), output)
         return output.getvalue()
+
+    def load_from_string(self, yaml_content: str) -> "FluentYAMLBuilder":
+        """Parses a YAML-formatted string and builds a corresponding tree structure using add_child()."""
+        yaml = YAML()
+        data = yaml.load(yaml_content) or {}  # Ensure at least an empty dictionary
+
+        if not isinstance(data, dict):
+            raise ValueError("Invalid YAML format, expected a dictionary with a root key.")
+
+        # Extract the first root key dynamically
+        root_key = next(iter(data.keys()))
+        self.add_child(root_key, stay=True)  # Set root using add_child()
+
+        self._parse_dict_to_tree(self.current, data[root_key])
+        return self
+
+    def _parse_dict_to_tree(self, node: YAMLNode, data: Any):
+        """Recursively converts a YAML dictionary or list into a tree structure using add_child()."""
+        if isinstance(data, dict):
+            for key, value in data.items():
+                self.add_child(key, stay=True)  # Navigate into child
+                self._parse_dict_to_tree(self.current, value)
+                self.up()  # Move back up after processing the child
+        elif isinstance(data, list):
+            self.current.value = data  # Preserve lists as values
+        else:
+            self.current.value = YamlValue(data)  # Store scalar values
+

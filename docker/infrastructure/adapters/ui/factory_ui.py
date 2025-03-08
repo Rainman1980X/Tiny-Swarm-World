@@ -2,7 +2,7 @@ import platform
 
 from application.ports.ui.port_ui import PortUI
 from infrastructure.adapters.ui.linux_ui import LinuxUI
-from infrastructure.adapters.ui.os_types import OsTypes
+from infrastructure.os_types import OsTypes
 from infrastructure.adapters.ui.windows_ui import WindowsUi
 
 

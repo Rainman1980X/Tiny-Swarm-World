@@ -1,29 +1,31 @@
+from pathlib import Path
 from typing import List, Optional
 
 from ruamel.yaml import YAML
 
+from infrastructure.adapters.file_management.file_manager import FileManager
 from infrastructure.adapters.file_management.yaml.yaml_builder import FluentYAMLBuilder
 from domain.multipass.vm_entity import VmEntity
 from domain.multipass.vm_type import VmType
 from application.ports.repositories.port_vm_repository import PortVmRepository
-from infrastructure.adapters.file_management.yaml.yaml_file_manager import YamlFileManager
+
 
 CONFIG_PATH = "vms_repository.yaml"
 
 class PortVmRepositoryYaml(PortVmRepository):
     """YAML-based VM repository using FluentYAMLBuilder."""
 
-    def __init__(self, yaml_file_manager :YamlFileManager = YamlFileManager(filename=CONFIG_PATH)):
-        self.config_path = CONFIG_PATH
-        self.yaml_file_manager = yaml_file_manager
-        self.yaml_builder = FluentYAMLBuilder("vms")
+    def __init__(self ):
+        self.config_path = Path(CONFIG_PATH)
+        self.file_manager = FileManager()
+        self.yaml_builder = FluentYAMLBuilder()
         self.yaml = YAML()
-        self.loaded_data = yaml_file_manager.load()
+        self.loaded_data = self.yaml_builder.load_from_string(self.file_manager.load(self.config_path)).build()
 
     def save(self) -> None:
         """Saves the YAML configuration file."""
         try:
-            self.yaml_file_manager.save(self.yaml_builder.to_yaml())
+            self.file_manager.save(path=self.config_path,data=self.yaml_builder.to_yaml())
         except Exception as e:
             raise Exception(f"Error saving YAML file: {str(e)}")
 

@@ -1,61 +1,77 @@
-import os
+from pathlib import Path
+from typing import Any
 
-from application.ports.file_management.port_file_loader import PortFileLoader
-from application.ports.file_management.port_file_locator import PortFileLocator
 from application.ports.file_management.port_file_manager import PortFileManager
-from application.ports.file_management.port_file_saver import PortFileSaver
-from infrastructure.adapters.file_management.path_normalizer import PathNormalizer
+from infrastructure.adapters.file_management.file_creator import FileCreator
+from infrastructure.adapters.file_management.file_loader import FileLoader
+from infrastructure.adapters.file_management.file_locator import FileLocator
+from infrastructure.adapters.file_management.file_saver import FileSaver
 
 
 class FileManager(PortFileManager):
     """
-    Concrete implementation of the FileManager that manages file loading, saving, and locating.
+    Concrete implementation of the FileManager that manages file loading, saving, creating, and deleting.
     """
 
-    def __init__(self, filename: str, locator: PortFileLocator, loader: PortFileLoader, saver: PortFileSaver):
+    def __init__(self):
         """
-        Initializes the FileManager with a locator, loader, and saver.
-
-        Args:
-            filename (str): The name of the file to manage.
-            locator (PortFileLocator): The locator instance for finding files.
-            loader (PortFileLoader): The loader instance for reading files.
-            saver (PortFileSaver): The saver instance for writing files.
+        Initializes the FileManager with locator, loader, saver, and creator instances.
         """
-        self.filename = filename
-        self.locator = locator
-        self.loader = loader
-        self.saver = saver
+        self.locator = FileLocator
+        self.loader = FileLoader
+        self.saver = FileSaver
+        self.creator = FileCreator
 
-    def get_file_path(self) -> str:
-        """
-        Attempts to locate the file and returns its path.
-
-        Returns:
-            str: The full path of the file.
-        """
-        try:
-            file_path = self.locator.find_file_path()
-        except FileNotFoundError:
-            file_path = PathNormalizer(os.path.join(os.getcwd(), "config", self.filename)).normalize()
-            os.makedirs(os.path.dirname(file_path), exist_ok=True)
-
-        return file_path
-
-    def load(self):
+    def load(self, path: Path) -> Any:
         """
         Loads the file content using the loader.
+
+        Args:
+            path (Path): The file path.
 
         Returns:
             Any: The loaded data.
         """
-        return self.loader.load()
+        file_loader = self.loader(path)
+        return file_loader.load()
 
-    def save(self, data):
+    def save(self, path: Path, data: Any) -> None:
         """
-        Saves data using the saver.
+        Saves data to the specified file using the saver.
 
         Args:
+            path (Path): The file path.
             data (Any): The data to be saved.
         """
-        self.saver.save(data)
+        file_saver = self.saver(path)
+        file_saver.save(data)
+
+    def create(self, path: Path, data: Any) -> None:
+        """
+        Creates a new file using the creator.
+
+        Args:
+            path (Path): The file path where the file should be created.
+            data (Any): The data to be stored.
+        """
+        file_creator = self.creator(path)
+        file_creator.create(path, data)
+
+    def delete(self, path: Path) -> bool:
+        """
+        Deletes a file.
+
+        Args:
+            path (Path): The file path.
+
+        Returns:
+            bool: True if the file was deleted, False otherwise.
+        """
+        try:
+            file_path = Path(path)
+            if file_path.exists():
+                file_path.unlink()
+                return True
+            return False
+        except Exception as e:
+            raise RuntimeError(f"Error deleting file {path}: {e}") from e

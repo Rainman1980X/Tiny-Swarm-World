@@ -4,7 +4,6 @@ from domain.command.command_builder.command_builder import CommandBuilder
 from domain.network.ip_extractor.ip_extractor_builder import IpExtractorBuilder
 from domain.network.ip_extractor.strategies.ip_extstractor_types import IpExtractorTypes
 from infrastructure.adapters.command_runner.command_runner_factory import CommandRunnerFactory
-from infrastructure.adapters.file_management.yaml.yaml_file_manager import YamlFileManager
 from infrastructure.adapters.repositories.command_multipass_init_repository_yaml import PortCommandRepositoryYaml
 from infrastructure.adapters.repositories.netplan_repository import PortNetplanRepositoryYaml
 from infrastructure.adapters.repositories.vm_repository_yaml import PortVmRepositoryYaml
@@ -46,8 +45,8 @@ class NetworkService:
         data.save()
 
     def _setup_commands_init(self, config_file: str) -> Dict[str, Dict[int, ExecutableCommandEntity]]:
-        yaml_manager = YamlFileManager(filename=config_file)
-        multipass_command_repository = PortCommandRepositoryYaml(yaml_file_manager=yaml_manager)
+
+        multipass_command_repository = PortCommandRepositoryYaml(filename=config_file)
         self.logger.info(f"getting command list from {config_file}")
 
         command_builder: CommandBuilder = CommandBuilder(

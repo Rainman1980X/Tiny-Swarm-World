@@ -3,9 +3,9 @@ from typing import Dict
 from domain.command.command_builder.command_builder import CommandBuilder
 from domain.command.command_executer.excecuteable_commands import ExecutableCommandEntity
 from infrastructure.adapters.command_runner.command_runner_factory import CommandRunnerFactory
+from infrastructure.adapters.file_management.file_manager import FileManager
 from infrastructure.adapters.repositories.command_multipass_init_repository_yaml import PortCommandRepositoryYaml
 from infrastructure.adapters.repositories.vm_repository_yaml import PortVmRepositoryYaml
-from infrastructure.adapters.file_management.yaml.yaml_file_manager import YamlFileManager
 from infrastructure.logging.logger_factory import LoggerFactory
 from infrastructure.adapters.ui.command_runner_ui import CommandRunnerUI
 
@@ -41,8 +41,8 @@ class MultipassInitVms:
         Returns:
             Dict[str, Dict[int, ExecutableCommandEntity]]: The command list.
         """
-        yaml_manager = YamlFileManager(filename=config_file)
-        multipass_command_repository = PortCommandRepositoryYaml(yaml_file_manager=yaml_manager)
+
+        multipass_command_repository = PortCommandRepositoryYaml(filename=config_file)
 
         command_builder: CommandBuilder = CommandBuilder(
             vm_repository=self.vm_repository,

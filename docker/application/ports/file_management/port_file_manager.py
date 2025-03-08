@@ -1,38 +1,51 @@
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import Any
 
 
 class PortFileManager(ABC):
-    """
-    Defines the interface for a FileManager that handles loading, saving, and locating files.
-    """
+    """Central interface for file management."""
 
     @abstractmethod
-    def get_file_path(self) -> str:
-        """
-        Finds and returns the full path of the file.
-
-        Returns:
-            str: The full absolute path of the file.
-        """
-        pass
-
-    @abstractmethod
-    def load(self) -> Any:
-        """
-        Loads the file content and returns it.
-
-        Returns:
-            Any: The loaded file content.
-        """
-        pass
-
-    @abstractmethod
-    def save(self, data: Any) -> None:
-        """
-        Saves the given data to the file.
+    def load(self, path: Path) -> Any:
+        """Loads the content of a file.
 
         Args:
+            path (Path): The file path.
+
+        Returns:
+            Any: The loaded content.
+        """
+        pass
+
+    @abstractmethod
+    def save(self, path: Path, data: Any) -> None:
+        """Saves data to the specified file.
+
+        Args:
+            path (Path): The file path.
             data (Any): The data to be saved.
+        """
+        pass
+
+    @abstractmethod
+    def create(self, path: Path, data: Any) -> None:
+        """Creates a new file.
+
+        Args:
+            path (Path): The file path.
+            data (Any): The data to be stored.
+        """
+        pass
+
+    @abstractmethod
+    def delete(self, path: Path) -> bool:
+        """Deletes a file.
+
+        Args:
+            path (Path): The file path.
+
+        Returns:
+            bool: True if the file was deleted, False otherwise.
         """
         pass

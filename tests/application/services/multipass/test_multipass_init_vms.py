@@ -20,7 +20,7 @@ class TestMultipassInitVms(unittest.IsolatedAsyncioTestCase):  # For asyncio-com
         self.multipass_init_vms.logger = self.mock_logger
 
     @patch('application.services.multipass.multipass_init_vms.PortCommandRepositoryYaml')
-    @patch('application.services.multipass.multipass_init_vms.YamlFileManager')
+    @patch('application.services.multipass.multipass_init_vms.FileManager')
     @patch('application.services.multipass.multipass_init_vms.CommandRunnerUI')
     async def test_run(self, mock_command_runner_ui, mock_yaml_file_manager, mock_command_repository_yaml):
         # Configure mocks
@@ -47,9 +47,9 @@ class TestMultipassInitVms(unittest.IsolatedAsyncioTestCase):  # For asyncio-com
         self.assertEqual(mock_runner_ui_instance.run.call_count, 2)
 
     @patch('application.services.multipass.multipass_init_vms.PortCommandRepositoryYaml')
-    @patch('application.services.multipass.multipass_init_vms.YamlFileManager')
+    @patch('application.services.multipass.multipass_init_vms.FileManager')
     @patch('application.services.multipass.multipass_init_vms.CommandBuilder')
-    def test_setup_commands_init(self, mock_command_builder, mock_yaml_file_manager, mock_command_repository_yaml):
+    def test_setup_commands_init(self, mock_command_builder, mock_file_manager, mock_command_repository_yaml):
         # Configure mocks
         mock_command_builder_instance = MagicMock()
         mock_command_builder.return_value = mock_command_builder_instance
@@ -57,16 +57,13 @@ class TestMultipassInitVms(unittest.IsolatedAsyncioTestCase):  # For asyncio-com
         mock_command_builder_instance.get_command_list.return_value = mock_command_list
 
         # Mock YamlFileManager behavior
-        mock_yaml_file_manager_instance = mock_yaml_file_manager.return_value
+        mock_yaml_file_manager_instance = mock_file_manager.return_value
         mock_yaml_file_manager_instance.load.return_value = {"mock": "data"}
         mock_yaml_file_manager_instance.save = MagicMock()
 
         # Execute `_setup_commands_init`
         config_file = "mock/path/to/config.yaml"
         result = self.multipass_init_vms._setup_commands_init(config_file)
-
-        # Verify that YamlFileManager was called with the correct file
-        mock_yaml_file_manager.assert_called_once_with(filename=config_file)
 
         # Verify that CommandBuilder methods were called correctly
         mock_command_builder.assert_called_once_with(

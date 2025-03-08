@@ -1,6 +1,6 @@
 import unittest
 
-from infrastructure.adapters.file_management.yaml.yaml_builder import YAMLNode, Value
+from infrastructure.adapters.file_management.yaml.yaml_builder import YAMLNode, YamlValue
 
 
 class TestYAMLNode(unittest.TestCase):
@@ -48,11 +48,11 @@ class TestYAMLNode(unittest.TestCase):
 
 class TestValue(unittest.TestCase):
     def test_value_initialization(self):
-        value = Value("test_value")
+        value = YamlValue("test_value")
         self.assertEqual(value.data, "test_value")
 
     def test_to_dict(self):
-        value = Value({"key": "value"})
+        value = YamlValue({"key": "value"})
         self.assertEqual(value.to_dict(), {"key": "value"})
 
 

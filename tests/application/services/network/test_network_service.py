@@ -1,39 +1,38 @@
 import unittest
-from unittest.mock import Mock, AsyncMock, patch
-
+from unittest.mock import AsyncMock, patch, MagicMock
 from application.services.network.network_service import NetworkService
-from infrastructure.adapters.file_management.yaml.yaml_file_manager import YamlFileManager
+from domain.network.ip_value import IpValue
 
 
-@patch("application.services.network.network_service.CommandRunnerUI")
-@patch("application.services.network.network_service.PortNetplanRepositoryYaml")
-@patch("application.services.network.network_service.YamlFileManager")
 class TestNetworkService(unittest.IsolatedAsyncioTestCase):
-    def setUp(self):
-        # Mock YamlFileManager
-        self.mock_yaml_manager = Mock(spec=YamlFileManager)
-        self.mock_yaml_manager.load.return_value = {"mock": "data"}
-        self.mock_yaml_manager.save = Mock()
+    """Unit tests for the NetworkService class."""
 
-        # Mock VM-Repository
-        self.mock_vm_repository = Mock()
-        self.mock_vm_repository.find_vm_instances_by_type = Mock(return_value=["swarm-manager"])
-
-        # Patch PortVmRepositoryYaml
-        with patch("application.services.network.network_service.PortVmRepositoryYaml",
-                   return_value=self.mock_vm_repository):
-            self.network_service = NetworkService()
-
+    @patch("application.services.network.network_service.LoggerFactory")
+    @patch("application.services.network.network_service.IpExtractorBuilder")
+    @patch("application.services.network.network_service.CommandBuilder")
+    @patch("application.services.network.network_service.PortVmRepositoryYaml")
+    @patch("application.services.network.network_service.CommandRunnerUI")
     @patch("application.services.network.network_service.PortCommandRepositoryYaml")
+    @patch("application.services.network.network_service.PortNetplanRepositoryYaml")
     async def test_run_calls_setup_commands_init_twice_and_returns_command_list(
-            self,
-            mock_port_command_repository,
-            mock_yaml_manager,
-            mock_port_netplan_repo_yaml,
-            mock_command_runner_ui
+        self,
+        mock_netplan_repo_yaml,
+        mock_command_repo_yaml,
+        mock_runner_ui,
+        mock_vm_repository,
+        mock_command_builder,
+        mock_ip_extractor_builder,
+        mock_logger_factory
     ):
-        # Arrange: Mock runner UI behavior
+        """Tests that run() initializes network setup and calls dependencies correctly."""
+
+        # Mock logger
+        mock_logger = MagicMock()
+        mock_logger_factory.get_logger.return_value = mock_logger
+
+        # Mock CommandRunnerUI
         mock_runner_ui_instance = AsyncMock()
+        mock_runner_ui.return_value = mock_runner_ui_instance
         mock_runner_ui_instance.run.return_value = [
             None,
             [
@@ -43,21 +42,41 @@ class TestNetworkService(unittest.IsolatedAsyncioTestCase):
                 "192.168.1.1 some-other-data"
             ]
         ]
-        mock_command_runner_ui.return_value = mock_runner_ui_instance
 
-        # Mock Repository
-        mock_netplan_repo_instance = mock_port_netplan_repo_yaml.return_value
-        mock_netplan_repo_instance.create = Mock()
-        mock_netplan_repo_instance.save = Mock()
+        # Mock CommandBuilder
+        mock_command_builder_instance = MagicMock()
+        mock_command_builder.return_value = mock_command_builder_instance
+        mock_command_builder_instance.get_command_list.return_value = {"cmd1": {}, "cmd2": {}}
 
-        # Logging Mock
-        self.network_service.logger = Mock()
+        # Mock IpExtractorBuilder
+        mock_ip_extractor_instance = MagicMock()
+        mock_ip_extractor_builder.return_value = mock_ip_extractor_instance
+        mock_ip_extractor_instance.build.side_effect = [
+            IpValue(ip_address="192.168.1.1"),  # Gateway als IpValue-Objekt
+            IpValue(ip_address="10.0.0.1")  # IP als IpValue-Objekt
+        ]
 
-        # Act: Run the async method
-        await self.network_service.run()
+        # Mock VmRepository
+        mock_vm_repository_instance = MagicMock()
+        mock_vm_repository.return_value = mock_vm_repository_instance
+        mock_vm_repository_instance.find_vm_instances_by_type.return_value = ["manager-vm"]
 
-        # Assert: Ensure that network data was saved
-        self.assertEqual(mock_runner_ui_instance.run.call_count, 1)
-        mock_netplan_repo_instance.create.assert_called_once()
-        mock_netplan_repo_instance.save.assert_called_once()
-        self.network_service.logger.info.assert_called_with("saving network data")
+        # Mock PortNetplanRepositoryYaml
+        mock_netplan_instance = MagicMock()
+        mock_netplan_repo_yaml.return_value = mock_netplan_instance
+
+        # Mock PortCommandRepositoryYaml
+        mock_command_repo_instance = MagicMock()
+        mock_command_repo_yaml.return_value = mock_command_repo_instance
+
+        # Test NetworkService
+        service = NetworkService()
+        await service.run()
+
+        # Assertions
+        mock_logger.info.assert_called()
+        mock_runner_ui_instance.run.assert_called_once()
+        mock_ip_extractor_instance.build.assert_called()
+        mock_vm_repository_instance.find_vm_instances_by_type.assert_called_once()
+        mock_netplan_instance.create.assert_called_once()
+        mock_netplan_instance.save.assert_called_once()
