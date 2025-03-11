@@ -32,18 +32,36 @@ class CommandRunnerUI:
         Runs the UI and executes commands asynchronously.
         """
         # Start the UI in a separate thread
+        self.logger.info("start ui")
         self.ui.start_in_thread()
 
-        # Execute all commands concurrently as asyncio tasks
-        tasks = [
-            asyncio.create_task(self.command_execute.execute(self.command_list[vm]))
-            for vm in self.instances
-        ]
+        try:
+            # Starte die parallele Ausführung der Befehle für jede VM
+            tasks = {
+                vm: asyncio.create_task(self.command_execute.execute(self.command_list[vm]))
+                for vm in self.instances
+            }
 
-        # Wait for all tasks to complete
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-        self.ui.update_status(task="finished",step="execution",result="success",instance="all")
+            # Warte darauf, dass alle VMs abgeschlossen sind und sammle Ergebnisse
+            results = await asyncio.gather(*tasks.values(), return_exceptions=True)
 
-        # Close the UI thread after the last execution
-        await self.ui.ui_thread
+            # Fehlerhandling für einzelne VMs
+            for vm, result in zip(self.instances, results):
+                if isinstance(result, Exception):
+                    self.logger.error(f"Execution failed for {vm}: {result}")
+                    self.ui.update_status(task="failed", step="execution", result="error", instance=vm)
+                else:
+                    self.logger.info(f"Execution successful for {vm}")
+                    self.ui.update_status(task="completed", step="execution", result="success", instance=vm)
+
+        finally:
+            # Aktualisiere die UI mit Abschlussstatus
+            self.ui.update_status(task="finished", step="execution", result="success", instance="all")
+
+            # Warte auf das Ende des UI-Threads
+            self.logger.info("Waiting for UI thread to close...")
+            await self.ui.ui_thread
+
+            self.logger.info("Execution complete.")
+
         return results

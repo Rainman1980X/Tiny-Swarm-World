@@ -147,17 +147,25 @@ class FluentYAMLBuilder:
 
         # Extract the first root key dynamically
         root_key = next(iter(data.keys()))
-        self.add_child(root_key, stay=True)  # Set root using add_child()
+        if self.root is None:
+            # Set root only if it doesn't exist yet
+            self.add_child(root_key, stay=True)
+        else:
+            # Abort if the existing root doesn't match the YAML root
+            if self.root.name != root_key:
+                raise ValueError(f"Root mismatch! Expected '{self.root.name}', but found '{root_key}' in YAML.")
 
-        self._parse_dict_to_tree(self.current, data[root_key])
+        # Insert only the contents under the existing root
+        self._parse_dict_to_tree(data[root_key])
+
         return self
 
-    def _parse_dict_to_tree(self, node: YAMLNode, data: Any):
+    def _parse_dict_to_tree(self,  data: Any):
         """Recursively converts a YAML dictionary or list into a tree structure using add_child()."""
         if isinstance(data, dict):
             for key, value in data.items():
                 self.add_child(key, stay=True)  # Navigate into child
-                self._parse_dict_to_tree(self.current, value)
+                self._parse_dict_to_tree(value)
                 self.up()  # Move back up after processing the child
         elif isinstance(data, list):
             self.current.value = data  # Preserve lists as values

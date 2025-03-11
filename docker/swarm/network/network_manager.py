@@ -37,7 +37,7 @@ class NetworkManager:
     def setup_iptables_forwarding(self):
         """Setzt IPTables-Weiterleitung in WSL2 zu Multipass."""
         if not self.multipass_ip:
-            print("⚠️ Multipass-IP konnte nicht ermittelt werden!")
+            print("Multipass-IP konnte nicht ermittelt werden!")
             return
         print(f"🔄 Setze IPTables-Weiterleitung zu Multipass ({self.multipass_ip}) für Port {self.exposed_ports}")
         subprocess.run(

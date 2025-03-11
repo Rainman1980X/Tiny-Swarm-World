@@ -1,0 +1,90 @@
+commands:
+  - index: 1
+    description: "Updating system and fixing broken packages"
+    command: "multipass exec {vm_instance} -- sudo sh -c 'apt update -y && apt --fix-broken install -y'"
+    runner: "async"
+    command_type: "vm"
+    vm_type:
+      - "manager"
+      - "worker"
+
+  - index: 2
+    description: "Ensuring required packages are installed"
+    command: "multipass exec {vm_instance} -- sudo sh -c 'apt install -y apt-transport-https ca-certificates curl software-properties-common gnupg2 > /dev/null 2>&1'"
+    runner: "async"
+    command_type: "vm"
+    vm_type:
+      - "manager"
+      - "worker"
+
+  - index: 3
+    description: "Ensuring GPG directory exists"
+    command: "multipass exec {vm_instance} -- sudo sh -c 'mkdir -p /etc/apt/keyrings'"
+    runner: "async"
+    command_type: "vm"
+    vm_type:
+      - "manager"
+      - "worker"
+
+  - index: 4
+    description: "Removing old Docker GPG key"
+    command: "multipass exec {vm_instance} -- sudo sh -c 'rm -f /etc/apt/keyrings/docker.gpg'"
+    runner: "async"
+    command_type: "vm"
+    vm_type:
+      - "manager"
+      - "worker"
+
+  - index: 5
+    description: "Adding Docker GPG key (silent)"
+    command: "multipass exec {vm_instance} -- sudo sh -c 'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg'"
+    runner: "async"
+    command_type: "vm"
+    vm_type:
+      - "manager"
+      - "worker"
+
+  - index: 6
+    description: "Add Docker APT repository"
+    command: "multipass exec {vm_instance} -- echo \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null"
+    runner: "async"
+    command_type: "hostos"
+    vm_type:
+      - "manager"
+      - "worker"
+
+  - index: 7
+    description: "Updating package list after adding Docker repository"
+    command: "multipass exec {vm_instance} -- sudo sh -c 'apt update -y > /dev/null 2>&1'"
+    runner: "async"
+    command_type: "vm"
+    vm_type:
+      - "manager"
+      - "worker"
+
+  - index: 8
+    description: "Installing Docker"
+    command: "multipass exec {vm_instance} -- sudo sh -c 'sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin > /dev/null 2>&1'"
+    runner: "async"
+    command_type: "vm"
+    vm_type:
+      - "manager"
+      - "worker"
+
+  - index: 9
+    description: "Verifying Docker installation"
+    command: "multipass exec {vm_instance} -- sudo sh -c 'docker --version'"
+    runner: "async"
+    command_type: "vm"
+    vm_type:
+      - "manager"
+      - "worker"
+
+  - index: 10
+    description: "Adding current user to docker group"
+    command: "multipass exec {vm_instance} -- sudo sh -c 'sudo usermod -aG docker $USER'"
+    runner: "async"
+    command_type: "vm"
+    vm_type:
+      - "manager"
+      - "worker"

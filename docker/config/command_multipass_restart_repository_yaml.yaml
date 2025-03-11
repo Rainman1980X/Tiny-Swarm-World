@@ -1,0 +1,8 @@
+commands:
+  - index: 1
+    description: "Restart multipass"
+    command: "multipass list | awk '$1 ~ /^swarm-/ {{print $1}}' | xargs -r multipass restart"
+    runner: "async"
+    command_type: "hostos"
+    vm_type:
+      - "none"

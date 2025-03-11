@@ -1,16 +1,7 @@
-import platform
+
 import time
-
+import curses
 from application.ports.ui.port_ui import PortUI
-
-if platform.system() == "Windows":
-    try:
-        import windows_curses
-    except ImportError:
-        import curses
-else:
-    import curses
-
 
 class LinuxUI(PortUI):
     def __init__(self, instances, test_mode=False):

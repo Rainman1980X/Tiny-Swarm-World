@@ -1,0 +1,27 @@
+commands:
+  - index: 1
+    description: "Ensuring Docker group exists"
+    command: "multipass exec {vm_instance} -- sudo sh -c 'getent group docker || groupadd docker'"
+    runner: "async"
+    command_type: "vm"
+    vm_type:
+      - "manager"
+      - "worker"
+
+  - index: 2
+    description: "Adding user 'ubuntu' to Docker group"
+    command: "multipass exec {vm_instance} -- sudo sh -c 'usermod -aG docker ubuntu'"
+    runner: "async"
+    command_type: "vm"
+    vm_type:
+      - "manager"
+      - "worker"
+
+  - index: 3
+    description: "Reloading group membership and verifying Docker"
+    command: "multipass exec {vm_instance} -- sudo sh -c 'newgrp docker && docker run hello-world'"
+    runner: "async"
+    command_type: "vm"
+    vm_type:
+      - "manager"
+      - "worker"

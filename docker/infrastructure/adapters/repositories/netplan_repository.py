@@ -47,7 +47,7 @@ class PortNetplanRepositoryYaml(PortYamlRepository):
     def load(self) -> Any:
         """Loads an existing Netplan configuration file."""
         try:
-            return self.file_manager.load(self.file)
+            return self.builder.load_from_string(self.file_manager.load(self.file)).build()
         except FileNotFoundError:
             self.logger.error(f"Netplan configuration file {self.file} not found.")
             return {}

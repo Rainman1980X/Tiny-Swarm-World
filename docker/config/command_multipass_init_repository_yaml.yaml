@@ -1,5 +1,41 @@
-commands:  
+commands:
   - index: 1
+    description: "Check and create 'multipass' group"
+    command: "if ! getent group multipass > /dev/null; then sudo groupadd multipass; fi"
+    runner: "async"
+    command_type: "hostos"
+    vm_type:
+      - "manager"
+      - "worker"
+
+  - index: 2
+    description: "Add current user to 'multipass' group"
+    command: "sudo usermod -aG multipass $(whoami)"
+    runner: "async"
+    command_type: "hostos"
+    vm_type:
+      - "manager"
+      - "worker"
+
+  - index: 3
+    description: "Set correct permissions for Multipass socket"
+    command: "sudo chown root:multipass /var/run/multipass_socket || true && sudo chmod 660 /var/run/multipass_socket || true"
+    runner: "async"
+    command_type: "hostos"
+    vm_type:
+      - "manager"
+      - "worker"
+
+  - index: 4
+    description: "Set a Multipass passphrase"
+    command: "sudo multipass set local.passphrase='YourSecurePassword'"
+    runner: "async"
+    command_type: "hostos"
+    vm_type:
+      - "manager"
+      - "worker"
+
+  - index: 5
     description: "Creating {vm_instance}"
     command: "multipass launch -n {vm_instance} --memory 4G --disk 50G"
     runner: "async"
@@ -8,10 +44,10 @@ commands:
       - "manager"
       - "worker"
 
-  - index: 2
+  - index: 6
     description: "Getting the IP address of {vm_instance}"
     command: "multipass exec {vm_instance} -- ip -4 route show default"
     runner: "async"
     command_type: "hostos"
-    vm_type: 
+    vm_type:
       - "manager"
