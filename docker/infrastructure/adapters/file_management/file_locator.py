@@ -9,18 +9,19 @@ class FileLocator:
     Adapter for locating and ensuring YAML files and directories exist in standard locations.
     """
 
-    def __init__(self, filename: str, additional_paths: list = None):
+    def __init__(self, filename: str):
         self.filename = filename
 
         self.search_paths = [
             PathNormalizer(os.path.join(os.getcwd(), "config")).normalize(),  # Default config directory
+            PathNormalizer(os.path.join(os.getcwd(), "config/multipass")).normalize(),
+            PathNormalizer(os.path.join(os.getcwd(), "config/docker")).normalize(),
+            PathNormalizer(os.path.join(os.getcwd(), "config/network")).normalize(),
             PathNormalizer(os.getcwd()).normalize()  # Root working directory
         ]
 
         self.search_paths.insert(1, PathNormalizer(os.path.dirname(os.path.abspath(__file__))).normalize())
 
-        if additional_paths:
-            self.search_paths.extend([PathNormalizer(path).normalize() for path in additional_paths])
 
     def get_existing_file_path(self) -> str:
         """

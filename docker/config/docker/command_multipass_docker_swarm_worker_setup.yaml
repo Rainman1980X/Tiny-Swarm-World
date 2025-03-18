@@ -1,0 +1,8 @@
+commands:
+  - index: 1
+    description: "Initializing Docker Swarm on workers"
+    command: "multipass exec {vm_instance} -- docker swarm join --token {swarm_token} {swarm_manager_ip}:2377"
+    runner: "async"
+    command_type: "vm"
+    vm_type:
+      - "worker"

@@ -11,5 +11,14 @@ class IpExtractorSwarmManager(ExtractionStrategy):
         self.logger = LoggerFactory.get_logger(self.__class__)
 
     def extract(self, result) -> Optional[str]:
-        self.logger.info(f"Extracting gateway IP from: {result[1]}")
-        return result[1][3].strip().split()[0]
+        self.logger.info(f"Extracting swarm-manager IP from: {result}")
+
+        # If result is a list containing a dictionary, extract the dictionary
+        if isinstance(result, list) and len(result) > 0 and isinstance(result[0], dict):
+            result = result[0]
+
+        if not isinstance(result, dict) or 2 not in result or not isinstance(result[2], str):
+            self.logger.warning("Invalid input or missing key 2.")
+            return None
+
+        return result[2].strip()  # Return the IP address

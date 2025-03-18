@@ -6,22 +6,8 @@ commands:
     command_type: "hostos"
     vm_type:
       - "none"
-  - index: 2
-    description: "Geting the gateway of the manager"
-    command: "multipass exec {vm_instance} -- ip -4 route show default"
-    runner: "async"
-    command_type: "hostos"
-    vm_type:
-      - "manager"
-  - index: 3
-    description: "Getting the ip of the manager"
-    command: "multipass exec {vm_instance} -- hostname -I"
-    runner: "async"
-    command_type: "hostos"
-    vm_type:
-      - "manager"
 
-  - index: 4
+  - index: 2
     description: "Delete all existing netplan file_management"
     command: "multipass exec {vm_instance} -- sudo sh -c 'rm -f /etc/netplan/*.yaml'"
     runner: "async"
@@ -29,7 +15,7 @@ commands:
     vm_type:
       - "manager"
 
-  - index: 5
+  - index: 3
     description: "Transfer the file to the instance"
     command: "multipass transfer config/cloud-init-manager.yaml {vm_instance}:/tmp/netplan.yaml"
     runner: "async"
@@ -37,7 +23,7 @@ commands:
     vm_type:
       - "manager"
 
-  - index: 6
+  - index: 4
     description: "Move the file to /etc/netplan"
     command: "multipass exec {vm_instance} -- sudo mv /tmp/netplan.yaml /etc/netplan/netplan.yaml"
     runner: "async"
@@ -45,7 +31,7 @@ commands:
     vm_type:
       - "manager"
 
-  - index: 7
+  - index: 5
     description: "Assign file ownership to root"
     command: "multipass exec {vm_instance} -- sudo chown root:root /etc/netplan/netplan.yaml"
     runner: "async"
@@ -53,7 +39,7 @@ commands:
     vm_type:
       - "manager"
 
-  - index: 8
+  - index: 6
     description: "Set permissions"
     command: "multipass exec {vm_instance} -- sudo chmod 600 /etc/netplan/netplan.yaml"
     runner: "async"
@@ -61,7 +47,7 @@ commands:
     vm_type:
       - "manager"
 
-  - index: 9
+  - index: 7
     description: "Apply netplan"
     command: "multipass exec {vm_instance} -- sudo netplan apply"
     runner: "async"
@@ -69,17 +55,9 @@ commands:
     vm_type:
       - "manager"
 
-  - index: 9
+  - index: 8
     description: "Apply netplan"
     command: "multipass exec {vm_instance} -- sudo netplan apply"
-    runner: "async"
-    command_type: "hostos"
-    vm_type:
-      - "manager"
-
-  - index: 9
-    description: "Restart multipass"
-    command: "multipass list | awk 'NR>1 {{print $1}}' | xargs multipass restart"
     runner: "async"
     command_type: "hostos"
     vm_type:

@@ -1,0 +1,8 @@
+commands:
+  - index: 1
+    description: "Getting the ip of the manager"
+    command: "multipass exec {vm_instance} -- hostname -I"
+    runner: "async"
+    command_type: "hostos"
+    vm_type:
+      - "manager"

@@ -19,8 +19,9 @@ class AsyncPortCommandRunner(PortCommandRunner):
         self.logger = LoggerFactory.get_logger(self.__class__)
         self.logger.info("AsyncCommandRunner initialized")
 
-    async def run(self, command: str, timeout: int = None) -> str:
+    async def run(self, command: str, timeout: int = 120) -> str:
         self.logger.info(f"Starting subprocess: {command}")
+        process = None
         try:
             # Update status
             async with self.lock:
@@ -64,6 +65,8 @@ class AsyncPortCommandRunner(PortCommandRunner):
             async with self.lock:
                 self.status["result"] = "Error"
             self.logger.error(f"Command timed out after {timeout} seconds: {command}")
+            process.kill()
+            await process.communicate()
             raise CommandExecutionError(
                 command=command,
                 return_code=-1,  # -1 = Special return code for timeout

@@ -1,23 +1,25 @@
-import time
+import asyncio
 
 from application.ports.ui.port_ui import PortUI
 from domain.command.command_executer.excecuteable_commands import ExecutableCommandEntity
 from infrastructure.logging.logger_factory import LoggerFactory
 
-class CommandExecuter:
 
+class CommandExecuter:
     executable_commands: [dict[str, dict[int, ExecutableCommandEntity]]]
-    def __init__(self, ui:PortUI):
+
+    def __init__(self, ui: PortUI):
         self.ui = ui
         self.logger = LoggerFactory.get_logger(self.__class__)
 
     async def execute(self, commands: dict[int, ExecutableCommandEntity]):
         self.logger.info("Command execution started with %d commands.", len(commands))
         current_vm = None
-        run_result: dict [int, str] ={}
+        run_result: dict[int, str] = {}
         for key, executable_command in commands.items():
             current_vm = executable_command.vm_instance_name
-            self.logger.info("Executing command on VM '%s' with task: '%s'.", current_vm, executable_command.description)
+            self.logger.info("Executing command on VM '%s' with task: '%s'.", current_vm,
+                             executable_command.description)
             try:
                 self.logger.info("Before runner '%s'.", current_vm)
                 run_result[key] = await executable_command.runner.run(executable_command.command)
@@ -36,11 +38,11 @@ class CommandExecuter:
                                   step=runner_status["current_step"],
                                   result=runner_status["result"])
             self.logger.info("Status updated for VM '%s': step='%s', result='%s'.", current_vm,
-                         runner_status["current_step"], runner_status["result"])
+                             runner_status["current_step"], runner_status["result"])
 
-            time.sleep(2)
+            await asyncio.sleep(2)
 
         self.ui.update_status(instance=current_vm, task="closing", step="Finishing", result="Success")
-        time.sleep(2)
+        await asyncio.sleep(2)
         self.logger.info("All commands executed. Final status updated.")
         return run_result

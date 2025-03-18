@@ -1,0 +1,16 @@
+commands:
+  - index: 1
+    description: "Getting the gateway of the manager"
+    command: "multipass exec {vm_instance} -- ip -4 route show default"
+    runner: "async"
+    command_type: "hostos"
+    vm_type:
+      - "manager"
+
+  - index: 2
+    description: "Getting the ip of the manager"
+    command: "multipass exec {vm_instance} -- hostname -I"
+    runner: "async"
+    command_type: "hostos"
+    vm_type:
+      - "manager"
