@@ -11,8 +11,8 @@ from infrastructure.logging.logger_factory import LoggerFactory
 
 
 class MultipassDockerSwarmInit:
-    def __init__(self, command_runner_factory=None):
-        self.command_runner_factory = command_runner_factory or CommandRunnerFactory()
+    def __init__(self):
+        self.command_runner_factory =  CommandRunnerFactory()
         self.ip_extractor_builder = IpExtractorBuilder()
         self.ui = None
         self.command_execute = None
@@ -53,7 +53,6 @@ class MultipassDockerSwarmInit:
         multipass_command_repository = PortCommandRepositoryYaml(filename=config_file)
         self.logger.info(f"getting command list from {config_file}")
         command_builder: CommandBuilder = CommandBuilder(
-            command_repository=multipass_command_repository,
-            command_runner_factory=self.command_runner_factory)
+            command_repository=multipass_command_repository)
         self.logger.info(f"command builder: {command_builder.get_command_list()}")
         return command_builder.get_command_list()

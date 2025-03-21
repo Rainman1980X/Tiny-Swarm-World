@@ -16,32 +16,22 @@ class MultipassInitVms:
 
     async def run(self):
         self.logger.info("init clean up")
-        command_list = self._setup_commands_init("command_multipass_clean_repository_yaml.yaml")
+
+        multipass_command_repository = PortCommandRepositoryYaml(filename="command_multipass_clean_repository_yaml.yaml")
+        command_builder: CommandBuilder = CommandBuilder(command_repository=multipass_command_repository)
+        command_list = command_builder.get_command_list()
+
         runner_ui = AsyncCommandRunnerUI(command_list)
         result = await runner_ui.run()
         self.logger.info(f"multipass clean up result: {result}")
 
+
         self.logger.info("initialisation of multipass")
-        command_list = self._setup_commands_init("command_multipass_init_repository_yaml.yaml")
+        multipass_command_repository = PortCommandRepositoryYaml(filename="command_multipass_init_repository_yaml.yaml")
+        command_builder: CommandBuilder = CommandBuilder(command_repository=multipass_command_repository)
+        command_list = command_builder.get_command_list()
+
         runner_ui = AsyncCommandRunnerUI(command_list)
         result = await runner_ui.run()
         self.logger.info(f"initialisation of multipass: {result}")
 
-    def _setup_commands_init(self, config_file: str) -> Dict[str, Dict[int, ExecutableCommandEntity]]:
-        """
-        Sets up the initial multipass commands by reading from the YAML configuration.
-
-        Args:
-            config_file (str): The path to the YAML configuration file.
-
-        Returns:
-            Dict[str, Dict[int, ExecutableCommandEntity]]: The command list.
-        """
-
-        multipass_command_repository = PortCommandRepositoryYaml(filename=config_file)
-
-        command_builder: CommandBuilder = CommandBuilder(
-            command_repository=multipass_command_repository,
-            command_runner_factory=self.command_runner_factory)
-
-        return command_builder.get_command_list()

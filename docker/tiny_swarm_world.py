@@ -10,6 +10,7 @@ from infrastructure.logging.logger_factory import LoggerFactory
 
 
 async def main():
+
     logger = LoggerFactory.get_logger("application")
     logger.info("Starting application")
 

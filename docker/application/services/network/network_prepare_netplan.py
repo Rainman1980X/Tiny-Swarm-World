@@ -1,7 +1,4 @@
-from typing import Dict
-
 from domain.command.command_builder.vm_parameter.command_builder import CommandBuilder
-from domain.command.command_executer.excecuteable_commands import ExecutableCommandEntity
 from domain.multipass.vm_type import VmType
 from domain.network.ip_extractor.ip_extractor_builder import IpExtractorBuilder
 from domain.network.ip_extractor.strategies.ip_extstractor_types import IpExtractorTypes
@@ -9,13 +6,15 @@ from domain.network.network import Network
 from infrastructure.adapters.command_runner.command_runner_factory import CommandRunnerFactory
 from infrastructure.adapters.repositories.command_multipass_init_repository_yaml import PortCommandRepositoryYaml
 from infrastructure.adapters.repositories.netplan_repository import PortNetplanRepositoryYaml
+from infrastructure.adapters.repositories.vm_repository_yaml import PortVmRepositoryYaml
 from infrastructure.adapters.ui.command_async_runner_ui import AsyncCommandRunnerUI
 from infrastructure.logging.logger_factory import LoggerFactory
 
 
 class NetworkPrepareNetplan:
-    def __init__(self, vm_repository=None, command_runner_factory=None):
+    def __init__(self, command_runner_factory=None):
         self.command_runner_factory = command_runner_factory or CommandRunnerFactory()
+        self.vm_repository = PortVmRepositoryYaml()
         self.ui = None
         self.command_execute = None
         self.ip_extractor_builder = IpExtractorBuilder()
@@ -23,7 +22,11 @@ class NetworkPrepareNetplan:
 
     async def run(self):
         self.logger.info("Setup cloud-init-manager.yaml")
-        command_list = self._setup_commands_init("command_network_ip_yaml.yaml")
+
+        multipass_command_repository = PortCommandRepositoryYaml(filename="command_network_ip_yaml.yaml")
+        command_builder: CommandBuilder = CommandBuilder(command_repository=multipass_command_repository)
+        command_list = command_builder.get_command_list()
+
         runner_ui = AsyncCommandRunnerUI(command_list)
         result = await runner_ui.run()
         self.logger.info(f"multipass clean up result: {result}")
@@ -42,23 +45,3 @@ class NetworkPrepareNetplan:
         data.create(network_data)
         self.logger.info("saving network data")
         data.save()
-
-    def _setup_commands_init(self, config_file: str) -> Dict[str, Dict[int, ExecutableCommandEntity]]:
-        """
-        Sets up the initial multipass commands by reading from the YAML configuration.
-
-        Args:
-            config_file (str): The path to the YAML configuration file.
-
-        Returns:
-            Dict[str, Dict[int, ExecutableCommandEntity]]: The command list.
-        """
-
-        multipass_command_repository = PortCommandRepositoryYaml(filename=config_file)
-
-        command_builder: CommandBuilder = CommandBuilder(
-            vm_repository=self.vm_repository,
-            command_repository=multipass_command_repository,
-            command_runner_factory=self.command_runner_factory)
-
-        return command_builder.get_command_list()

@@ -17,26 +17,12 @@ class MultipassRestartVMs:
 
     async def run(self):
         self.logger.info("Restart VMs")
-        command_list = self._setup_commands_init("command_multipass_restart_repository_yaml.yaml")
+
+        multipass_command_repository = PortCommandRepositoryYaml(filename="command_multipass_restart_repository_yaml.yaml")
+        command_builder: CommandBuilder = CommandBuilder(command_repository=multipass_command_repository)
+        command_list = command_builder.get_command_list()
+        self.logger.info(f"command builder: {command_list}")
+
         runner_ui = AsyncCommandRunnerUI(command_list)
         result = await runner_ui.run()
         self.logger.info(f"Restart VMs: {result}")
-
-    def _setup_commands_init(self, config_file: str) -> Dict[str, Dict[int, ExecutableCommandEntity]]:
-        """
-        Sets up the initial multipass commands by reading from the YAML configuration.
-
-        Args:
-            config_file (str): The path to the YAML configuration file.
-
-        Returns:
-            Dict[str, Dict[int, ExecutableCommandEntity]]: The command list.
-        """
-
-        multipass_command_repository = PortCommandRepositoryYaml(filename=config_file)
-        self.logger.info(f"getting command list from {config_file}")
-        command_builder: CommandBuilder = CommandBuilder(
-            command_repository=multipass_command_repository,
-            command_runner_factory=self.command_runner_factory)
-        self.logger.info(f"command builder: {command_builder.get_command_list()}")
-        return command_builder.get_command_list()
