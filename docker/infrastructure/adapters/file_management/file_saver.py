@@ -1,6 +1,8 @@
 from pathlib import Path
 
 from infrastructure.adapters.file_management.file_locator import FileLocator
+from infrastructure.adapters.file_management.path_strategies.path_factory import PathFactory
+from infrastructure.dependency_injection.infra_core_di_annotations import inject
 
 
 class FileSaver:
@@ -8,11 +10,13 @@ class FileSaver:
     Handles saving files in a generic way.
     """
 
-    def __init__(self, file_path: Path):
+    @inject
+    def __init__(self, file_path: Path, path_factory: PathFactory):
         """
         Initializes the file saver with the given file path.
         """
-        self.file_locator = FileLocator(file_path)
+        self.path_factory = path_factory
+        self.file_locator = FileLocator(file_path.name)
         self._path = Path(self.file_locator.ensure_file_exists())
 
     @property

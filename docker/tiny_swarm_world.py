@@ -6,10 +6,19 @@ from application.services.multipass.multipass_init_vms import MultipassInitVms
 from application.services.multipass.multipass_restart_vms import MultipassRestartVMs
 from application.services.network.network_prepare_netplan import NetworkPrepareNetplan
 from application.services.network.network_service import NetworkService
+from infrastructure.adapters.file_management.file_manager import FileManager
+from infrastructure.adapters.file_management.path_strategies.path_factory import PathFactory
+from infrastructure.dependency_injection.infra_core_di_container import infra_core_container
 from infrastructure.logging.logger_factory import LoggerFactory
 
 
 async def main():
+    # Register FileManager explicitly
+
+
+    #infra_core_container.scan_module("docker")
+    infra_core_container.register(PathFactory)
+    infra_core_container.register(FileManager)
 
     logger = LoggerFactory.get_logger("application")
     logger.info("Starting application")

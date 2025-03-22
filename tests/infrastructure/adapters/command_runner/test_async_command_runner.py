@@ -50,12 +50,12 @@ class TestAsyncCommandRunner(unittest.IsolatedAsyncioTestCase):
         self.assertIn("Error occurred", context.exception.stderr)
 
     @patch("asyncio.create_subprocess_shell")
-    async def test_run_asyncio_timeout(self, mock_subprocess):
+    @patch("asyncio.wait_for", side_effect=TimeoutError())
+    async def test_run_asyncio_timeout(self, mock_subprocess,mock_wait_for):
         command = "sleep 10"
         timeout = 1
 
         mock_process = AsyncMock()
-        mock_process.communicate.side_effect = TimeoutError()
         mock_process.returncode = 0  # Simulate timeout during execution
         mock_subprocess.return_value = mock_process
 
@@ -63,7 +63,7 @@ class TestAsyncCommandRunner(unittest.IsolatedAsyncioTestCase):
             await self.command_runner.run(command, timeout=timeout)
 
         self.assertIn(f"Command timed out after {timeout} seconds.", str(context.exception))
-        mock_process.communicate.assert_awaited()
+        mock_wait_for.assert_called_once()
 
     @patch("asyncio.create_subprocess_shell")
     async def test_run_unexpected_error(self, mock_subprocess):

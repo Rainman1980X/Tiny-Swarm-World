@@ -2,13 +2,17 @@ from pathlib import Path
 from typing import Any
 
 from infrastructure.adapters.file_management.path_normalizer import PathNormalizer
+from infrastructure.adapters.file_management.path_strategies.path_factory import PathFactory
+from infrastructure.dependency_injection.infra_core_di_annotations import inject
 
 
 class FileCreator:
     """Handles the creation of new YAML files."""
 
-    def __init__(self, file_path: Path = None):
+    @inject
+    def __init__(self, file_path: Path , path_factory: PathFactory):
         """Initializes the YAML file creator."""
+        self.path_factory = path_factory
         self._path = Path(file_path) if file_path else None
         self.path_normalizer = PathNormalizer(self._path)
 
@@ -26,7 +30,7 @@ class FileCreator:
     def path(self, path: Path) -> None:
         """Sets the file path."""
         self._path = path
-        self.path_normalizer = PathNormalizer(self._path)
+        self.path_normalizer = PathNormalizer(self.path_factory,self._path)
 
     def create(self, path: Path, data: Any) -> Path:
         """Creates a YAML file at the specified path.
@@ -39,7 +43,7 @@ class FileCreator:
             Path: The path of the created file.
         """
         self._path = path
-        self.path_normalizer = PathNormalizer(self._path)
+        self.path_normalizer = PathNormalizer(self.path_factory,self._path)
 
         # Normalize and ensure directory exists
         normalized_path = self.path_normalizer.ensure_directory()

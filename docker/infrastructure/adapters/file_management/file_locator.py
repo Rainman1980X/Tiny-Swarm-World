@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 
 from infrastructure.adapters.file_management.path_normalizer import PathNormalizer
+from infrastructure.adapters.file_management.path_strategies.path_factory import PathFactory
+from infrastructure.dependency_injection.infra_core_di_annotations import inject
 
 
 class FileLocator:
@@ -9,7 +11,9 @@ class FileLocator:
     Adapter for locating and ensuring YAML files and directories exist in standard locations.
     """
 
-    def __init__(self, filename: str):
+    @inject
+    def __init__(self, filename: str, path_factory: PathFactory):
+        self.path_factory = path_factory
         self.filename = filename
 
         self.search_paths = [

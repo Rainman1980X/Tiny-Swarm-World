@@ -2,6 +2,8 @@ from pathlib import Path
 from typing import Any
 
 from infrastructure.adapters.file_management.file_locator import FileLocator
+from infrastructure.adapters.file_management.path_strategies.path_factory import PathFactory
+from infrastructure.dependency_injection.infra_core_di_annotations import inject
 
 
 class FileLoader:
@@ -9,12 +11,13 @@ class FileLoader:
     Handles loading of files in a generic way.
     """
 
-    def __init__(self, filename: Path):
+    @inject
+    def __init__(self,filename: Path, path_factory: PathFactory):
         """
         Initializes the file loader with the given filename.
         """
+        self.file_locator = FileLocator(path_factory=path_factory,filename=filename.name)
         self.filename = filename
-        self.file_locator = FileLocator(filename.name)
 
     @property
     def path(self) -> Path:

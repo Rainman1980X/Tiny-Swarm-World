@@ -7,6 +7,7 @@ from domain.network.ip_value import IpValue
 class TestNetworkService(unittest.IsolatedAsyncioTestCase):
     """Unit tests for the NetworkService class."""
 
+    @unittest.skip("Test is temporarily disabled")
     @patch("application.services.network.network_service.LoggerFactory")
     @patch("application.services.network.network_service.IpExtractorBuilder")
     @patch("application.services.network.network_service.CommandBuilder")

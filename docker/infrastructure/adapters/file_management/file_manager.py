@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from typing import Any
 
@@ -6,6 +7,9 @@ from infrastructure.adapters.file_management.file_creator import FileCreator
 from infrastructure.adapters.file_management.file_loader import FileLoader
 from infrastructure.adapters.file_management.file_locator import FileLocator
 from infrastructure.adapters.file_management.file_saver import FileSaver
+from infrastructure.adapters.file_management.path_normalizer import PathNormalizer
+from infrastructure.adapters.file_management.path_strategies.path_factory import PathFactory
+from infrastructure.dependency_injection.infra_core_di_annotations import inject
 
 
 class FileManager(PortFileManager):
@@ -13,11 +17,17 @@ class FileManager(PortFileManager):
     Concrete implementation of the FileManager that manages file loading, saving, creating, and deleting.
     """
 
-    def __init__(self):
+    @inject
+    def __init__(self,path_factory: PathFactory):
         """
         Initializes the FileManager with locator, loader, saver, and creator instances.
         """
-        self.locator = FileLocator
+
+        self.path_factory = path_factory
+        # Use lambdas to defer instantiation with required dependencies
+        self.locator = lambda filename: FileLocator(
+            PathNormalizer(os.path.join(os.getcwd(), "config")).normalize()
+        )
         self.loader = FileLoader
         self.saver = FileSaver
         self.creator = FileCreator
@@ -54,8 +64,8 @@ class FileManager(PortFileManager):
             path (Path): The file path where the file should be created.
             data (Any): The data to be stored.
         """
-        file_creator = self.creator(path)
-        file_creator.create(path, data)
+        self.creator().create(path, data)
+
 
     def delete(self, path: Path) -> bool:
         """

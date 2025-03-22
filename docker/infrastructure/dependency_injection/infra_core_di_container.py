@@ -2,7 +2,6 @@ import os
 import inspect
 import importlib
 import pkgutil
-from infrastructure.adapters.file_management.path_normalizer import PathNormalizer
 
 class InfraCoreContainer:
     _instance = None  # Singleton instance
@@ -15,9 +14,16 @@ class InfraCoreContainer:
             cls._instance.root_module = cls.find_root_module()  # Root of the project
         return cls._instance
 
-    def register(self, class_type):
-        """Registers a class type but does not instantiate it until needed."""
-        self.services[class_type] = class_type  # Store the class reference
+    def register(self, class_type, instance=None):
+        """
+        Registers a class or a specific instance.
+        If instance is provided, it's stored immediately.
+        Otherwise, the class type itself is stored for lazy instantiation.
+        """
+        if instance:
+            self.services[class_type] = instance
+        else:
+            self.services[class_type] = class_type
 
     def resolve(self, class_type):
         """Creates an instance with automatic dependency injection"""
@@ -41,7 +47,7 @@ class InfraCoreContainer:
                     submodule = importlib.import_module(f"{module_name}.{name}")
                     for _, obj in inspect.getmembers(submodule, inspect.isclass):
                         if any(hasattr(obj, attr) for attr in
-                               ["_is_component", "_is_service", "_is_repository"]):
+                               ["_is_component", "_is_service", "_is_repository", "_is_singleton"]):
                             self.register(obj)
         except ModuleNotFoundError:
             print(f"[WARNING] Could not scan module: {module_name}")
@@ -49,7 +55,7 @@ class InfraCoreContainer:
     @staticmethod
     def find_root_module():
         """Finds the root module using PathNormalizer and os.getcwd()"""
-        root_path = PathNormalizer(os.getcwd()).normalize()
+        root_path = os.path.basename(os.path.abspath(os.getcwd()))
         return os.path.basename(root_path)  # Converts path to module name
 
 # Global instance

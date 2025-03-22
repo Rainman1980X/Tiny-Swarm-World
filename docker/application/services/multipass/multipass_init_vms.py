@@ -1,7 +1,4 @@
-from typing import Dict
-
 from domain.command.command_builder.vm_parameter.command_builder import CommandBuilder
-from domain.command.command_executer.excecuteable_commands import ExecutableCommandEntity
 from infrastructure.adapters.command_runner.command_runner_factory import CommandRunnerFactory
 from infrastructure.adapters.repositories.command_multipass_init_repository_yaml import PortCommandRepositoryYaml
 from infrastructure.adapters.ui.command_async_runner_ui import AsyncCommandRunnerUI
@@ -25,7 +22,6 @@ class MultipassInitVms:
         result = await runner_ui.run()
         self.logger.info(f"multipass clean up result: {result}")
 
-
         self.logger.info("initialisation of multipass")
         multipass_command_repository = PortCommandRepositoryYaml(filename="command_multipass_init_repository_yaml.yaml")
         command_builder: CommandBuilder = CommandBuilder(command_repository=multipass_command_repository)
@@ -34,4 +30,3 @@ class MultipassInitVms:
         runner_ui = AsyncCommandRunnerUI(command_list)
         result = await runner_ui.run()
         self.logger.info(f"initialisation of multipass: {result}")
-

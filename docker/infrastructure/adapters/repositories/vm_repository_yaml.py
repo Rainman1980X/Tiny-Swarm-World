@@ -8,7 +8,7 @@ from infrastructure.adapters.yaml.yaml_builder import FluentYAMLBuilder
 from domain.multipass.vm_entity import VmEntity
 from domain.multipass.vm_type import VmType
 from application.ports.repositories.port_vm_repository import PortVmRepository
-
+from infrastructure.dependency_injection.infra_core_di_container import infra_core_container
 
 CONFIG_PATH = "vms_repository.yaml"
 
@@ -17,7 +17,7 @@ class PortVmRepositoryYaml(PortVmRepository):
 
     def __init__(self ):
         self.config_path = Path(CONFIG_PATH)
-        self.file_manager = FileManager()
+        self.file_manager = infra_core_container.resolve(FileManager)
         self.yaml_builder = FluentYAMLBuilder()
         self.yaml = YAML()
         self.loaded_data = self.yaml_builder.load_from_string(self.file_manager.load(self.config_path)).build()

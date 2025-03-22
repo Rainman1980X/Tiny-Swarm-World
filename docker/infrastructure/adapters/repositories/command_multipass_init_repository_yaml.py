@@ -8,6 +8,7 @@ from application.ports.repositories.port_command_repository import PortCommandRe
 from domain.command.command_entity import CommandEntity
 from infrastructure.adapters.file_management.file_manager import FileManager
 from infrastructure.adapters.yaml.yaml_builder import FluentYAMLBuilder
+from infrastructure.dependency_injection.infra_core_di_container import infra_core_container
 from infrastructure.logging.logger_factory import LoggerFactory
 
 
@@ -21,7 +22,7 @@ class PortCommandRepositoryYaml(PortCommandRepository):
         :param filename: The name of the YAML file.
         """
         self.logger = LoggerFactory.get_logger(self.__class__)
-        self.file_manager = FileManager()
+        self.file_manager = infra_core_container.resolve(FileManager)
         self.yaml_builder = FluentYAMLBuilder()
         self.yaml = YAML()
         self.data = self.yaml_builder.load_from_string(yaml_content=self.file_manager.load(path=Path(filename))).build()

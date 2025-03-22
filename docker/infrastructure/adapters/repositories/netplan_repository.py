@@ -8,6 +8,7 @@ from domain.network.network import Network
 from infrastructure.adapters.exceptions.exception_yaml_handling import YAMLHandlingError
 from infrastructure.adapters.file_management.file_manager import FileManager
 from infrastructure.adapters.yaml.yaml_builder import FluentYAMLBuilder
+from infrastructure.dependency_injection.infra_core_di_container import infra_core_container
 from infrastructure.logging.logger_factory import LoggerFactory
 
 
@@ -18,7 +19,7 @@ class PortNetplanRepositoryYaml(PortYamlRepository):
 
     def __init__(self, file_name: str = "cloud-init-manager.yaml"):
         self.file = Path(file_name)
-        self.file_manager = FileManager()
+        self.file_manager = infra_core_container.resolve(FileManager)
         self.builder = FluentYAMLBuilder("network")
         self.yaml = YAML()  # Use ruamel.yaml
         self.yaml.default_flow_style = False  # Ensure correct indentation

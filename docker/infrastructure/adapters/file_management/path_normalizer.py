@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from infrastructure.adapters.file_management.path_strategies.path_factory import PathFactory
+from infrastructure.dependency_injection.infra_core_di_annotations import inject
 
 
 class PathNormalizer:
@@ -8,10 +9,10 @@ class PathNormalizer:
     Handles path normalization and directory management using a factory-based approach.
     """
 
-    def __init__(self, input_path: Path | str):
-        """Initializes the PathNormalizer with a given path and determines the OS strategy."""
+    @inject
+    def __init__(self, input_path: Path | str , path_factory: PathFactory):
+        self.strategy = path_factory.get_strategy()
         self.raw_path = Path(input_path) if isinstance(input_path, str) else input_path
-        self.strategy = PathFactory().get_strategy()
 
     def normalize(self) -> str:
         """
