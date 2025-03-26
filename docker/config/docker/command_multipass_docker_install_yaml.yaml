@@ -46,7 +46,7 @@ commands:
 
   - index: 6
     description: "Add Docker APT repository"
-    command: "multipass exec {vm_instance} -- echo \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null"
+    command: "multipass exec {vm_instance} -- bash -c \"echo \\\"deb [arch=\\$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \\$(. /etc/os-release && echo \\$VERSION_CODENAME) stable\\\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\""
     runner: "async"
     command_type: "hostos"
     vm_type:
@@ -64,7 +64,7 @@ commands:
 
   - index: 8
     description: "Installing Docker"
-    command: "multipass exec {vm_instance} -- sudo sh -c 'sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin > /dev/null 2>&1'"
+    command: "multipass exec {vm_instance} -- sudo sh -c 'apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin > /dev/null 2>&1'"
     runner: "async"
     command_type: "vm"
     vm_type:
@@ -82,7 +82,7 @@ commands:
 
   - index: 10
     description: "Adding current user to docker group"
-    command: "multipass exec {vm_instance} -- sudo sh -c 'sudo usermod -aG docker $USER'"
+    command: "multipass exec {vm_instance} -- sudo sh -c 'usermod -aG docker $USER'"
     runner: "async"
     command_type: "vm"
     vm_type:

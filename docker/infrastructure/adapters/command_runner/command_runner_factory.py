@@ -1,4 +1,4 @@
-from application.ports.commands.port_command_factory import PortCommandRunnerFactory
+from application.ports.commands.port_command_runner_factory import PortCommandRunnerFactory
 from application.ports.commands.port_command_runner import PortCommandRunner
 from domain.command.command_runner_type_enum import CommandRunnerType
 from infrastructure.adapters.command_runner.ansible_runner import AnsiblePortCommandRunner

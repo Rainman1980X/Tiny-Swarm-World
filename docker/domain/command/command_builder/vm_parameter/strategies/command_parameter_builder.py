@@ -1,6 +1,6 @@
 from typing import Dict
 
-from domain.command.command_builder.other_parameter.parameter_type import ParameterType
+from domain.command.command_builder.vm_parameter.parameter_type import ParameterType
 
 
 class CommandParameterBuilder:
@@ -31,6 +31,8 @@ class CommandParameterBuilder:
         :param params: Dictionary with Enum keys and their corresponding values
         :return: The formatted command as a string
         """
+        if not params:
+            return command_template
         self.validate_params(params)  # Ensure only allowed keys are used
         string_params = {key.value: value for key, value in params.items()}
 

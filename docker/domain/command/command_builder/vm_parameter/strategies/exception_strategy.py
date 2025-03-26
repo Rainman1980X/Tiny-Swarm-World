@@ -10,5 +10,5 @@ class InvalidCommandBuilderStrategy(CommandBuilderStrategy):
     def __init__(self, vm_type: VmType, command_runner_factory=None):
         super().__init__(vm_type=vm_type, command_runner_factory=command_runner_factory)
 
-    def categorize(self, command: CommandEntity, executable_commands: Dict[str, Dict[int, ExecutableCommandEntity]]):
+    def categorize(self, command: CommandEntity, executable_commands: Dict[str, Dict[int, ExecutableCommandEntity]], parameter: Dict[str, str] = None):
         raise ValueError(f"Invalid vm found: {command.vm_type}")

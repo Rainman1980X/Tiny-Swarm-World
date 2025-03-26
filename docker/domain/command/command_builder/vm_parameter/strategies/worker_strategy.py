@@ -14,7 +14,7 @@ class WorkerStrategy(CommandBuilderStrategy):
         super().__init__(vm_type=vm_type, command_runner_factory=command_runner_factory)
         self.vm_repository = PortVmRepositoryYaml()
 
-    def categorize(self, command: CommandEntity, executable_commands: Dict[str, Dict[int, ExecutableCommandEntity]]):
+    def categorize(self, command: CommandEntity, executable_commands: Dict[str, Dict[int, ExecutableCommandEntity]], parameter: Dict[str, str] = None):
         vm_instance_names = self.vm_repository.find_vm_instances_by_type(self.vm_type)
         if vm_instance_names:
             for vm_instance_name in vm_instance_names:

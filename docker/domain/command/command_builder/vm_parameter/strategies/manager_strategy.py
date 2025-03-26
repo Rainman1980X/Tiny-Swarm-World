@@ -1,6 +1,8 @@
-from typing import Dict
+from typing import Dict, Optional
 
+from domain.command.command_builder.vm_parameter.parameter_type import ParameterType
 from domain.command.command_builder.vm_parameter.strategies.command_builder_strategy import CommandBuilderStrategy
+from domain.command.command_builder.vm_parameter.strategies.command_parameter_builder import CommandParameterBuilder
 from domain.command.command_entity import CommandEntity
 from domain.command.command_executer.excecuteable_commands import ExecutableCommandEntity
 from domain.command.command_runner_type_enum import CommandRunnerType
@@ -16,8 +18,9 @@ class ManagerStrategy(CommandBuilderStrategy):
         self.vm_repository = PortVmRepositoryYaml()
         self.logger = LoggerFactory.get_logger(self.__class__)
         self.logger.info("ManagerStrategy initialized")
+        self.command_parameter_builder= CommandParameterBuilder()
 
-    def categorize(self, command: CommandEntity, executable_commands: Dict[str, Dict[int, ExecutableCommandEntity]]):
+    def categorize(self, command: CommandEntity, executable_commands: Dict[str, Dict[int, ExecutableCommandEntity]],parameter: Dict[ParameterType,str]=None):
         vm_instance_names = self.vm_repository.find_vm_instances_by_type(self.vm_type)
 
         if len(vm_instance_names) == 1:
@@ -27,6 +30,6 @@ class ManagerStrategy(CommandBuilderStrategy):
             executable_commands[vm_instance_name][command.index] = ExecutableCommandEntity(
                 vm_instance_name=vm_instance_name,
                 description=command.description.format(vm_instance=vm_instance_name),
-                command=command.command.format(vm_instance=vm_instance_name),
+                command=self.command_parameter_builder.substitute_command(command.command.format(vm_instance=vm_instance_name),parameter),
                 runner=self.command_runner_factory.get_runner(CommandRunnerType.get_enum_from_value(command.runner))
             )

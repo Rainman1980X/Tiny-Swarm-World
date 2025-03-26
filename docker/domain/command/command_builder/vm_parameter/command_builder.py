@@ -1,6 +1,7 @@
-from typing import Dict
+from typing import Dict, Optional
 
 from application.ports.repositories.port_command_repository import PortCommandRepository
+from domain.command.command_builder.vm_parameter.parameter_type import ParameterType
 from domain.command.command_builder.vm_parameter.strategies.manager_strategy import ManagerStrategy
 from domain.command.command_builder.vm_parameter.strategies.none_strategy import NoneStrategy
 from domain.command.command_builder.vm_parameter.strategies.worker_strategy import WorkerStrategy
@@ -14,7 +15,7 @@ class CommandBuilder:
     executable_commands: [dict[str, dict[int, ExecutableCommandEntity]]]
 
     def __init__(self,
-                 command_repository: PortCommandRepository):
+                 command_repository: PortCommandRepository, parameter: Optional[Dict[ParameterType,str]]=None):
         """
         :param command_repository: command repository of multipass init process
         """
@@ -22,6 +23,7 @@ class CommandBuilder:
         self.command_runner_factory = CommandRunnerFactory()
         self.command_repository = command_repository
         self.executable_commands = {}
+        self.parameter = parameter or {}
 
         self.STRATEGY_MAP = {
             VmType.MANAGER: ManagerStrategy(vm_type=VmType.MANAGER, command_runner_factory=self.command_runner_factory),
@@ -35,5 +37,5 @@ class CommandBuilder:
         for key, command in command_dict.items():
             for vm_type in command.vm_type:
                 strategy = self.STRATEGY_MAP.get(vm_type.value)
-                strategy.categorize(command, self.executable_commands)
+                strategy.categorize(command, self.executable_commands,self.parameter)
         return self.executable_commands

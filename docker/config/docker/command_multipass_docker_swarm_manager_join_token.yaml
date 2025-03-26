@@ -1,14 +1,6 @@
 commands:
   - index: 1
     description: "Initializing Docker Swarm on Manager..."
-    command: "multipass exec {vm_instance} -- docker swarm init"
-    runner: "async"
-    command_type: "vm"
-    vm_type:
-      - "manager"
-
-  - index: 2
-    description: "Initializing Docker Swarm on Manager..."
     command: "multipass exec {vm_instance} -- docker swarm join-token -q worker"
     runner: "async"
     command_type: "vm"
