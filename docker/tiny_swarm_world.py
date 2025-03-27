@@ -15,7 +15,6 @@ from infrastructure.logging.logger_factory import LoggerFactory
 async def main():
     # Register FileManager explicitly
 
-
     #infra_core_container.scan_module("docker")
     infra_core_container.register(PathFactory)
     infra_core_container.register(FileManager)
@@ -50,6 +49,7 @@ async def main():
     logger.info("MultipassDockerSwarmInit")
     multipass_restart_vms = MultipassDockerSwarmInit()
     await multipass_restart_vms.run()
+
 
     logger.info("Done")
     print("Done")

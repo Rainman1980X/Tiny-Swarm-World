@@ -82,7 +82,7 @@ commands:
 
   - index: 10
     description: "Adding current user to docker group"
-    command: "multipass exec {vm_instance} -- sudo sh -c 'usermod -aG docker $USER'"
+    command: "multipass exec {vm_instance} -- sudo sh -c 'usermod -aG docker $(whoami)'"
     runner: "async"
     command_type: "vm"
     vm_type:

@@ -22,3 +22,12 @@ class MultipassDockerInstall:
         runner_ui = AsyncCommandRunnerUI(command_list)
         result = await runner_ui.run()
         self.logger.info(f"Install docker on multipass: {result}")
+
+        self.logger.info("Setting docker group on multipass")
+        multipass_command_repository = PortCommandRepositoryYaml(filename="command_multipass_docker_prepare_repository_yaml.yaml")
+        command_builder: CommandBuilder = CommandBuilder(command_repository=multipass_command_repository)
+        command_list = command_builder.get_command_list()
+
+        runner_ui = AsyncCommandRunnerUI(command_list)
+        result = await runner_ui.run()
+        self.logger.info(f"Setting docker group on multipass: {result}")

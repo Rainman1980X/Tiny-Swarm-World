@@ -19,4 +19,4 @@ class NetworkService:
 
         runner_ui = AsyncCommandRunnerUI(command_list)
         result = await runner_ui.run()
-        self.logger.info(f"initialisation of multipass : {result}")
+        self.logger.info(f"initialisation of network : {result}")

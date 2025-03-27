@@ -15,20 +15,28 @@ class MultipassDockerSwarmInit:
         self.ui = None
         self.command_execute = None
         self.logger = LoggerFactory.get_logger(self.__class__)
-        self.parameter = {}
+        self.parameter: Dict[ParameterType, str] = {}
 
     async def run(self):
+
         self.logger.info("Initializing Docker Swarm on Manager")
-        command_list = self._setup_commands_init("command_multipass_docker_swarm_manager_join_token.yaml",None)
+        command_list = self._setup_commands_init("command_multipass_docker_swarm_manager_init.yaml", None)
         runner_ui = SyncCommandRunnerUI(command_list)
         result = await runner_ui.run()
         self.logger.info(f"Initializing Docker Swarm on Manager: {result}")
+
+        self.logger.info("Getting join-token for the worker")
+        command_list = self._setup_commands_init("command_multipass_docker_swarm_manager_join_token.yaml",None)
+        runner_ui = SyncCommandRunnerUI(command_list)
+        result = await runner_ui.run()
+        self.logger.info(f"Getting join-token for the worker: {result}")
 
         self.logger.info("Getting Manager IP")
         command_list = self._setup_commands_init("command_multipass_docker_swarm_manager_ip.yaml", None)
         runner_ui = SyncCommandRunnerUI(command_list)
         result = await runner_ui.run()
-        self.parameter[ParameterType.SWARM_MANAGER_IP] = result
+        ipaddress = list(result[0].values())[0].split()[0]
+        self.parameter[ParameterType.SWARM_MANAGER_IP] = ipaddress
         self.parameter[ParameterType.SWARM_MANAGER_PORT] = "2377"
         self.logger.info(f"Getting Manager IP: {result}")
 
@@ -36,8 +44,15 @@ class MultipassDockerSwarmInit:
         command_list = self._setup_commands_init("command_multipass_docker_swarm_manager_join_token.yaml",None)
         runner_ui = SyncCommandRunnerUI(command_list)
         result = await runner_ui.run()
-        self.parameter[ParameterType.SWARM_TOKEN] = result
-        self.logger.info(f"Getting Manager IP: {result}")
+        token = result[0][1]
+        self.parameter[ParameterType.SWARM_TOKEN] = token
+        self.logger.info(f"Getting join token: {token}")
+
+        self.logger.info("Join worker to Swarm")
+        command_list = self._setup_commands_init("command_multipass_docker_swarm_join_worker.yaml", self.parameter)
+        runner_ui = SyncCommandRunnerUI(command_list)
+        result = await runner_ui.run()
+        self.logger.info(f"Join worker to Swarm: {result}")
 
     def _setup_commands_init(self, config_file: str, parameter: Optional[Dict[ParameterType, str]]) -> Dict[
         str, Dict[int, ExecutableCommandEntity]]:

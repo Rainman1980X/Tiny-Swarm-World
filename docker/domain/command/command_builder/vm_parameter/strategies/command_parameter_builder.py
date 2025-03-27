@@ -34,6 +34,9 @@ class CommandParameterBuilder:
         if not params:
             return command_template
         self.validate_params(params)  # Ensure only allowed keys are used
-        string_params = {key.value: value for key, value in params.items()}
+        string_params = {
+            key.value if isinstance(key, ParameterType) else key: value
+            for key, value in params.items()
+        }
 
         return command_template.format(**string_params)

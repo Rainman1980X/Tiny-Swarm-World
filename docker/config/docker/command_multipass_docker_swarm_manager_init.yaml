@@ -1,0 +1,8 @@
+commands:
+  - index: 1
+    description: "Initializing Docker Swarm on Manager"
+    command: "multipass exec {vm_instance} -- docker swarm init"
+    runner: "async"
+    command_type: "hostos"
+    vm_type:
+      - "manager"

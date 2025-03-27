@@ -26,10 +26,11 @@ class ManagerStrategy(CommandBuilderStrategy):
         if len(vm_instance_names) == 1:
             self.logger.info(f"Found vm instance: {vm_instance_names[0]}")
             vm_instance_name = vm_instance_names[0]
+            parameter[ParameterType.VM_INSTANCE] = vm_instance_name
             executable_commands.setdefault(vm_instance_name, {})
             executable_commands[vm_instance_name][command.index] = ExecutableCommandEntity(
                 vm_instance_name=vm_instance_name,
                 description=command.description.format(vm_instance=vm_instance_name),
-                command=self.command_parameter_builder.substitute_command(command.command.format(vm_instance=vm_instance_name),parameter),
+                command=self.command_parameter_builder.substitute_command(command.command,parameter),
                 runner=self.command_runner_factory.get_runner(CommandRunnerType.get_enum_from_value(command.runner))
             )
