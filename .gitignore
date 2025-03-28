@@ -49,3 +49,4 @@ build/
 
 ### Python3 venv ###
 /venv/
+/.venv/
