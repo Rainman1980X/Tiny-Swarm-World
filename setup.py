@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name="infra-core",
+    name="tiny-swarm-world",
     version="0.1",
     packages=find_packages(where="docker"),
     package_dir={"": "docker"},
