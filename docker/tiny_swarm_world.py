@@ -47,8 +47,8 @@ async def main():
     await multipass_restart_vms.run()
 
     logger.info("MultipassDockerSwarmInit")
-    multipass_restart_vms = MultipassDockerSwarmInit()
-    await multipass_restart_vms.run()
+    multipass_swarm_init = MultipassDockerSwarmInit()
+    await multipass_swarm_init.run()
 
 
     logger.info("Done")
