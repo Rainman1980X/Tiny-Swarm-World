@@ -1,0 +1,3 @@
+
+class SocatManager:
+    pass

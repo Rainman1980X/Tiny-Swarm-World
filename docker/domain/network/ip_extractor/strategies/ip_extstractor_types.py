@@ -5,6 +5,7 @@ class IpExtractorTypes(str, Enum):
     GATEWAY = "gateway"
     SWAM_MANAGER = "swarm-manager"
     NONE = "none"
+    SWARM_NODE_IP_LIST = "swarm-node-ip-list"
 
     @staticmethod
     def get_enum_from_value(value: str) -> "IpExtractorTypes":

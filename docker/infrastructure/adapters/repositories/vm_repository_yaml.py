@@ -10,7 +10,7 @@ from domain.multipass.vm_type import VmType
 from application.ports.repositories.port_vm_repository import PortVmRepository
 from infrastructure.dependency_injection.infra_core_di_container import infra_core_container
 
-CONFIG_PATH = "vms_repository.yaml"
+CONFIG_PATH = "vm_repository.yaml"
 
 class PortVmRepositoryYaml(PortVmRepository):
     """YAML-based VM repository using FluentYAMLBuilder."""

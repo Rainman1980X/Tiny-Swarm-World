@@ -1,8 +1,10 @@
 import re
-from typing import Optional, Union
+from typing import Union, Any
 
 from domain.network.ip_extractor.strategies.ip_extractor_strategy import ExtractionStrategy
+from domain.network.ip_value import IpValue
 from infrastructure.logging.logger_factory import LoggerFactory
+
 
 class IpExtractorGateway(ExtractionStrategy):
     """Strategy for extracting the gateway IP using regex."""
@@ -10,7 +12,7 @@ class IpExtractorGateway(ExtractionStrategy):
     def __init__(self):
         self.logger = LoggerFactory.get_logger(self.__class__)
 
-    def extract(self, result: Union[dict, list]) -> Optional[str]:
+    def extract(self, result: Union[dict, list]) -> Any:
         """
         Extracts the first valid IPv4 address from the dictionary entry with key 1.
 
@@ -34,7 +36,7 @@ class IpExtractorGateway(ExtractionStrategy):
         if match:
             ip_address = match.group(0)
             self.logger.info(f"Found gateway IP: {ip_address}")
-            return ip_address
+            return IpValue(ip_address =ip_address)
 
         self.logger.warning("No valid IP found.")
         return None  # Return None if no IP was found

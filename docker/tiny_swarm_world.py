@@ -4,7 +4,7 @@ from application.services.multipass.multipass_docker_install import MultipassDoc
 from application.services.multipass.multipass_docker_swarm_init import MultipassDockerSwarmInit
 from application.services.multipass.multipass_init_vms import MultipassInitVms
 from application.services.multipass.multipass_restart_vms import MultipassRestartVMs
-from application.services.network.network_prepare_netplan import NetworkPrepareNetplan
+from application.services.network.netplant.network_prepare_netplan import NetworkPrepareNetplan
 from application.services.network.network_service import NetworkService
 from infrastructure.adapters.file_management.file_manager import FileManager
 from infrastructure.adapters.file_management.path_strategies.path_factory import PathFactory
