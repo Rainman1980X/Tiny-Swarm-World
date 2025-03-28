@@ -16,16 +16,17 @@ class FileLocator:
         self.path_factory = path_factory
         self.filename = filename
 
+
+        base_config_path = PathNormalizer(os.path.join(os.getcwd(), "config")).normalize()
+
         self.search_paths = [
-            PathNormalizer(os.path.join(os.getcwd(), "config")).normalize(),  # Default config directory
-            PathNormalizer(os.path.join(os.getcwd(), "config/multipass")).normalize(),
-            PathNormalizer(os.path.join(os.getcwd(), "config/docker")).normalize(),
-            PathNormalizer(os.path.join(os.getcwd(), "config/network")).normalize(),
-            PathNormalizer(os.getcwd()).normalize()  # Root working directory
+            PathNormalizer(path).normalize()
+            for path in [base_config_path] + list(Path(base_config_path).rglob("*"))
+            if Path(path).is_dir()
         ]
 
         self.search_paths.insert(1, PathNormalizer(os.path.dirname(os.path.abspath(__file__))).normalize())
-
+        self.search_paths.append(PathNormalizer(os.getcwd()).normalize())
 
     def get_existing_file_path(self) -> str:
         """
