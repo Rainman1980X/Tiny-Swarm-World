@@ -30,7 +30,7 @@ class FileCreator:
     def path(self, path: Path) -> None:
         """Sets the file path."""
         self._path = path
-        self.path_normalizer = PathNormalizer(self.path_factory,self._path)
+        self.path_normalizer = PathNormalizer(self._path,self.path_factory)
 
     def create(self, path: Path, data: Any) -> Path:
         """Creates a YAML file at the specified path.
@@ -43,7 +43,7 @@ class FileCreator:
             Path: The path of the created file.
         """
         self._path = path
-        self.path_normalizer = PathNormalizer(self.path_factory,self._path)
+        self.path_normalizer = PathNormalizer(self._path,self.path_factory)
 
         # Normalize and ensure directory exists
         normalized_path = self.path_normalizer.ensure_directory()
