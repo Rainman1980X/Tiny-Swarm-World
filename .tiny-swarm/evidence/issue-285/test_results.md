@@ -43,3 +43,32 @@ The protected run is stored outside the checkout at:
 
 The direct authentication trace is in `service_authentication.md`. Earlier
 bounded failures are summarized in `preflight.md`; none is reported as a pass.
+
+## Completion recheck: 2026-09-08
+
+Candidate: `d474e2ebb907b846d25a922698304bf75fd35fed`, branch
+`feature/cred-07-live-e2e-20260903`. Local runtime: WSL2, Python 3.14.4.
+This local runtime result does not substitute for the supported Python 3.12
+and 3.13 compatibility checks listed below.
+
+- `python3 tools/quality_gate.py quality`: PASS, exit 0. Verification policy,
+  lint, all three import contracts, 18 architecture tests, typecheck across
+  646 files and the full suite passed. The suite ran 1908 tests in 139.157s
+  with 18 skips; those skips are not live verification.
+- `git diff --check origin/main...HEAD` and `git diff --check`: PASS.
+- Read-only inspection confirmed that the recorded protected WSL2 root,
+  host and run directories remain user-owned mode `0700`; both historical
+  `reset-run.exit` and `setup-run.exit` contain `0`. This is artifact
+  inspection, not a fresh live execution.
+- `gh pr view 293 --json headRefOid,statusCheckRollup`: the head matched the
+  candidate; Locked Python quality gate, Conda Python 3.12, Conda Python 3.13
+  and SonarCloud Code Analysis all reported `SUCCESS`.
+  [PR #293 checks](https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/pull/293/checks)
+  are external evidence for that SHA only.
+- Independent `issue-completion-auditor` review: `BLOCKED`. Native-Linux,
+  override, credential-drift and browser acceptance remain open. Additional
+  requirements for protected browser evidence and conclusive post-restart /
+  Jenkins authentication are recorded in `remaining_risks.md`.
+
+No new live installation, reset, authentication, browser or reconcile command
+was executed during this recheck. No PR merge or branch cleanup was performed.

@@ -14,8 +14,14 @@ credential-drift comparison/browser acceptance requirements remain open. The
 matrix records these as `BLOCKED` or `PARTIAL`; none is promoted to `PASS`.
 
 The delegated `issue-completion-auditor` returned `BLOCKED`: native Linux,
-protected override, credential-drift comparison and independent external
-evidence remain missing. It also identified the prior SonarCloud 77.8%
-new-code coverage failure; four fallback-branch tests were added and a fresh
-external check is required. Until the required live prerequisites and quality
-checks are green, PR #293 must remain open and the branch must not be deleted.
+protected override and credential-drift comparison remained missing, alongside
+external evidence at the time of that review. It also identified the prior
+SonarCloud 77.8% new-code coverage failure; four fallback-branch tests were
+added.
+
+The 2026-09-08 recheck of PR #293 at
+`d474e2ebb907b846d25a922698304bf75fd35fed` confirms `SUCCESS` for SonarCloud
+Code Analysis, the Locked Python quality gate and both Conda compatibility
+checks (Python 3.12 and 3.13). The external-check gap is resolved for that
+commit. Missing native-Linux, override, drift and browser evidence still block
+completion. PR #293 must remain open and the branch must not be deleted.

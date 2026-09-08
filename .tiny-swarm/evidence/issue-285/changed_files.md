@@ -11,6 +11,7 @@
 - `infra/config/compose/portainer/docker-compose.yml`
 - `tools/install_debugger.py`
 - `tests/test_install_script.py`
+- `tests/test_installer.py`
 - `tests/test_install_debugger.py`
 - `tests/domain/configuration/test_internal_test_credentials.py`
 - `tests/application/services/deployment/test_secret_management.py`

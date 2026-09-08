@@ -28,8 +28,12 @@ protected WSL2 run. The implementation and evidence now show:
 The first PR review also found a SonarCloud new-code coverage failure (77.8%).
 The missing evidence-root fallback branches are now covered by four direct
 installer tests. The local quality gate now passes with 1908 tests and 18
-skips; the updated commit still requires a fresh external SonarCloud check
-before merge.
+skips. The external result was rechecked on 2026-09-08 for PR #293 at
+`d474e2ebb907b846d25a922698304bf75fd35fed`: SonarCloud Code Analysis,
+Locked Python quality gate, Conda Python 3.12 and Conda Python 3.13 all report
+`SUCCESS`. SonarCloud completed at `2026-09-03T08:22:32Z`; its state is
+`EXTERNAL_GATE_VERIFIED` for that commit only. This resolves the historical
+external-check gap and does not establish any missing live acceptance.
 
 The review therefore cannot issue a completion PASS. The remaining state is a
 real external prerequisite gap, not a local-test gap. No merge or cleanup is
