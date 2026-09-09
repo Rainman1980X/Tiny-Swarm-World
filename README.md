@@ -83,6 +83,9 @@ they are separate from preparing the runtime package.
 
 ## Install a fresh test environment
 
+Review the [live-operation surface catalog](documentation/system/live-operation-surfaces.adoc)
+for the commands that change nodes, networking, Docker, Swarm and service stacks.
+
 **`./install.sh` resets the managed Tiny Swarm World environment before setup.**
 Use it only for a fresh or deliberately disposable installation. Existing
 managed nodes and their data may be removed. To keep an existing environment,
