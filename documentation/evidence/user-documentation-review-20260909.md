@@ -83,3 +83,32 @@ those runtime gaps.
 Further installer changes must keep the evidence location and entry-point
 behavior in sync with these user pages.
 
+
+## Follow-up: place the handbook in user_guide
+
+The user requested a closer review of the handbook's logical location.
+The canonical file is now `documentation/user_guide/user-handbook.adoc`,
+next to the installation, usage and troubleshooting guides. The former file
+is removed, not duplicated.
+
+Updated the root README, documentation index, Operator Manual, assembled
+`documentation/document.adoc`, active audit source mapping, documentation
+ownership skill/registry, installer diagnostic link and the existing test
+fixture path. Historical changed-file lists/review findings retain their
+original paths because they describe earlier revisions.
+
+The handbook uses explicit relative-link prefixes so links resolve correctly
+both as a standalone page and when included in the root aggregate document.
+The affected README/registry governing hashes were refreshed.
+
+Verification:
+- `git diff --check`: PASS.
+- 22 handbook link resolutions checked across standalone and aggregate
+  contexts, including available target anchors: PASS.
+- Existing `test_bridge_guides_document_reproducible_preparation`: PASS.
+- Python AST parsing of the diagnostic/test path edits and JSON parsing: PASS.
+- Documentation skill frontmatter validation: PASS.
+- Independent read-only review of the move and prefix handling: approved.
+- The only Python changes are a diagnostic path string and a test fixture
+  path. No runtime control flow changed. Full product suite and rendered
+  AsciiDoc preview remain unexecuted; this follow-up does not claim them.

@@ -9,7 +9,7 @@ Start with the task you want to complete:
 | Task | Entry point
 | First installation | link:user_guide/installation.adoc[Installation guide]
 | Daily operation and recovery choice | link:user_guide/usage.adoc#daily-operation[Usage]
-| Service URLs and login details | link:user-handbook.adoc#open-the-services[User Handbook]
+| Service URLs and login details | link:user_guide/user-handbook.adoc#open-the-services[User Handbook]
 | Failed installation or login | link:user_guide/troubleshooting.adoc#first-response[Troubleshooting]
 | Code changes and local tests | link:manuals/developer-manual.md[Developer Manual]
 |===
@@ -23,7 +23,7 @@ This directory also contains the following reference material:
 * xref:arc42.adoc[System Architecture, arc42] for the complete system model,
   architecture constraints, runtime behavior, deployment topology, risks, and
   decision references.
-* xref:user-handbook.adoc[User Handbook] for operator-facing installation,
+* xref:user_guide/user-handbook.adoc[User Handbook] for operator-facing installation,
   operation, credential access, verification, and troubleshooting steps.
 * xref:arc42/08_configuration/operator-configuration-contract.md[Operator Configuration
   Contract] for supported environment variables and secret lifecycle rules.
@@ -64,8 +64,8 @@ The audience-specific manuals provide concise entry points:
 | Path | Role
 | `arc42.adoc` | Canonical architecture book assembled from `documentation/arc42`.
 | `arc42/` | Maintained arc42 section sources, introduction requirement baselines under `arc42/01_introduction/`, deployment system references under `arc42/07_deployment/`, architecture decision records under `arc42/09_decisions/`, architecture analyses under `arc42/05_analysis/`, configuration contracts under `arc42/08_configuration/`, deployment configuration notes under `arc42/08_deployment_configuration/`, and migration plans under `arc42/11_migration/`.
-| `user-handbook.adoc` | Canonical operator handbook with step-by-step use cases.
-| `user_guide/` | Detailed user-guide source pages used by the handbook.
+| `user_guide/user-handbook.adoc` | Canonical operator handbook with step-by-step use cases.
+| `user_guide/` | User Handbook and the detailed installation, usage and troubleshooting guides.
 | `system/` | Runtime, LXC-native, networking, and live-operation reference pages.
 | `audit/` | Versioned audit evidence index, findings register, evidence matrix, and remediation plan. This is governance evidence, not certification evidence.
 | `qms/` | QMS-light quality objectives, CAPA, change-control and internal-audit guidance.
@@ -84,7 +84,7 @@ The audience-specific manuals provide concise entry points:
 
 == Consolidation Rules
 
-Use `arc42.adoc` and `user-handbook.adoc` as the two primary readable books.
+Use `arc42.adoc` and `user_guide/user-handbook.adoc` as the two primary readable books.
 Keep detailed reference pages in their existing folders when they carry
 specialized operational, ADR, or workflow evidence. Do not copy password values,
 tokens, host-specific IP addresses, or generated local evidence into committed

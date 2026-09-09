@@ -15,7 +15,7 @@ establish that every supported host and lifecycle has passed acceptance.
 | What you want to do | Read |
 |---|---|
 | Prepare a machine and install for the first time | [Installation guide](documentation/user_guide/installation.adoc) |
-| Find service URLs and sign in | [User Handbook](documentation/user-handbook.adoc#open-the-services) and [credential catalog](documentation/arc42/08_configuration/internal-test-credential-catalog.md) |
+| Find service URLs and sign in | [User Handbook](documentation/user_guide/user-handbook.adoc#open-the-services) and [credential catalog](documentation/arc42/08_configuration/internal-test-credential-catalog.md) |
 | Inspect or reconcile an existing installation | [Daily operation](documentation/user_guide/usage.adoc#daily-operation) |
 | Diagnose a failed run | [Troubleshooting](documentation/user_guide/troubleshooting.adoc#first-response) |
 | Change code or run development tests | [Developer Manual](documentation/manuals/developer-manual.md) |
@@ -37,7 +37,7 @@ the installer:
 - Host networking and capacity checked against the
   [ready-for-install checklist](documentation/user_guide/installation.adoc#ready-for-install-checklist).
 - For WSL2 Windows-browser access, the existing
-  [Windows bridge prework](documentation/user-handbook.adoc#_complete_the_required_windows_prework_for_wsl2).
+  [Windows bridge prework](documentation/user_guide/user-handbook.adoc#_complete_the_required_windows_prework_for_wsl2).
   Native Linux does not need that bridge.
 
 The installer creates managed nodes and their Docker runtime. **It does not
@@ -82,6 +82,9 @@ described in the [Developer Manual](documentation/manuals/developer-manual.md);
 they are separate from preparing the runtime package.
 
 ## Install a fresh test environment
+
+Review the [live-operation surface catalog](documentation/system/live-operation-surfaces.adoc)
+for the commands that change nodes, networking, Docker, Swarm and service stacks.
 
 **`./install.sh` resets the managed Tiny Swarm World environment before setup.**
 Use it only for a fresh or deliberately disposable installation. Existing
