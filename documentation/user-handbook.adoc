@@ -12,6 +12,18 @@ shell without reading source code or raw local credential files as the normal
 navigation method. It references local ignored files only where an operator
 must intentionally provide an override.
 
+== Find Your Next Step
+
+* First installation: link:user_guide/installation.adoc[Installation guide].
+* Existing environment: link:user_guide/usage.adoc#daily-operation[Daily operation].
+* Login details: <<open-the-services>> and the
+  link:arc42/08_configuration/internal-test-credential-catalog.md[credential catalog].
+* Failed run: link:user_guide/troubleshooting.adoc#first-response[First response].
+
+The fresh installer resets managed state before setup. It is not a routine
+service repair command. RC1 qualification remains in progress in
+https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/issues/294[#294].
+
 == Operating Model
 
 Tiny Swarm World prepares a local Docker Swarm target environment on managed
@@ -67,7 +79,7 @@ catalog or copy passwords into evidence.
 
 Use a Linux or WSL2 shell from the repository root. Prepare:
 
-* Python 3.12;
+* Python 3.12 or newer, with virtual-environment support;
 * Git;
 * Incus/LXD host management initialized before the project run; the supported
   default backend is Incus;
@@ -172,16 +184,21 @@ python3 -m pip install --require-hashes -r requirements.lock
 python3 -m pip install --no-deps -e .
 ----
 
-Verify development readiness without live infrastructure mutation:
+Check the installed CLI and static preflight without live infrastructure
+mutation:
 
 [source,bash]
 ----
-python3 tools/quality_gate.py quality
 tiny-swarm-world --list-workflows
 tiny-swarm-world --preflight
 ----
 
-If the package is not installed yet, use the source checkout fallback:
+Contributors can additionally install `requirements-dev.txt` and run
+`python3 tools/quality_gate.py quality`. Those tools are not installed by
+the runtime-only instructions above.
+
+If the package is not installed yet but its runtime dependencies are available,
+use the source checkout fallback:
 
 [source,bash]
 ----
@@ -191,46 +208,29 @@ PYTHONPATH=src python3 -m tiny_swarm_world --preflight
 
 == Prepare Operator Configuration
 
-The standard internal-test path requires no credential preparation. It resolves
-the deterministic `INTERNAL/TEST ONLY` catalog values documented in the
-canonical credential catalog and prints service targets after a successful run
-without printing passwords. Copy `.env.example` only when you need to provide
-an explicit operator override:
+For a standard internal-test installation, no credential file is required.
+The installer uses the
+link:arc42/08_configuration/internal-test-credential-catalog.md[central catalog],
+including its service-specific exceptions.
 
-[source,bash]
-----
-mkdir -p .tiny-swarm-world/local
-cp .env.example .tiny-swarm-world/local/live-installation.env
-chmod 600 .tiny-swarm-world/local/live-installation.env
-----
+For intentional overrides, use
+link:user_guide/installation.adoc#operator-credential-overrides[the canonical optional override procedure].
+A file-based override must be a user-owned `0600` regular file inside a
+user-owned `0700` directory on a Linux-native filesystem. Select it explicitly
+with `TSW_INSTALL_ENV_FILE`; keep that selection when starting a new shell.
+Do not copy or print credentials into logs or tickets.
 
-Leave entries empty to use the catalog; replace only values you intentionally
-override. Process environment values override this optional operator file. The normal installer
-resolves all other values from the catalog and does not generate or rotate
-local credential files.
-
-For an authorized WSL2 live run from a checkout under `/mnt/<drive>`, keep the
-source checkout there for traceability but set `TSW_INSTALL_ENV_FILE` to a
-WSL-native `0600` file outside the checkout. Use the same native boundary for
-`TSW_LIVE_EVIDENCE_ROOT`; see
-`documentation/evidence/wsl2-secure-live-path.md` for the guarded live path.
-
-The required values are defined by
-`infra/config/secrets/infisical-secrets.yaml` and summarized in
-`documentation/arc42/08_configuration/operator-configuration-contract.md`. The important
-operator groups are:
-
-* service administrator passwords for Portainer, Nexus, Jenkins, and SonarQube;
-* shared PostgreSQL and SonarQube PostgreSQL passwords;
-* Infisical bootstrap values;
-* Traefik TLS Docker secret names for certificate and key material.
-
-Do not commit `.tiny-swarm-world/local/live-installation.env` or evidence
-files.
+The current workflow starts self-hosted Infisical from catalog/operator inputs.
+Service-item synchronization is a separate step after readiness; external
+Infisical mode is not supported by this workflow. See
+link:arc42/08_configuration/credential-source-precedence.md[source precedence].
 
 == Run The Guided Installation
 
-For a full fresh local install with evidence capture:
+*This command resets the managed environment before installing it.*
+Preserve needed data and complete the
+link:user_guide/installation.adoc#ready-for-install-checklist[ready-for-install checklist]
+first. Then, for an intentional fresh installation with evidence capture:
 
 [source,bash]
 ----
@@ -250,7 +250,8 @@ Answer `y` only when changing local Incus/LXC state, Docker Swarm,
 networking, Portainer, Nexus, service stacks, images, and credentials is
 intentional.
 
-For deliberate repeatable test-system automation:
+These are alternative fresh-reset invocations, not consecutive steps. Use
+them only for deliberate test-system recreation:
 
 [source,bash]
 ----
@@ -266,14 +267,18 @@ For headless systems:
 TSW_INSTALL_HEADLESS=1 ./install.sh
 ----
 
-The wrapper writes run context, reset logs, setup logs, and exit codes below:
+Use the evidence directory printed by the installer. In this main revision,
+the wrapper writes run context, reset logs, setup logs and exit codes below:
 
 [source,text]
 ----
-.tiny-swarm-world/evidence/installation-tests/<host-runtime>/<UTC timestamp>/
+${XDG_STATE_HOME:-$HOME/.local/state}/tiny-swarm-world/evidence/installation-tests/<host-runtime>/<UTC timestamp>/
 ----
 
 `<host-runtime>` is `wsl2` for WSL2 and `native_linux` for native Linux.
+`TSW_LIVE_EVIDENCE_ROOT`, when set, replaces the root before the host/runtime
+subdirectories are appended. These directories use protected Linux-native
+storage. Checkout-local installation evidence from older runs is historical.
 
 == Use The CLI Directly
 
@@ -292,7 +297,10 @@ tiny-swarm-world --preflight
 tiny-swarm-world --lxc-backend incus --preflight
 ----
 
-Run the canonical live setup directly:
+The direct setup command does not perform the wrapper's preliminary reset.
+It still mutates infrastructure and requires the same effective service
+configuration. Read link:user_guide/usage.adoc#daily-operation[Daily operation]
+before switching entry points:
 
 [source,bash]
 ----
@@ -315,6 +323,7 @@ tiny-swarm-world platform reset --confirm RESET_TINY_SWARM_PLATFORM --live
 tiny-swarm-world platform destroy --confirm DESTROY_TINY_SWARM_PLATFORM --live
 ----
 
+[[open-the-services]]
 == Open The Services
 
 The default full setup uses the `service-access` profile. After a verified
@@ -325,19 +334,10 @@ deployment, use the Service Access landing page as the operator start page:
 https://service-access.tsw.local
 ----
 
-During `service-access` deployment, the LXC stack runtime renders the Service
-Access dashboard from the effective access model before applying the stack. It
-writes that generated HTML to the remote stack root path consumed by the
-compose config:
-
-[source,text]
-----
-${TSW_REMOTE_STACK_ROOT:-/var/lib/tiny-swarm-world/stacks}/service-access/dashboard/index.html
-----
-
-That file is the `service_access_dashboard_index` config source for the
-deployed dashboard, so the live stack consumes the freshly generated dashboard
-content rather than a stale checkout file.
+The dashboard is generated from the selected configuration. Its links are
+access targets, not proof of deployed, healthy or authenticated services.
+Open the page from the browser you intend to use; that browser's host must
+resolve the names, reach the forwarded ports and trust the configured TLS CA.
 
 Common preferred local service routes are:
 
@@ -349,8 +349,8 @@ Common preferred local service routes are:
 | Portainer | `https://portainer.tsw.local` | Deployment gateway after bootstrap.
 | Nexus | `https://nexus.tsw.local` | Repository service and Docker proxy behavior.
 | Jenkins | `https://jenkins.tsw.local` | CI service.
-| Pulsar | `https://pulsar.tsw.local` | Pulsar Manager UI; use the `platform/pulsar-manager` Infisical item for the UI password.
-| Pulsar Admin API | `https://pulsar-api.tsw.local/admin/v2/clusters` | Token-authenticated Admin API for local standalone broker; use the `platform/pulsar` Infisical item for the bearer token.
+| Pulsar | `https://pulsar.tsw.local` | Pulsar Manager UI; use the catalog or effective override. The Infisical item is usable only after synchronization.
+| Pulsar Admin API | `https://pulsar-api.tsw.local/admin/v2/clusters` | Requires the effective bearer token; browser reachability is not an authenticated API check.
 | SonarQube | `https://sonarqube.tsw.local` | Static analysis service.
 | Swagger/NGINX | `https://swagger.tsw.local` | API documentation surface.
 | Traefik | ports `80` and `443` | Ingress owner for the service-access setup profile.
@@ -377,21 +377,10 @@ login identifier is `admin@tiny-swarm-world.local`; the catalog documents the
 disposable password convention. The installer prints the URL and identifier,
 but intentionally does not print password values.
 
-For an explicit override, the protected local source is:
-
-[source,text]
-----
-.tiny-swarm-world/local/live-installation.env
-----
-
-If an explicit override file is configured, check that the expected keys are
-present without printing password values into logs or tickets:
-
-[source,bash]
-----
-grep -q '^TSW_INFISICAL_LOGIN_EMAIL=' .tiny-swarm-world/local/live-installation.env
-grep -q '^TSW_INFISICAL_BOOTSTRAP_ADMIN_PASSWORD=' .tiny-swarm-world/local/live-installation.env
-----
+For an explicit override, use the protected file selected by
+`TSW_INSTALL_ENV_FILE` or the applicable configured source. A default install
+does not create a file for you. Do not assume a key's presence alone proves
+that its value is valid or in use.
 
 For the standard internal-test path, use the catalog's documented disposable
 login convention. For an explicit override, open the ignored local file in a
@@ -414,12 +403,16 @@ recovery file.
 After signing in, use the Infisical UI to reveal or copy service secret values.
 The Service Access dashboard intentionally shows only users and Infisical item
 references; it does not display password values. If Infisical item
-synchronization has not been enabled or completed, service values remain in
-the ignored local environment files and the dashboard references are only
-navigation hints.
+synchronization has not been enabled or completed, use the catalog for defaults
+or your protected source for overrides. No generated local credential file is
+implied; dashboard references are only navigation hints.
 
-To intentionally enable optional legacy Infisical item seeding for a local
-run, set:
+Optional legacy Infisical item seeding can be requested before a deliberate
+fresh installation. *The following command resets the managed environment; do
+not use it just to populate missing items in an existing installation.* For
+that case, review the supported synchronization contract first.
+
+For a deliberately disposable fresh run:
 
 [source,bash]
 ----
@@ -440,11 +433,13 @@ Use the non-mutating workflow first:
 tiny-swarm-world platform verify
 ----
 
-Then inspect the newest install evidence:
+Use the directory printed by that run. On this main revision, you can locate
+candidate evidence files under the default path:
 
 [source,bash]
 ----
-find .tiny-swarm-world/evidence/installation-tests -maxdepth 3 -type f \
+TSW_INSTALL_EVIDENCE_ROOT="${TSW_LIVE_EVIDENCE_ROOT:-${XDG_STATE_HOME:-$HOME/.local/state}/tiny-swarm-world/evidence/installation-tests}"
+find "$TSW_INSTALL_EVIDENCE_ROOT" -maxdepth 3 -type f \
   \( -name 'context.txt' -o -name 'reset-run.exit' -o -name 'setup-run.exit' \) \
   -print
 ----
@@ -462,16 +457,24 @@ incus exec swarm-manager -- docker service ls
 == Troubleshooting Checklist
 
 Use the concise decision path in
-`documentation/user_guide/troubleshooting.adoc#_common_failure_decision_path`
+link:user_guide/troubleshooting.adoc#first-response[Troubleshooting]
 to classify the first failed phase. That page is the canonical source for
 bounded Incus profile/reset actions, APT/network recovery, WSL bridge repair,
 port ownership, service reachability, and the install debugger.
 
-The handbook keeps only the operator rule: inspect the newest evidence, correct
-the named prerequisite, and rerun the same guarded command only when live
-mutation remains intentional. Do not use broad Incus cleanup, copy secrets or
+Inspect the newest evidence and correct the named prerequisite. Choose the
+least disruptive supported retry through
+link:user_guide/usage.adoc#daily-operation[Daily operation]; rerunning the fresh
+installer includes another reset. Do not use broad Incus cleanup, copy secrets or
 join tokens into reports, or treat a static configuration check as live service
 success.
+
+== Update Status
+
+This revision has no supported `./install.sh --update` command. The canonical
+update workflow and its verification on both host types are tracked in
+https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/issues/297[#297].
+Neither a fresh reset nor platform reconciliation establishes a product upgrade.
 
 == Reference Pages
 

@@ -9,9 +9,70 @@ Tiny Swarm World contains two different kinds of workflows:
 Use a Linux or WSL shell from the repository root unless a command explicitly
 states otherwise.
 
+[[daily-operation]]
+== Daily Operation
+
+Activate the Python environment before using the installed CLI:
+
+[source,bash]
+----
+source .venv/bin/activate
+tiny-swarm-world --service-profile service-access platform verify
+----
+
+Replace `service-access` if you installed a different profile. Keep the same
+backend and effective configuration used for installation. If the source is
+intentionally on a WSL Windows mount, the applicable commands also need
+`--allow-wsl-windows-filesystem`.
+
+[options="header"]
+|===
+| Goal | Command or next step | Effect
+| Inspect current platform | `platform verify` | Read-only checks; does not repair.
+| Reconcile managed platform | `platform reconcile --live` | Mutates managed platform state; does not constitute a full service update.
+| Run the broader setup again | `setup run --live` | Mutates infrastructure and services without the wrapper's preliminary reset.
+| Recreate a disposable environment | `./install.sh` | Resets managed state before fresh setup.
+| Upgrade a running installation | Follow https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/issues/297[#297] | Canonical update support and acceptance remain incomplete.
+|===
+
+For an intentional platform reconciliation, followed by verification:
+
+[source,bash]
+----
+tiny-swarm-world --service-profile service-access platform reconcile --live
+tiny-swarm-world --service-profile service-access platform verify
+----
+
+Run the verification only after reconciliation succeeds; on failure, diagnose
+the first failed phase before any further mutation.
+
+If the broader setup workflow is required, review its changes and configuration
+before using:
+
+[source,bash]
+----
+tiny-swarm-world --service-profile service-access setup run --live
+----
+
+The direct CLI is a separate entry point. Do not assume it inherits the
+installer wrapper's resolved credentials or the environment of an earlier
+process. Ensure its effective configuration is supplied through the supported
+operator contract; if prerequisites are missing, diagnose them rather than
+using the reset wrapper as a workaround. See
+link:../arc42/08_configuration/operator-configuration-contract.md[the operator contract].
+
+After changes, verify routes and actual logins as described in
+link:installation.adoc#verify-installed-runtime[Verify the runtime].
+Platform readiness or a login page alone is not authenticated acceptance.
+
+There is no supported `./install.sh --update` in this revision. Pulling source
+changes, reconciling platform resources and resetting an installation are
+different operations; none alone proves a supported product upgrade.
+
 == Development Quality Gate
 
-Run the full gate before handing off changes:
+For code contributors, install `requirements-dev.txt` in the active environment
+and run the full gate before handing off changes:
 
 [source,bash]
 ----
@@ -295,13 +356,15 @@ The current validated setup contract is documented in
 contains placeholders for every contract key. Preflight reports only key names,
 scopes, value kinds and source classification, not secret values.
 
-The repository still contains local static defaults for this non-production
-system. For real local work, provide explicit values through environment
-variables where supported.
-Do not copy local compatibility defaults into new configuration or logs.
+The standard internal-test installer resolves the central credential catalog.
+Supply explicit values only when an override is intended. The direct CLI must
+receive its required effective inputs through the operator contract; do not
+assume the wrapper's resolution was applied to a separate process.
 
-The managed installer prepares a Docker Hub proxy repository in the Nexus stack
-and uses it for the Infisical pull images by default. The default proxy endpoint
+The managed Nexus stack provides a Docker Hub proxy repository. Its presence
+does not establish that an image pull used that proxy: inspect the selected
+image reference and managed-node registry configuration. Do not rely on a Nexus
+stack that has not yet started as a prerequisite cache for fresh installation. The default proxy endpoint
 inside the Swarm manager is `127.0.0.1:5001`, while the hosted local registry
 for project-built images remains `127.0.0.1:5000`.
 
@@ -389,8 +452,11 @@ Pulsar Manager, Pulsar Admin API, SonarQube, Swagger, Infisical and Service
 Access.
 It does not show password values.
 
-Authorized operators reveal or copy password values only through the
-configured secret-management surface.
+For default logins, use the
+link:../arc42/08_configuration/internal-test-credential-catalog.md[credential catalog].
+For overrides, use the protected source selected for the installation.
+Infisical item references are navigation hints until synchronization is verified;
+the dashboard does not store or reveal password values.
 
 Prometheus, Grafana, app, and API links are configuration-dependent. An
 optional link is rendered only when its service is enabled; disabled services
