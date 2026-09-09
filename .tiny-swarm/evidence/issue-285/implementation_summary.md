@@ -1,5 +1,12 @@
 # Implementation Summary: #285 / CRED-07
 
+The authorized 2026-09-09 continuation adds executed WSL2 acceptance evidence
+without changing Python or infrastructure configuration. It proves the
+remaining WSL2 reconcile/drift, Jenkins identity, Portainer authenticated
+restart, configured override and browser scenarios at candidate `7380f751`.
+The independent reviewer accepted that bounded evidence; native-Linux parity
+is still blocked by unavailable host capacity. See `live_results_20260909.json`.
+
 CRED-07 exposed and repaired four live-path issues while proving the standard
 internal-test path on WSL2:
 

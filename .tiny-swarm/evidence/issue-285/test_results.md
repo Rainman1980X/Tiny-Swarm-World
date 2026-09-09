@@ -1,5 +1,40 @@
 # Test Results: #285 / CRED-07
 
+## Authorized live continuation: 2026-09-09
+
+Executed against `7380f751` after explicit user approval for all required live
+operations. Machine-readable results and per-file hashes are in
+`live_results_20260909.json`; raw values and service response bodies are not
+persisted. Source checkout remains WSL2 `/mnt/d`.
+
+- Canonical `platform reconcile`: exit 0; five service authentications pass
+  before/after, resolved values and non-empty source metadata remain equal.
+- Portainer forced restart: exit 0; subsequent JWT authentication passes.
+- Protected Jenkins operator/Vault override via canonical `deployment apply`:
+  exit 0, expected identity authenticates, default explicitly returns HTTP 401.
+  Restoration deployment exits 0; default authentication and Vault restoration
+  pass; temporary secret inputs are removed.
+- Eight canonical browser modules: 27 tests, zero failures/errors/skips in
+  final run `browser-20260909T052452Z`, after override restoration. Selenium
+  4.48.0 and Firefox 155.0.1 ran from an isolated local test environment.
+- Earlier wrong SonarQube probe port and initial Pulsar landing-state failure
+  remain failed attempts. Corrected/targeted and final reruns are separately
+  recorded, never substituted into the historical records.
+- Redaction scan checks completed run files for catalog values of at least
+  ten characters and leftover `.env` inputs; PASS. Runner inspection covers
+  generated override values and omission of raw HTTP/command output.
+- Native Linux: `LIVE_PREREQUISITE_MISSING` due to insufficient host capacity
+  for a canonical native VM and no separate supplied target. No native run.
+
+Local quality and CI/SonarCloud for the unchanged Python candidate `7380f751`
+were verified before live execution; this continuation changes issue evidence
+only. Live evidence does not imply native-Linux success or final completion.
+The evidence-only continuation uses `git diff --check`, verification-policy
+and JSON/hash/redaction validation locally. The full local suite is not
+repeated because no Python, tests, configuration or quality policy changed;
+the previously executed full gate remains scoped to `7380f751`. Publication
+CI must independently check the new evidence commit.
+
 ## Local verification
 
 - `PYTHONPATH=src python3 -m unittest tests.test_install_script`: PASS, 20 tests.
