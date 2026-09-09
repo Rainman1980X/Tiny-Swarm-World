@@ -56,6 +56,7 @@ from tiny_swarm_world.infrastructure.project_paths import ProjectPaths, default_
 
 DEFAULT_TRAEFIK_TLS_CERT_SECRET_NAME = "tsw_traefik_tls_cert"
 DEFAULT_TRAEFIK_TLS_KEY_SECRET_NAME = "tsw_traefik_tls_key"
+DEFAULT_PORTAINER_ADMIN_SECRET_NAME = "tsw_portainer_admin_password"
 INFISICAL_DATABASE_SERVICE_NAME = "infisical_infisical-db"
 __all__ = [
     "ImagePublisherOperationRejected",
@@ -82,6 +83,8 @@ class LxcSwarmRuntime(PortSwarmStackRuntime):
         service_access_dashboard_renderer: Callable[[], str] | None = None,
         traefik_tls_cert_secret_name: str = DEFAULT_TRAEFIK_TLS_CERT_SECRET_NAME,
         traefik_tls_key_secret_name: str = DEFAULT_TRAEFIK_TLS_KEY_SECRET_NAME,
+        portainer_admin_password: str | None = None,
+        portainer_admin_secret_name: str = DEFAULT_PORTAINER_ADMIN_SECRET_NAME,
         shell_gateway: LxcManagerShellGateway | None = None,
         process_runner: ProcessRunner | None = None,
         tls_contract_resolver: PortTlsContractResolver,
@@ -92,6 +95,10 @@ class LxcSwarmRuntime(PortSwarmStackRuntime):
             raise ValueError("Swarm service list timeout must be positive.")
         if not traefik_tls_cert_secret_name.strip() or not traefik_tls_key_secret_name.strip():
             raise ValueError("Traefik TLS secret names must not be empty.")
+        if portainer_admin_password is not None and not portainer_admin_password:
+            raise ValueError("Portainer admin password must not be empty when configured.")
+        if not portainer_admin_secret_name.strip():
+            raise ValueError("Portainer admin secret name must not be empty.")
         self.backend = backend
         self.manager_node = manager_node
         self.remote_stack_root = remote_stack_root.rstrip("/")
@@ -101,6 +108,8 @@ class LxcSwarmRuntime(PortSwarmStackRuntime):
         self.service_access_dashboard_renderer = service_access_dashboard_renderer
         self.traefik_tls_cert_secret_name = traefik_tls_cert_secret_name.strip()
         self.traefik_tls_key_secret_name = traefik_tls_key_secret_name.strip()
+        self.portainer_admin_password = portainer_admin_password
+        self.portainer_admin_secret_name = portainer_admin_secret_name.strip()
         self.tls_contract_resolver = tls_contract_resolver
         self.logger = LoggerFactory.get_logger(self.__class__)
         self.process_runner = process_runner
@@ -164,8 +173,17 @@ class LxcSwarmRuntime(PortSwarmStackRuntime):
             stack_name,
             stack_definition,
             ensure_external_overlay_network=lambda name: self._ensure_external_overlay_network(name),
+            ensure_portainer_admin_secret=self._ensure_portainer_admin_secret,
             ensure_traefik_tls_secrets=lambda: self._ensure_traefik_tls_secrets(),
             run_manager_shell=lambda *args, **kwargs: self._run_manager_shell(*args, **kwargs),
+        )
+
+    def _ensure_portainer_admin_secret(self) -> None:
+        if self.portainer_admin_password is None:
+            return
+        self.ensure_external_secret(
+            self.portainer_admin_secret_name,
+            self.portainer_admin_password,
         )
 
     def _ensure_traefik_tls_secrets(self) -> None:

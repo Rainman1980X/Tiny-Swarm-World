@@ -76,7 +76,7 @@ class TestInternalTestCredentialCatalog(unittest.TestCase):
             with self.subTest(key=key):
                 self.assertEqual(INTERNAL_TEST_PASSWORD, catalog[key].value)
 
-        self.assertEqual(f"{INTERNAL_TEST_PASSWORD}!", catalog["TSW_SONARQUBE_ADMIN_PASSWORD"].value)
+        self.assertEqual(f"{INTERNAL_TEST_PASSWORD}!a", catalog["TSW_SONARQUBE_ADMIN_PASSWORD"].value)
         self.assertEqual(
             "admin@tiny-swarm-world.local",
             catalog["TSW_INFISICAL_LOGIN_EMAIL"].value,

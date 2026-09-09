@@ -189,6 +189,7 @@ def build_lxc_deployment_services(
         process_runner=build_process_runner(),
         project_paths=project_paths,
         service_access_dashboard_renderer=compose_repository.render_service_access_dashboard,
+        portainer_admin_password=_operator_secret_value("TSW_PORTAINER_ADMIN_PASSWORD"),
         traefik_tls_cert_secret_name=traefik_tls_cert_secret_name,
         traefik_tls_key_secret_name=traefik_tls_key_secret_name,
         tls_contract_resolver=LocalTlsContractResolver(

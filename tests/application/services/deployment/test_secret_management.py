@@ -241,6 +241,21 @@ class TestSecretManagement(unittest.TestCase):
         self.assertEqual(classifications["credential_note"], "false_positive")
         self.assertNotIn("blocker", set(classifications.values()))
 
+    def test_secret_discovery_treats_bootstrap_password_source_as_metadata(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            _write_repo_fixture(
+                root,
+                "services.yml",
+                'password_source: "resolved_bootstrap_input"\n',
+            )
+            discovery = SecretDiscoveryStep(storage=_STORAGE, repo_root=root)
+
+            findings = discovery.run()
+
+        self.assertEqual(findings[0].classification, "false_positive")
+        self.assertNotIn("blocker", {finding.classification for finding in findings})
+
     def test_redactor_redacts_values_and_assignments(self):
         redactor = SecretRedactor((operator_credential(),))
         key = sample_text("PASS", "WORD")

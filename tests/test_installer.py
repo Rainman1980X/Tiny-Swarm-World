@@ -12,6 +12,79 @@ from tiny_swarm_world import installer
 
 
 class TestInstaller(unittest.TestCase):
+    def test_installation_evidence_directory_uses_configured_xdg_state(self):
+        with tempfile.TemporaryDirectory() as tempdir:
+            state_root = Path(tempdir) / "state"
+
+            evidence_dir = installer._installation_evidence_directory(
+                {"XDG_STATE_HOME": state_root.as_posix()},
+                cwd=Path(tempdir) / "checkout",
+                host_runtime=installer.HostRuntime("wsl2", "test"),
+                run_id="20260903T000000Z",
+            )
+
+            self.assertEqual(
+                evidence_dir,
+                state_root
+                / "tiny-swarm-world"
+                / "evidence"
+                / "installation-tests"
+                / "wsl2"
+                / "20260903T000000Z",
+            )
+            self.assertEqual(evidence_dir.stat().st_mode & 0o777, 0o700)
+
+    def test_installation_evidence_directory_uses_explicit_root(self):
+        with tempfile.TemporaryDirectory() as tempdir:
+            configured_root = Path(tempdir) / "configured"
+
+            evidence_dir = installer._installation_evidence_directory(
+                {"TSW_LIVE_EVIDENCE_ROOT": configured_root.as_posix()},
+                cwd=Path(tempdir) / "checkout",
+                host_runtime=installer.HostRuntime("native_linux", "test"),
+                run_id="20260903T000002Z",
+            )
+
+            self.assertEqual(evidence_dir.parent, configured_root / "native_linux")
+
+    def test_installation_evidence_directory_resolves_relative_root_from_checkout(self):
+        with tempfile.TemporaryDirectory() as tempdir:
+            checkout = Path(tempdir) / "checkout"
+            evidence_dir = installer._installation_evidence_directory(
+                {"TSW_LIVE_EVIDENCE_ROOT": "relative-evidence"},
+                cwd=checkout,
+                host_runtime=installer.HostRuntime("native_linux", "test"),
+                run_id="20260903T000003Z",
+            )
+
+            self.assertEqual(evidence_dir.parent, checkout / "relative-evidence" / "native_linux")
+
+    def test_installation_evidence_directory_uses_home_when_xdg_state_is_empty(self):
+        with tempfile.TemporaryDirectory() as tempdir, patch.object(
+            Path,
+            "home",
+            return_value=Path(tempdir),
+        ):
+            evidence_dir = installer._installation_evidence_directory(
+                {"XDG_STATE_HOME": ""},
+                cwd=Path(tempdir) / "checkout",
+                host_runtime=installer.HostRuntime("native_linux", "test"),
+                run_id="20260903T000001Z",
+            )
+
+            self.assertEqual(
+                evidence_dir,
+                Path(tempdir)
+                / ".local"
+                / "state"
+                / "tiny-swarm-world"
+                / "evidence"
+                / "installation-tests"
+                / "native_linux"
+                / "20260903T000001Z",
+            )
+            self.assertEqual(evidence_dir.stat().st_mode & 0o777, 0o700)
+
     def test_fresh_install_requires_operator_provisioned_traefik_htpasswd(self):
         with tempfile.TemporaryDirectory() as tempdir:
             secret_env_file = Path(tempdir) / "live-installation.env"

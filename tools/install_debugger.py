@@ -236,7 +236,7 @@ def check_install_script(
         )
     )
     for needle, description in (
-        ("python3 -m tiny_swarm_world.simple_installer", "Python installer entry point"),
+        ("tiny_swarm_world.simple_installer", "Python installer entry point"),
         ("PYTHONPATH", "source checkout Python path"),
     ):
         findings.append(

@@ -325,8 +325,12 @@ def run(
         )
 
     run_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
-    evidence_dir = cwd / ".tiny-swarm-world" / "evidence" / "installation-tests" / host_runtime.name / run_id
-    evidence_dir.mkdir(parents=True, exist_ok=True)
+    evidence_dir = _installation_evidence_directory(
+        env,
+        cwd=cwd,
+        host_runtime=host_runtime,
+        run_id=run_id,
+    )
     live_mode, approval_source, approval_argument = _live_approval(options)
     terminal_mode = "headless" if options.headless else "terminal_recorder"
     evidence_probes = _collect_evidence_probe_snapshot(cwd, git_probe)
@@ -506,6 +510,42 @@ def _paths_from_env(env: Mapping[str, str], cwd: Path) -> InstallerPaths:
         secret_env_file=resolve(env.get("TSW_INSTALL_ENV_FILE", DEFAULT_SECRET_ENV_FILE)),
         native_linux_venv=resolve(env.get("TSW_NATIVE_LINUX_VENV", DEFAULT_NATIVE_LINUX_VENV)),
     )
+
+
+def _installation_evidence_directory(
+    env: Mapping[str, str],
+    *,
+    cwd: Path,
+    host_runtime: HostRuntime,
+    run_id: str,
+) -> Path:
+    """Create installer evidence on the protected runtime filesystem."""
+    configured_root = env.get("TSW_LIVE_EVIDENCE_ROOT", "").strip()
+    if configured_root:
+        root = Path(configured_root).expanduser()
+    else:
+        configured_state = env.get("XDG_STATE_HOME", "").strip()
+        state_root = (
+            Path(configured_state).expanduser()
+            if configured_state
+            else Path.home() / ".local" / "state"
+        )
+        root = state_root / "tiny-swarm-world" / "evidence" / "installation-tests"
+    if not root.is_absolute():
+        root = cwd / root
+
+    # The source checkout may stay on /mnt/*, but mutable installer evidence
+    # must live on the verified Linux-native filesystem. Setup preflight
+    # validates the same configured root before platform mutation begins.
+    from tools.live.secure_runtime_paths import ensure_secure_directory
+
+    ensure_secure_directory(root)
+    host_root = root / host_runtime.name
+    ensure_secure_directory(host_root)
+    evidence_dir = host_root / run_id
+    evidence_dir.mkdir()
+    evidence_dir.chmod(0o700)
+    return evidence_dir
 
 
 def _require_repository(cwd: Path) -> None:

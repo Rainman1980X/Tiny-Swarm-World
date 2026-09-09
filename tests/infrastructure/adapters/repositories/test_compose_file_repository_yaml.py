@@ -457,6 +457,16 @@ services:
         self.assertIn("/var/run/docker.sock:/var/run/docker.sock", compose_content)
         self.assertNotIn("/var/run/sock", compose_content)
 
+    def test_committed_portainer_compose_provisions_admin_password_before_api_bootstrap(self):
+        repository_root = Path(__file__).resolve().parents[4]
+        compose_path = repository_root / "infra" / "config" / "compose" / "portainer" / "docker-compose.yml"
+        compose_content = compose_path.read_text(encoding="utf-8")
+
+        self.assertIn("--admin-password-file", compose_content)
+        self.assertIn("/run/secrets/portainer_admin_password", compose_content)
+        self.assertIn("name: tsw_portainer_admin_password", compose_content)
+        self.assertIn("external: true", compose_content)
+
     def test_committed_default_service_stack_compose_files_are_loadable(self):
         repository = ComposeFileRepositoryYaml()
 

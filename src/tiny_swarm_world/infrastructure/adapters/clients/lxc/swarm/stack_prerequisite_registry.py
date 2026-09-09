@@ -29,6 +29,7 @@ class StackPrerequisiteContext:
     stack_name: str
     stack_definition: StackDefinition
     ensure_external_overlay_network: Callable[[str], None]
+    ensure_portainer_admin_secret: Callable[[], None]
     ensure_traefik_tls_secrets: Callable[[], None]
     run_manager_shell: ManagerShell
 
@@ -56,6 +57,14 @@ class TraefikTlsStrategy:
 
     def apply(self, context: StackPrerequisiteContext) -> None:
         context.ensure_traefik_tls_secrets()
+
+
+class PortainerAdminSecretStrategy:
+    def supports(self, context: StackPrerequisiteContext) -> bool:
+        return context.stack_name == "portainer"
+
+    def apply(self, context: StackPrerequisiteContext) -> None:
+        context.ensure_portainer_admin_secret()
 
 
 class SonarqubeKernelStrategy:
@@ -88,6 +97,7 @@ class StackPrerequisiteRegistry:
             strategies
             or (
                 ExternalOverlayNetworkStrategy(),
+                PortainerAdminSecretStrategy(),
                 TraefikTlsStrategy(),
                 SonarqubeKernelStrategy(),
                 SwaggerAssetPrerequisiteStrategy(),
@@ -100,6 +110,7 @@ class StackPrerequisiteRegistry:
         stack_definition: StackDefinition,
         *,
         ensure_external_overlay_network: Callable[[str], None],
+        ensure_portainer_admin_secret: Callable[[], None] | None = None,
         ensure_traefik_tls_secrets: Callable[[], None],
         run_manager_shell: ManagerShell,
     ) -> None:
@@ -107,6 +118,7 @@ class StackPrerequisiteRegistry:
             stack_name=stack_name,
             stack_definition=stack_definition,
             ensure_external_overlay_network=ensure_external_overlay_network,
+            ensure_portainer_admin_secret=ensure_portainer_admin_secret or (lambda: None),
             ensure_traefik_tls_secrets=ensure_traefik_tls_secrets,
             run_manager_shell=run_manager_shell,
         )

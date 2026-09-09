@@ -338,6 +338,28 @@ class TestInstallScript(unittest.TestCase):
             self.assertIn("fake headless command", (evidence_dir / "setup-run.log").read_text())
             self.assertFalse(fixture.recorded_live_confirmations())
 
+    def test_install_uses_private_configured_evidence_root(self):
+        with _install_script_fixture() as fixture:
+            evidence_root = fixture.root / "protected-evidence"
+            fixture.extra_environment["TSW_LIVE_EVIDENCE_ROOT"] = evidence_root.as_posix()
+
+            result = fixture.run()
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            evidence_dir = evidence_root / "native_linux" / next(
+                child.name for child in (evidence_root / "native_linux").iterdir()
+            )
+            self.assertEqual(evidence_root.stat().st_mode & 0o777, 0o700)
+            self.assertEqual(
+                (evidence_root / "native_linux").stat().st_mode & 0o777,
+                0o700,
+            )
+            self.assertEqual(evidence_dir.stat().st_mode & 0o777, 0o700)
+            self.assertIn(
+                evidence_dir.as_posix(),
+                (evidence_dir / "context.txt").read_text(),
+            )
+
     def test_install_disables_infisical_item_seed_by_default(self):
         with _install_script_fixture() as fixture:
             result = fixture.run()
@@ -498,6 +520,7 @@ class _InstallScriptFixture:
             "TSW_INSTALL_TEST_WINDOWS_WSL_BRIDGE_STATE_PATH": (
                 ".tiny-swarm-world/test-windows-wsl-bridge-state.json"
             ),
+            "TSW_LIVE_EVIDENCE_ROOT": ".tiny-swarm-world/evidence/installation-tests",
             "TSW_TEST_REAL_PYTHON": sys.executable,
             **self.extra_environment,
         }
@@ -560,6 +583,12 @@ class _InstallScriptFixture:
             self.root / "infra" / "config" / "secrets" / "infisical-secrets.yaml",
         )
         self.fake_bin.mkdir()
+        tools_live_target = self.root / "tools" / "live"
+        tools_live_target.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(
+            REPOSITORY_ROOT / "tools" / "live" / "secure_runtime_paths.py",
+            tools_live_target / "secure_runtime_paths.py",
+        )
         _write_executable(self.fake_bin / "python3", _fake_python3())
         _write_executable(self.fake_bin / "grep", _fake_grep())
         _write_executable(self.fake_bin / "script", _fake_script())

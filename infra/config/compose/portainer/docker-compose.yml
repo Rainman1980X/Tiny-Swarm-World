@@ -1,7 +1,13 @@
 services:
   portainer:
     image: portainer/portainer-ce:2.45.0
+    command:
+      - --admin-password-file
+      - /run/secrets/portainer_admin_password
     restart: always
+    secrets:
+      - source: portainer_admin_password
+        target: portainer_admin_password
     volumes:
       - portainer_data:/data
       - /var/run/docker.sock:/var/run/docker.sock
@@ -36,6 +42,11 @@ services:
           - node.platform.os == linux
 volumes:
   portainer_data:
+
+secrets:
+  portainer_admin_password:
+    external: true
+    name: tsw_portainer_admin_password
 
 networks:
   service_access_link:

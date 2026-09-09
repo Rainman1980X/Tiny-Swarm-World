@@ -59,6 +59,7 @@ FALSE_POSITIVE_ASSIGNMENTS = (
     "SECRET_FILE",
     "SECRET_NAME",
     "CREDENTIAL_NOTE",
+    "PASSWORD_SOURCE",
     "SECRETS",
 )
 SCAN_SUFFIXES = {".env", ".yml", ".yaml", ".sh", ".py", ".groovy", ".conf", ".json", ".template", ".tpl"}

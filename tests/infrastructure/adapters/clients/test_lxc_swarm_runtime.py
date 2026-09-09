@@ -118,6 +118,34 @@ class TestLxcSwarmRuntime(unittest.TestCase):
             generated_dashboard,
         )
 
+    def test_portainer_deploy_provisions_admin_password_as_external_secret(self):
+        runtime = LxcSwarmRuntime(
+            backend=ManagedLxcBackend.LXD,
+            portainer_admin_password=operator_credential(),
+        )
+
+        with patch.object(runtime, "_run_manager_shell") as run_manager_shell:
+            runtime.deploy_stack(
+                StackDefinition(name="portainer", compose_content="services: {}")
+            )
+
+        scripts = [call.args[0] for call in run_manager_shell.call_args_list]
+        self.assertIn(
+            "docker secret inspect -- tsw_portainer_admin_password >/dev/null 2>&1",
+            scripts,
+        )
+        self.assertIn(
+            "docker secret create -- tsw_portainer_admin_password -",
+            scripts,
+        )
+        create_call = next(
+            call
+            for call in run_manager_shell.call_args_list
+            if "docker secret create -- tsw_portainer_admin_password -" in call.args[0]
+        )
+        self.assertEqual(create_call.kwargs["input_text"], operator_credential())
+        self.assertNotIn(operator_credential(), scripts[0])
+
     def test_default_remote_stack_root_matches_committed_compose_fallback(self):
         runtime = LxcSwarmRuntime(backend=ManagedLxcBackend.LXD)
 
