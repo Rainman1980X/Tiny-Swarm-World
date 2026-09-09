@@ -7,6 +7,14 @@
 :chapter-label:
 :icons: font
 
+// Prefixes keep links valid both standalone and in documentation/document.adoc.
+ifndef::handbook-guide-prefix[]
+:handbook-guide-prefix:
+endif::[]
+ifndef::handbook-reference-prefix[]
+:handbook-reference-prefix: ../
+endif::[]
+
 This handbook explains how to operate Tiny Swarm World from a Linux or WSL
 shell without reading source code or raw local credential files as the normal
 navigation method. It references local ignored files only where an operator
@@ -14,11 +22,11 @@ must intentionally provide an override.
 
 == Find Your Next Step
 
-* First installation: link:user_guide/installation.adoc[Installation guide].
-* Existing environment: link:user_guide/usage.adoc#daily-operation[Daily operation].
+* First installation: link:{handbook-guide-prefix}installation.adoc[Installation guide].
+* Existing environment: link:{handbook-guide-prefix}usage.adoc#daily-operation[Daily operation].
 * Login details: <<open-the-services>> and the
-  link:arc42/08_configuration/internal-test-credential-catalog.md[credential catalog].
-* Failed run: link:user_guide/troubleshooting.adoc#first-response[First response].
+  link:{handbook-reference-prefix}arc42/08_configuration/internal-test-credential-catalog.md[credential catalog].
+* Failed run: link:{handbook-guide-prefix}troubleshooting.adoc#first-response[First response].
 
 The fresh installer resets managed state before setup. It is not a routine
 service repair command. RC1 qualification remains in progress in
@@ -210,11 +218,11 @@ PYTHONPATH=src python3 -m tiny_swarm_world --preflight
 
 For a standard internal-test installation, no credential file is required.
 The installer uses the
-link:arc42/08_configuration/internal-test-credential-catalog.md[central catalog],
+link:{handbook-reference-prefix}arc42/08_configuration/internal-test-credential-catalog.md[central catalog],
 including its service-specific exceptions.
 
 For intentional overrides, use
-link:user_guide/installation.adoc#operator-credential-overrides[the canonical optional override procedure].
+link:{handbook-guide-prefix}installation.adoc#operator-credential-overrides[the canonical optional override procedure].
 A file-based override must be a user-owned `0600` regular file inside a
 user-owned `0700` directory on a Linux-native filesystem. Select it explicitly
 with `TSW_INSTALL_ENV_FILE`; keep that selection when starting a new shell.
@@ -223,13 +231,13 @@ Do not copy or print credentials into logs or tickets.
 The current workflow starts self-hosted Infisical from catalog/operator inputs.
 Service-item synchronization is a separate step after readiness; external
 Infisical mode is not supported by this workflow. See
-link:arc42/08_configuration/credential-source-precedence.md[source precedence].
+link:{handbook-reference-prefix}arc42/08_configuration/credential-source-precedence.md[source precedence].
 
 == Run The Guided Installation
 
 *This command resets the managed environment before installing it.*
 Preserve needed data and complete the
-link:user_guide/installation.adoc#ready-for-install-checklist[ready-for-install checklist]
+link:{handbook-guide-prefix}installation.adoc#ready-for-install-checklist[ready-for-install checklist]
 first. Then, for an intentional fresh installation with evidence capture:
 
 [source,bash]
@@ -299,7 +307,7 @@ tiny-swarm-world --lxc-backend incus --preflight
 
 The direct setup command does not perform the wrapper's preliminary reset.
 It still mutates infrastructure and requires the same effective service
-configuration. Read link:user_guide/usage.adoc#daily-operation[Daily operation]
+configuration. Read link:{handbook-guide-prefix}usage.adoc#daily-operation[Daily operation]
 before switching entry points:
 
 [source,bash]
@@ -457,14 +465,14 @@ incus exec swarm-manager -- docker service ls
 == Troubleshooting Checklist
 
 Use the concise decision path in
-link:user_guide/troubleshooting.adoc#first-response[Troubleshooting]
+link:{handbook-guide-prefix}troubleshooting.adoc#first-response[Troubleshooting]
 to classify the first failed phase. That page is the canonical source for
 bounded Incus profile/reset actions, APT/network recovery, WSL bridge repair,
 port ownership, service reachability, and the install debugger.
 
 Inspect the newest evidence and correct the named prerequisite. Choose the
 least disruptive supported retry through
-link:user_guide/usage.adoc#daily-operation[Daily operation]; rerunning the fresh
+link:{handbook-guide-prefix}usage.adoc#daily-operation[Daily operation]; rerunning the fresh
 installer includes another reset. Do not use broad Incus cleanup, copy secrets or
 join tokens into reports, or treat a static configuration check as live service
 success.
