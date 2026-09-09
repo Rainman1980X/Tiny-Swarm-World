@@ -37,14 +37,23 @@ the next authorized run:
   rotation/revocation reference for the previously exposed credentials,
   according to `documentation/evidence/wsl2-secure-live-path.md`. A new test
   value or arbitrary run identifier does not prove revocation.
-- Execute successful UI logins required by parent EPIC #277. Before the
-  browser run, resolve its evidence location: the browser contract currently
-  writes under the checkout and does not consume `TSW_LIVE_EVIDENCE_ROOT`.
-  A protected execution arrangement or a verified routing fix is required;
-  the installer's protected evidence root does not cover browser artifacts.
+- Execute successful UI logins required by parent EPIC #277. The recheck
+  identified browser storage under the checkout, separate from the installer
+  root. The 2026-09-09 routing repair below addresses that local defect;
+  protected storage must still qualify on the actual live target.
 - Verify authentication after restart, and for Jenkins record an authenticated
   identity or an unequivocally authorized operation. HTTP 200 from `/whoAmI`
   alone is insufficient to distinguish an anonymous response.
 
 These are pending verification steps, not executed results. The historical
 SonarCloud gap has been resolved for `d474e2eb` as recorded in `review.md`.
+
+## Local continuation: 2026-09-09
+
+Both browser suites now qualify protected storage before live access and
+consume `TSW_LIVE_EVIDENCE_ROOT`, with the legacy Classic override as fallback.
+Local storage regressions cover this repair; no browser execution is claimed.
+The earlier routing gap is addressed in code. The missing native host, live
+consent, factual rotation reference and live authentication/lifecycle outcomes
+remain blockers. Jenkins HTTP 200 is now classified as PARTIAL throughout the
+direct evidence and matrix.

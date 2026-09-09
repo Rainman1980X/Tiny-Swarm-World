@@ -25,3 +25,9 @@ Code Analysis, the Locked Python quality gate and both Conda compatibility
 checks (Python 3.12 and 3.13). The external-check gap is resolved for that
 commit. Missing native-Linux, override, drift and browser evidence still block
 completion. PR #293 must remain open and the branch must not be deleted.
+
+The independent 2026-09-09 review again returned `BLOCKED`, identifying the
+missing native-Linux, override, drift, browser, Jenkins identity and
+post-restart authentication evidence. It also identified the browser storage
+gap repaired in this continuation. That local repair does not establish any
+of the missing live outcomes.

@@ -1,5 +1,19 @@
 # Live Preflight: #285 / CRED-07
 
+## Local continuation: 2026-09-09
+
+The user selected existing PR #293 for continued implementation/publication.
+Branch `feature/cred-07-live-e2e-20260903` was clean at `8915cf38` before
+changes; it is the only registered worktree. The active workflow file belongs
+to issue #252 and is not executed or expanded by this issue-specific repair.
+Local scope covers CRED-07-REQ-007/013/014: the two Classic browser evidence
+writers, their storage regression tests, secure-path documentation and issue
+evidence. Work is serialized in this task branch, with a read-only independent
+reviewer. Required gates are focused browser tests, full local quality and
+diff checks. No architecture/ADR boundary or infrastructure configuration is
+changed. Native-Linux target, live consent and factual rotation reference
+remain pending user input; no live command is authorized by this preflight.
+
 ## Initial read-only state
 
 The preparation preflight on 2026-09-03 classified the checkout as WSL2 under

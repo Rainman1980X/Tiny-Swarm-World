@@ -60,7 +60,11 @@ from tiny_swarm_world.infrastructure.composition_configuration import (
     TRAEFIK_TLS_CERT_SECRET_NAME_ENVIRONMENT,
     TRAEFIK_TLS_KEY_SECRET_NAME_ENVIRONMENT,
 )
-from tests.e2e.classic.browser_e2e_contract import browser_route_expectations
+from tests.e2e.classic.browser_e2e_contract import (
+    browser_route_expectations,
+    live_browser_evidence_root,
+)
+from tools.live.secure_runtime_paths import ensure_secure_directory
 from tests.support.effective_access_model_fixture import effective_access_model_fixture
 from tests.support.sonar_safe_literals import sample_text, sample_url
 
@@ -766,10 +770,9 @@ class PostInstallBrowserLiveTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        root = live_browser_evidence_root()
         cls.config = LivePostInstallConfig.from_environment()
-        cls.evidence = _EvidenceRecorder(
-            Path(os.environ.get(EVIDENCE_ROOT_ENV, str(DEFAULT_EVIDENCE_ROOT)))
-        )
+        cls.evidence = _EvidenceRecorder(root)
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -2174,9 +2177,11 @@ def _dashboard_references(path: Path) -> _DashboardReferences:
 
 class _EvidenceRecorder:
     def __init__(self, root: Path) -> None:
+        ensure_secure_directory(root)
         timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
         self.path = root / timestamp
-        self.path.mkdir(parents=True, exist_ok=False)
+        self.path.mkdir(mode=0o700, exist_ok=False)
+        ensure_secure_directory(self.path)
         self._records: list[dict[str, object]] = []
 
     def record(self, kind: str, payload: dict[str, object]) -> None:

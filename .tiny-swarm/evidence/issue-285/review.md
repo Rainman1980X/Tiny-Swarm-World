@@ -19,8 +19,8 @@ protected WSL2 run. The implementation and evidence now show:
   checks;
 - separate WSL2 reconcile and Portainer restart: observed and green;
 - direct catalog-backed authentication for Portainer, Infisical, Nexus,
-  Jenkins, SonarQube, Pulsar and Pulsar Manager: observed and recorded in
-  `service_authentication.md`;
+  SonarQube, Pulsar and Pulsar Manager: observed and recorded in
+  `service_authentication.md`; Jenkins HTTP 200 remains inconclusive;
 - native Linux: not available;
 - supported override and full credential-drift comparison: not executed;
 - browser acceptance: not executed.
@@ -35,6 +35,14 @@ Locked Python quality gate, Conda Python 3.12 and Conda Python 3.13 all report
 `EXTERNAL_GATE_VERIFIED` for that commit only. This resolves the historical
 external-check gap and does not establish any missing live acceptance.
 
-The review therefore cannot issue a completion PASS. The remaining state is a
-real external prerequisite gap, not a local-test gap. No merge or cleanup is
-permitted while the matrix contains these open required scopes.
+The review therefore cannot issue a completion PASS. The 2026-09-09 independent
+review also identified a locally repairable browser evidence-routing gap and
+an inconclusive Jenkins authentication claim. These are corrected in the
+continuation; required live acceptance still depends on target access, consent
+and executed evidence. No merge or cleanup is permitted while the matrix
+contains these open required scopes.
+
+The independent repair review found no blocking code defect: both browser
+entry paths qualify storage before network/browser access, retain non-live
+behavior, and have meaningful storage regression coverage. This is a local
+repair review, not an issue-completion PASS or GitHub approval.

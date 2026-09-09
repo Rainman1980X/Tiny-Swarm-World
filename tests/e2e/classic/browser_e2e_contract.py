@@ -20,6 +20,7 @@ from tiny_swarm_world.infrastructure.adapters.repositories.compose_file_reposito
     ComposeFileRepositoryYaml,
 )
 from tests.support.effective_access_model_fixture import effective_access_model_fixture
+from tools.live.secure_runtime_paths import ensure_secure_directory
 
 webdriver: Any
 By: Any
@@ -117,6 +118,24 @@ def live_e2e_enabled() -> bool:
     return os.environ.get(RUN_LIVE_ENV) == "1"
 
 
+def live_browser_evidence_root() -> Path:
+    """Resolve and qualify the shared protected browser evidence root."""
+    configured = (
+        os.environ.get("TSW_LIVE_EVIDENCE_ROOT", "").strip()
+        or os.environ.get("TSW_CLASSIC_EVIDENCE_ROOT", "").strip()
+    )
+    state = os.environ.get("XDG_STATE_HOME", "").strip()
+    root = (
+        Path(configured).expanduser()
+        if configured
+        else (Path(state).expanduser() if state else Path.home() / ".local/state")
+        / "tiny-swarm-world/evidence/classic-public-beta-rc1"
+    )
+    root = root.absolute()
+    ensure_secure_directory(root)
+    return root
+
+
 def approved_credential_available(route_name: str) -> bool:
     return _approved_credential(route_name) is not None
 
@@ -150,6 +169,7 @@ class BrowserRouteE2EContract:
                 )
             )
             testcase.skipTest(f"set {RUN_LIVE_ENV}=1 to run routed Selenium browser E2E checks")
+        live_browser_evidence_root()
         try:
             selenium_webdriver, by = selenium_driver()
         except unittest.SkipTest:
@@ -536,6 +556,9 @@ def _browser_navigation_reached_expected_host(current_url: str, expected_url: st
 
 
 def _assert_evidence_target(testcase: Any) -> None:
+    if live_e2e_enabled():
+        testcase.assertTrue(live_browser_evidence_root().is_absolute())
+        return
     testcase.assertEqual(
         ".tiny-swarm-world/evidence/classic-public-beta-rc1",
         E2E_EVIDENCE_ROOT.as_posix(),
@@ -546,13 +569,16 @@ def _record_route_result(
     result: BrowserRouteResult,
     expectations: Sequence[BrowserRouteExpectation] | None = None,
 ) -> Path:
-    evidence_root = E2E_EVIDENCE_ROOT
+    evidence_root = live_browser_evidence_root() if live_e2e_enabled() else E2E_EVIDENCE_ROOT
     if (
         result.result == "skipped"
         and result.redacted_reason == "blocked_live_consent_missing"
     ):
         evidence_root /= "non-live-consent"
-    evidence_root.mkdir(parents=True, exist_ok=True)
+    if live_e2e_enabled():
+        ensure_secure_directory(evidence_root)
+    else:
+        evidence_root.mkdir(parents=True, exist_ok=True)
     route_path = evidence_root / f"{result.route_name}.json"
     route_path.write_text(
         json.dumps(result.to_evidence(), indent=2, sort_keys=True) + "\n",

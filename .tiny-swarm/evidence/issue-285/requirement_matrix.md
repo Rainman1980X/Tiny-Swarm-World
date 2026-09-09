@@ -12,16 +12,16 @@ The issue remains blocked while any required live scope is open.
 | CRED-07-REQ-003 | Native Linux fresh install is exercised. | live | No native-Linux target discovered | BLOCKED |
 | CRED-07-REQ-004 | Portainer login succeeds in each applicable environment. | live/auth | `service_authentication.md` direct WSL2 auth plus deployment access; native target absent | PARTIAL |
 | CRED-07-REQ-005 | Infisical bootstrap/login succeeds in each applicable environment. | live/auth | `service_authentication.md` direct WSL2 auth plus bootstrap/consumption; native target absent | PARTIAL |
-| CRED-07-REQ-006 | Other catalog human-facing services are checked where feasible. | live/auth | `service_authentication.md` direct WSL2 auth for Nexus/Jenkins/SonarQube/Pulsar; native target absent | PARTIAL |
+| CRED-07-REQ-006 | Other catalog human-facing services are checked where feasible. | live/auth | `service_authentication.md` direct WSL2 auth for Nexus/SonarQube/Pulsar; Jenkins identity and native counterpart unverified | PARTIAL |
 | CRED-07-REQ-007 | Post-install service/UI/API acceptance is recorded. | live | `service_authentication.md` and endpoint matrix below | PARTIAL |
 | CRED-07-REQ-008 | Rerun/reconcile does not cause credential drift. | live | WSL2 reconcile completed, but no source/value drift comparison was recorded | BLOCKED |
 | CRED-07-REQ-009 | Environment recreation resolves deterministic defaults again. | live | WSL2 fresh reset recreated all-default source metadata | PARTIAL |
 | CRED-07-REQ-010 | A supported custom or Infisical override replaces the default. | live/auth | Protected override file and rotation reference unavailable | BLOCKED |
-| CRED-07-REQ-011 | Restart/recovery relevant to credential consumption is exercised. | live | Portainer forced restart returned service `1/1` and status HTTP 200 on WSL2 | PARTIAL |
+| CRED-07-REQ-011 | Restart/recovery relevant to credential consumption is exercised. | live | Portainer restart returned service `1/1` and status HTTP 200 on WSL2; post-restart authenticated access unverified | PARTIAL |
 | CRED-07-REQ-012 | Update is tested only if a canonical update workflow exists. | applicability | No canonical `update` workflow exists; `reconcile` remains distinct | NOT_APPLICABLE |
 | CRED-07-REQ-013 | Evidence contains no raw passwords, tokens, or authorization headers. | security | Protected-root redaction scan PASS; installer output prints labels only | VERIFIED |
 | CRED-07-REQ-014 | Blocked/skipped/degraded scenarios are never reported as PASS. | governance | Earlier failures and missing targets retain explicit non-pass states | VERIFIED |
-| CRED-07-REQ-015 | Full local quality gate is green on the final candidate. | local | `python3 tools/quality_gate.py quality`: 1908 tests, 18 skips, OK | VERIFIED |
+| CRED-07-REQ-015 | Full local quality gate is green on the final candidate. | local | Browser-storage repair: `python3 tools/quality_gate.py quality`, 1913 tests, 18 skips, OK; `test_results.md` | VERIFIED |
 | CRED-07-REQ-016 | Final acceptance matrix maps every parent EPIC criterion to evidence. | governance | Matrix is complete; native/override evidence remains open | BLOCKED |
 | CRED-07-REQ-017 | Three-Amigos WSL2 fresh-install scenario is observed. | live | Protected WSL2 run completed all configured phases | VERIFIED |
 | CRED-07-REQ-018 | Three-Amigos native-Linux parity scenario is observed. | live | No native-Linux target | BLOCKED |

@@ -78,6 +78,16 @@ before checking the live runner and uploads only the configured evidence root.
 
 ## Evidence and completion
 
+Both Classic browser suites qualify a shared Linux-native evidence directory
+before live access. `TSW_LIVE_EVIDENCE_ROOT` selects the exact root;
+`TSW_CLASSIC_EVIDENCE_ROOT` remains a fallback when that variable is unset.
+Without either override, browser evidence uses
+`${XDG_STATE_HOME:-$HOME/.local/state}/tiny-swarm-world/evidence/classic-public-beta-rc1`.
+Existing directories must already be user-owned mode `0700`; Windows-mounted
+or otherwise unqualified storage fails closed. Post-install summaries use
+private run subdirectories. Default local checks still isolate missing-consent
+records from live results and do not constitute browser acceptance.
+
 The live bundle must be reviewed under the
 [live green-path evidence contract](live-greenpath-evidence-contract.md).
 Fresh Install, post-install acceptance, Reconcile and Update are separate

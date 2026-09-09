@@ -26,7 +26,7 @@ Credential values are intentionally omitted.
 | Separate `platform reconcile` with in-process catalog defaults | PASS; exit 0, three nodes verified |
 | Portainer forced restart and recovery | PASS; service `1/1`, status endpoint HTTP 200 |
 | Deployment readiness verification | PASS; 9 deployment verification targets |
-| Direct catalog-backed service authentication | PASS; Portainer, Infisical, Nexus, Jenkins, SonarQube, Pulsar and Pulsar Manager |
+| Direct catalog-backed service authentication | PASS for Portainer, Infisical, Nexus, SonarQube, Pulsar and Pulsar Manager; Jenkins PARTIAL because HTTP 200 alone does not prove identity |
 
 The protected run is stored outside the checkout at:
 `/home/micro/.local/state/tiny-swarm-world/evidence/cred07-wsl2-secure-20260903/wsl2/20260903T072101Z`.
@@ -72,3 +72,22 @@ and 3.13 compatibility checks listed below.
 
 No new live installation, reset, authentication, browser or reconcile command
 was executed during this recheck. No PR merge or branch cleanup was performed.
+
+## Browser storage repair verification: 2026-09-09
+
+Candidate: the reviewed browser-storage repair based on `8915cf38`; this
+record is committed together with that repair. Tests ran on the final Python
+content; subsequent changes only synchronized evidence/documentation.
+
+- `PYTHONPATH=src python3 -m unittest tests.e2e.classic.test_browser_evidence_paths tests.e2e.classic.test_browser_e2e_contract tests.e2e.classic.test_post_install_browser_live`:
+  PASS, 60 tests, 8 opt-in live skips. An initial regression fixture used a
+  directory directly under world-writable `/tmp` and correctly failed path
+  qualification; the fixture was moved beneath its private temporary parent.
+- `python3 tools/quality_gate.py quality`: PASS, exit 0. Policy, lint, three
+  import contracts, 18 architecture tests, typecheck (647 files), and 1913
+  tests passed in 138.101s, with 18 opt-in skips. No skip is live evidence.
+- `git diff --check`: PASS.
+- Independent read-only repair review: no blocking code defect; evidence
+  synchronization findings were corrected. Completion remains `BLOCKED`.
+- No live infrastructure, authentication, browser or lifecycle check executed.
+  External checks require the published repair SHA; old success is not reused.

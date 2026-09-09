@@ -20,6 +20,11 @@
 
 ## Documentation and issue evidence
 
+- `tests/e2e/classic/browser_e2e_contract.py`: protected live evidence routing.
+- `tests/e2e/classic/test_post_install_browser_live.py`: protected run directories.
+- `tests/e2e/classic/test_browser_evidence_paths.py`: storage regression coverage.
+- `documentation/evidence/wsl2-secure-live-path.md`: shared browser storage contract.
+
 - `documentation/arc42/08_configuration/internal-test-credential-catalog.md`
 - `.tiny-swarm/evidence/issue-285/requirement_matrix.md`
 - `.tiny-swarm/evidence/issue-285/preflight.md`

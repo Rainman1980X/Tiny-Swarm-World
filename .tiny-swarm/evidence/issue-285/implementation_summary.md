@@ -26,3 +26,11 @@ the redacted evidence or installer output.
 Separate WSL2 reconcile and Portainer restart checks also passed. Native Linux,
 custom/Infisical override, credential-drift comparison, and browser acceptance
 remain open because their required target/input contract was not available.
+
+The 2026-09-09 local continuation qualifies the evidence root before browser
+access in both Classic suites. They share the live-root override, legacy
+Classic fallback and Linux-native state default; post-install run directories
+are private as well. Regression tests exercise routing, retained historical
+files, insecure permissions and Windows-filesystem rejection without live
+services. Jenkins historical HTTP 200 and post-restart readiness are explicitly
+separated from the still-missing authenticated-identity evidence.
