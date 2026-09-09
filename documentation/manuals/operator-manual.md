@@ -6,7 +6,7 @@ in a Linux or WSL2 shell with the project's Python environment active.
 | Task | Instructions | Effect |
 |---|---|---|
 | First installation | [Installation guide](../user_guide/installation.adoc) | Prepares and then resets/creates the managed test environment. |
-| Open services and sign in | [User Handbook](../user-handbook.adoc#open-the-services) | Uses the configured routes and effective credentials. |
+| Open services and sign in | [User Handbook](../user_guide/user-handbook.adoc#open-the-services) | Uses the configured routes and effective credentials. |
 | Inspect an installation | [Daily operation](../user_guide/usage.adoc#daily-operation) | Read-only platform verification. |
 | Reconcile or recover | [Daily operation](../user_guide/usage.adoc#daily-operation) | Explicitly changes managed state; preserves the distinction from fresh reset. |
 | Diagnose a failure | [First response](../user_guide/troubleshooting.adoc#first-response) | Starts with the first failed phase and exit codes. |
