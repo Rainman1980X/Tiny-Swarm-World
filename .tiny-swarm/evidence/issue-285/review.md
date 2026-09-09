@@ -1,5 +1,22 @@
 # Review Record: #285 / CRED-07
 
+## Authorized live evidence review: 2026-09-09
+
+An independent read-only reviewer inspected the safe run summaries and runner
+code. It verified the corrected reconcile/authentication comparison, Jenkins
+identity, post-restart Portainer authentication, explicit HTTP 401 default
+denial during the override, restoration/cleanup, and final 27 browser tests
+without failures or skips. Override and final browser runner hashes match;
+run directories are `0700`, and no `.env` inputs remain in the evidence root.
+
+Decision: WSL2 evidence accepted within its stated scope; overall `BLOCKED`.
+Native-Linux installation and lifecycle parity are still missing. The matching
+operator/Vault override satisfies the bounded configured-override scenario but
+does not independently prove Vault-only precedence. Earlier failures remain
+separate records. User live consent is now explicit and no longer a blocker.
+
+The earlier review states below are retained as historical findings.
+
 ## Review state
 
 `BLOCKED_PENDING_REQUIRED_LIVE_EVIDENCE`

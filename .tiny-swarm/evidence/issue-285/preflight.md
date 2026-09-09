@@ -1,5 +1,30 @@
 # Live Preflight: #285 / CRED-07
 
+## Authorized live continuation: 2026-09-09
+
+Publication handoff: PR #293 merged outside this execution at 05:22:23 UTC,
+before the new evidence was published. The reviewed evidence commit was
+therefore transferred to isolated branch
+`feature/cred-07-wsl-evidence-20260909` from current main `9788b0eb`.
+The intervening #303 changes affect documentation only; Python/configuration
+matches the live-tested `7380f751` candidate. No unrelated changes are included
+in the evidence follow-up.
+
+The user explicitly granted all permissions required to complete live testing.
+This supersedes the consent-pending state below. Serialized WSL2 checks used
+candidate `7380f751`, the existing three managed Incus containers, protected
+Linux-native evidence and the canonical reconcile/deployment commands. No new
+fresh installation was run in this continuation.
+
+Read-only native-host feasibility found Incus QEMU support and an available
+Ubuntu 24.04 VM image, but approximately 19 GiB total WSL2 RAM. The canonical
+node limits alone require 19 GiB and 8 CPU threads; the resource guard requires
+these to fit inside the guest. A suitably sized guest plus its host cannot
+fit the current memory ceiling. No overcommit, reduced-limit substitute,
+container-as-native claim or native VM launch was attempted. A suitably sized
+native target or increased host capacity remains required, not another live
+permission grant.
+
 ## Local continuation: 2026-09-09
 
 The user selected existing PR #293 for continued implementation/publication.

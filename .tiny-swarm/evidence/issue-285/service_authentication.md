@@ -1,5 +1,30 @@
 # WSL2 Service Authentication Evidence: #285 / CRED-07
 
+## Authorized continuation: 2026-09-09
+
+Candidate `7380f751`; see `live_results_20260909.json` for exact run results.
+Run `20260909T051827Z` proves Jenkins `authenticated=true` and the expected
+administrator identity before and after successful canonical reconcile. The
+same run authenticates Portainer, Nexus, SonarQube and Infisical before/after;
+the in-memory credential values and source metadata remain equal. A forced
+Portainer restart exits 0 and subsequent JWT authentication succeeds.
+
+Browser run `browser-20260909T052452Z` executes all eight selected modules:
+27 tests, zero failures/errors/skips. This includes Portainer, Infisical,
+Jenkins, Nexus, SonarQube, Pulsar Manager, Pulsar API, Service Access and
+Swagger. The earlier Pulsar Manager landing-state failure is retained alongside
+its successful targeted rerun and the final full rerun.
+
+Run `override-20260909T052321Z` deploys a protected explicit Jenkins override
+with a matching Infisical entry. Jenkins authenticates the expected identity
+with the override and rejects the default with HTTP 401. Canonical deployment
+restores the original value; default authentication, Vault restoration and
+temporary input removal all pass. This proves the configured override path;
+it does not isolate Vault-only precedence from a matching operator input.
+
+The following earlier record is historical; its Jenkins limitation is resolved
+by the new identity evidence above. Native-Linux parity remains unverified.
+
 Date: 2026-09-03. Host class: WSL2. Source checkout: `/mnt/d`.
 
 The supported authentication paths were executed after the protected fresh

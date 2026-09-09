@@ -20,6 +20,8 @@
 
 ## Documentation and issue evidence
 
+- `.tiny-swarm/evidence/issue-285/live_results_20260909.json`: redacted authorized WSL2 run results, hashes and native-resource blocker.
+
 - `tests/e2e/classic/browser_e2e_contract.py`: protected live evidence routing.
 - `tests/e2e/classic/test_post_install_browser_live.py`: protected run directories.
 - `tests/e2e/classic/test_browser_evidence_paths.py`: storage regression coverage.

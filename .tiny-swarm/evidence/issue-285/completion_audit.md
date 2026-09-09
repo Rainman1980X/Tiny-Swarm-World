@@ -2,6 +2,30 @@
 
 Decision: `BLOCKED`
 
+## Current independent decision: authorized live continuation, 2026-09-09
+
+The independent reviewer accepted the bounded WSL2 results in
+`live_results_20260909.json`: reconcile/drift and five service authentications,
+Jenkins identity, Portainer authenticated restart, configured Jenkins override
+with HTTP 401 default denial and verified restoration, and the final full
+27-test browser run with no failures/errors/skips. Protected run modes,
+runner hashes and temporary-input removal were checked.
+
+CRED-07-REQ-010/020 are now verified for matching operator/Infisical override
+inputs. Native-Linux installation and corresponding lifecycle/authentication
+requirements remain open because no sufficiently resourced native host/VM is
+available. The independent Vault-only precedence case remains unproved and is
+not implied by the matching-input override test. No new fresh install or
+native run is claimed. Consent is explicitly granted.
+
+Overall completion remains `BLOCKED`. PR #293 was independently merged on
+GitHub at `2026-09-09T05:22:23Z`, while this live continuation was running;
+merge commit `ea028cfb` contains candidate `7380f751`, not this later evidence.
+That GitHub merge is not an issue-completion PASS. The evidence is published
+separately from current `main` (`9788b0eb`) with native acceptance still open.
+Earlier decisions below are history, superseded only by the newly executed
+evidence and observed PR state.
+
 The final candidate now has protected WSL2 fresh-install evidence, direct
 service authentication/API acceptance, separate reconcile/restart checks,
 redaction evidence and a green local quality gate. The installer evidence-root

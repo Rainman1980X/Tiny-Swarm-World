@@ -1,5 +1,28 @@
 # Remaining Risks and Scope Boundaries: #285 / CRED-07
 
+## Current state after authorized continuation: 2026-09-09
+
+All required live permissions were explicitly granted. WSL2 drift comparison,
+Jenkins identity, Portainer post-restart authentication, browser routes and a
+configured Jenkins override now have executed evidence in
+`live_results_20260909.json`. Override restoration and removal of temporary
+secret inputs were verified. No newly generated override values or raw service
+responses are part of the committed evidence.
+
+Native-Linux installation/parity remains blocked by host capacity: current
+WSL2 RAM is approximately 19 GiB, while the canonical guest node limits alone
+require 19 GiB before overhead. A suitably resourced native target is still
+needed. The matching operator/Vault test does not prove isolated Vault-only
+precedence. Historical fresh-install evidence remains scoped to its original
+candidate; this continuation did not perform another reset/fresh install.
+
+The direct consent-gated CLI/browser scenarios were executed; the separate
+legacy aggregate runner requiring an earlier-exposure revocation reference
+was not invoked, and no such historical reference is fabricated here.
+
+The dated findings below are retained as history and are superseded where the
+new run results explicitly establish the missing outcome.
+
 - No separate native-Linux host or VM was available. Incus containers managed
   from WSL2 cannot substitute for native-Linux host evidence.
 - The custom/Infisical override scenario was not run. It requires an

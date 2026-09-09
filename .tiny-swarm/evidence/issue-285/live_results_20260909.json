@@ -1,0 +1,415 @@
+{
+  "candidate": "7380f7519eeb05ed49bc5006422895eeebbb20a5",
+  "checksums": {
+    "20260909T051753Z/result.json": "6c6171657f25144578629507064c7d9bc1981edb562f7b1625e19ef3ccce102a",
+    "20260909T051753Z/runner.py": "8acb7a6a97ac925284b774d49da1eb1128553fdcc8a285262b595abc7caae4c7",
+    "20260909T051827Z/result.json": "6fc3f326fa541734b99dffed1f94907c86072994408119b4703d34ff2f7650df",
+    "20260909T051827Z/runner.py": "669159534117d3c3c93c330487d64b2c868109738c189e4f89d818ea2b69921d",
+    "browser-20260909T051915Z/infisical.json": "aab91441b31eabe068fc11f5880ef140459e87463ab382915db6fd9728e047aa",
+    "browser-20260909T051915Z/jenkins.json": "96edad1aca9024dd41ce011f9077291969c3d0ac98f221bf0cca6d3b9c156bde",
+    "browser-20260909T051915Z/nexus.json": "98c0cf8d66f0d7bf07ca4ece5af1dd06362f47e4956f34e79501ba204fbbf5b2",
+    "browser-20260909T051915Z/portainer.json": "e95559fe00576595cc8df02ce963d616fb151470b28d424fde755fab4f348d69",
+    "browser-20260909T051915Z/pulsar-admin-api.json": "d37ffbe4dc4e485c66a37b3c2ac567d604cb2d5b602b62ab679eedabdf3ab674",
+    "browser-20260909T051915Z/pulsar-manager.json": "66b792538f274a702b067aabb0c1f0e8225af1573806a3d29b43b0c725fcb3fc",
+    "browser-20260909T051915Z/result.json": "65c50a6d5acc3a21256a9dbf3a36b5cab825e74bcfa70933eed407c75c3dcfa6",
+    "browser-20260909T051915Z/runner.py": "a6a5d45ade65806566a974281403631f5205d8b08ceb7410cc4ee4ac950a8857",
+    "browser-20260909T051915Z/service-access.json": "1e7f2029ee1a3a85016c99d4111a2dbfc871e0dd92c9eb9bbde1f898e60b843a",
+    "browser-20260909T051915Z/sonarqube.json": "454d0d1c3e04eb88faee4c4cbd0f70dcf471eae2ed16afac4a1e01ac4f3a1a49",
+    "browser-20260909T051915Z/suite-summary.json": "7c1daa06c764b498733bb56082039bc3f92785da5aac5348befac105aadb0c5f",
+    "browser-20260909T051915Z/swagger.json": "e87bb82591183beedbd37151393a04a1b26780516c81b3c9d05e6cd171c34221",
+    "browser-20260909T052100Z/pulsar-admin-api.json": "d37ffbe4dc4e485c66a37b3c2ac567d604cb2d5b602b62ab679eedabdf3ab674",
+    "browser-20260909T052100Z/pulsar-manager.json": "e542eb4da7b20d7e63165a457927a54df4e3a64d1cc9cd30f5053233cbd9dc28",
+    "browser-20260909T052100Z/result.json": "07cac6c8636f693ec9ff1fd773b17b335d4cff898823775cbedfc51116469af0",
+    "browser-20260909T052100Z/runner.py": "de60e33dd29ca88faa96ed94a9a89945d6609fe0035204ff66587534ca5d9b7d",
+    "browser-20260909T052100Z/suite-summary.json": "3af783a70b998688fa3d1efb64fe7b779f80b07c8974b886df447a8da91eb652",
+    "browser-20260909T052452Z/infisical.json": "aab91441b31eabe068fc11f5880ef140459e87463ab382915db6fd9728e047aa",
+    "browser-20260909T052452Z/jenkins.json": "96edad1aca9024dd41ce011f9077291969c3d0ac98f221bf0cca6d3b9c156bde",
+    "browser-20260909T052452Z/nexus.json": "98c0cf8d66f0d7bf07ca4ece5af1dd06362f47e4956f34e79501ba204fbbf5b2",
+    "browser-20260909T052452Z/portainer.json": "e95559fe00576595cc8df02ce963d616fb151470b28d424fde755fab4f348d69",
+    "browser-20260909T052452Z/pulsar-admin-api.json": "d37ffbe4dc4e485c66a37b3c2ac567d604cb2d5b602b62ab679eedabdf3ab674",
+    "browser-20260909T052452Z/pulsar-manager.json": "e542eb4da7b20d7e63165a457927a54df4e3a64d1cc9cd30f5053233cbd9dc28",
+    "browser-20260909T052452Z/result.json": "87af285206f491215f8291648f934354d41a4ec8e89a154b2aead2e25ebca83f",
+    "browser-20260909T052452Z/runner.py": "84997ea0173e9fde63b858fc8aa46c0b839c230ff26550bace5442e6ecd23e0f",
+    "browser-20260909T052452Z/service-access.json": "1e7f2029ee1a3a85016c99d4111a2dbfc871e0dd92c9eb9bbde1f898e60b843a",
+    "browser-20260909T052452Z/sonarqube.json": "454d0d1c3e04eb88faee4c4cbd0f70dcf471eae2ed16afac4a1e01ac4f3a1a49",
+    "browser-20260909T052452Z/suite-summary.json": "685ebf1a30e80edb90f4de777bc6d3d7d172efd74bc7c5011276e804a253b884",
+    "browser-20260909T052452Z/swagger.json": "e87bb82591183beedbd37151393a04a1b26780516c81b3c9d05e6cd171c34221",
+    "override-20260909T052147Z/result.json": "1f240110b93a9cb234cfdbd874b80ce3bc261c26ad6ecd750db88decad54233f",
+    "override-20260909T052147Z/runner.py": "f11258ee8cbe6fa918c045d2ae26ae5a8fd7e5e14f9069d8fd1dda4c6ed89c03",
+    "override-20260909T052321Z/result.json": "9aa483cc10419aac22c4968529819fc398938a7715df54e5206175108b2ee366",
+    "override-20260909T052321Z/runner.py": "098989f114c62ba812d789418776f68ab33401e3ae175bd867b649e686b16fe5"
+  },
+  "consent": "User explicitly authorized all required live tests on 2026-09-09",
+  "native_linux": {
+    "incus_qemu_available": true,
+    "reason": "Host exposes approximately 19 GiB total RAM; canonical guest node limits alone total 19 GiB before guest/host overhead. No suitable separate native target supplied.",
+    "state": "LIVE_PREREQUISITE_MISSING",
+    "vm_created": false
+  },
+  "protected_root": "/home/micro/.local/state/tiny-swarm-world/evidence/cred07-authorized-20260909",
+  "redaction": {
+    "catalog_value_scan": "PASS",
+    "files_scanned": 37,
+    "remaining_env_inputs_in_evidence": false,
+    "scope": "Catalog values of at least ten characters and .env inputs; runner review separately confirms raw responses and generated override values are not persisted."
+  },
+  "runs": {
+    "20260909T051753Z": {
+      "commit": "7380f7519eeb05ed49bc5006422895eeebbb20a5",
+      "consent": "user-all-required-live-tests-20260909",
+      "finished_utc": "2026-09-09T05:18:15.053442+00:00",
+      "host_kernel": "6.18.33.2-microsoft-standard-WSL2",
+      "operations": [
+        {
+          "operation": "before_reconcile_authentication",
+          "results": {
+            "infisical": true,
+            "jenkins": true,
+            "nexus": true,
+            "portainer": true,
+            "sonarqube": false
+          }
+        },
+        {
+          "command": [
+            "./tsw",
+            "--live",
+            "--approve-live",
+            "--json",
+            "--service-profile",
+            "service-access",
+            "--allow-wsl-windows-filesystem",
+            "platform",
+            "reconcile"
+          ],
+          "exit_code": 0,
+          "operation": "platform_reconcile"
+        },
+        {
+          "authentication": {
+            "infisical": true,
+            "jenkins": true,
+            "nexus": true,
+            "portainer": true,
+            "sonarqube": false
+          },
+          "credential_values_unchanged": true,
+          "operation": "after_reconcile",
+          "source_metadata_unchanged": true
+        },
+        {
+          "authenticated": true,
+          "exit_code": 0,
+          "operation": "portainer_restart_authenticated_recovery"
+        }
+      ],
+      "runner_sha256": "8acb7a6a97ac925284b774d49da1eb1128553fdcc8a285262b595abc7caae4c7",
+      "started_utc": "2026-09-09T05:17:53.648882+00:00"
+    },
+    "20260909T051827Z": {
+      "commit": "7380f7519eeb05ed49bc5006422895eeebbb20a5",
+      "consent": "user-all-required-live-tests-20260909",
+      "finished_utc": "2026-09-09T05:18:46.846356+00:00",
+      "host_kernel": "6.18.33.2-microsoft-standard-WSL2",
+      "operations": [
+        {
+          "operation": "before_reconcile_authentication",
+          "results": {
+            "infisical": true,
+            "jenkins": true,
+            "nexus": true,
+            "portainer": true,
+            "sonarqube": true
+          }
+        },
+        {
+          "command": [
+            "./tsw",
+            "--live",
+            "--approve-live",
+            "--json",
+            "--service-profile",
+            "service-access",
+            "--allow-wsl-windows-filesystem",
+            "platform",
+            "reconcile"
+          ],
+          "exit_code": 0,
+          "operation": "platform_reconcile"
+        },
+        {
+          "authentication": {
+            "infisical": true,
+            "jenkins": true,
+            "nexus": true,
+            "portainer": true,
+            "sonarqube": true
+          },
+          "credential_sources": {
+            "TSW_INFISICAL_AUTH_SECRET": "default",
+            "TSW_INFISICAL_BOOTSTRAP_ADMIN_PASSWORD": "default",
+            "TSW_INFISICAL_ENCRYPTION_KEY": "default",
+            "TSW_INFISICAL_LOGIN_EMAIL": "default",
+            "TSW_INFISICAL_POSTGRES_PASSWORD": "default",
+            "TSW_INFISICAL_REDIS_PASSWORD": "default",
+            "TSW_JENKINS_ADMIN_PASSWORD": "default",
+            "TSW_NEXUS_ADMIN_PASSWORD": "default",
+            "TSW_PORTAINER_ADMIN_PASSWORD": "default",
+            "TSW_POSTGRES_PASSWORD": "default",
+            "TSW_PULSAR_ADMIN_TOKEN": "default",
+            "TSW_PULSAR_MANAGER_ADMIN_PASSWORD": "default",
+            "TSW_PULSAR_TOKEN_SECRET_KEY": "default",
+            "TSW_SONARQUBE_ADMIN_PASSWORD": "default",
+            "TSW_SONARQUBE_POSTGRES_PASSWORD": "default",
+            "TSW_TRAEFIK_GUI_USERS_HTPASSWD": "default"
+          },
+          "credential_values_unchanged": true,
+          "operation": "after_reconcile",
+          "source_metadata_unchanged": true
+        },
+        {
+          "authenticated": true,
+          "exit_code": 0,
+          "operation": "portainer_restart_authenticated_recovery"
+        }
+      ],
+      "runner_sha256": "669159534117d3c3c93c330487d64b2c868109738c189e4f89d818ea2b69921d",
+      "started_utc": "2026-09-09T05:18:27.637971+00:00"
+    },
+    "browser-20260909T051915Z": {
+      "commit": "7380f7519eeb05ed49bc5006422895eeebbb20a5",
+      "consent": "user-all-required-live-tests-20260909",
+      "credential_profile": "internal-test-default",
+      "suites": [
+        {
+          "errors": [],
+          "failures": [],
+          "skips": [],
+          "successful": true,
+          "suite": "tests.e2e.classic.test_portainer_browser_e2e",
+          "tests": 3
+        },
+        {
+          "errors": [],
+          "failures": [],
+          "skips": [],
+          "successful": true,
+          "suite": "tests.e2e.classic.test_infisical_browser_e2e",
+          "tests": 3
+        },
+        {
+          "errors": [],
+          "failures": [],
+          "skips": [],
+          "successful": true,
+          "suite": "tests.e2e.classic.test_jenkins_browser_e2e",
+          "tests": 3
+        },
+        {
+          "errors": [],
+          "failures": [],
+          "skips": [],
+          "successful": true,
+          "suite": "tests.e2e.classic.test_nexus_browser_e2e",
+          "tests": 3
+        },
+        {
+          "errors": [],
+          "failures": [],
+          "skips": [],
+          "successful": true,
+          "suite": "tests.e2e.classic.test_sonarqube_browser_e2e",
+          "tests": 3
+        },
+        {
+          "errors": [],
+          "failures": [
+            "tests.e2e.classic.test_pulsar_browser_e2e.TestPulsarManagerBrowserE2E.test_live_routed_link_opens_with_selenium"
+          ],
+          "skips": [],
+          "successful": false,
+          "suite": "tests.e2e.classic.test_pulsar_browser_e2e",
+          "tests": 6
+        },
+        {
+          "errors": [],
+          "failures": [],
+          "skips": [],
+          "successful": true,
+          "suite": "tests.e2e.classic.test_service_access_browser_e2e",
+          "tests": 3
+        },
+        {
+          "errors": [],
+          "failures": [],
+          "skips": [],
+          "successful": true,
+          "suite": "tests.e2e.classic.test_swagger_browser_e2e",
+          "tests": 3
+        }
+      ]
+    },
+    "browser-20260909T052100Z": {
+      "commit": "7380f7519eeb05ed49bc5006422895eeebbb20a5",
+      "consent": "user-all-required-live-tests-20260909",
+      "credential_profile": "internal-test-default",
+      "suites": [
+        {
+          "errors": [],
+          "failures": [],
+          "skips": [],
+          "successful": true,
+          "suite": "tests.e2e.classic.test_pulsar_browser_e2e",
+          "tests": 6
+        }
+      ]
+    },
+    "browser-20260909T052452Z": {
+      "commit": "7380f7519eeb05ed49bc5006422895eeebbb20a5",
+      "consent": "user-all-required-live-tests-20260909",
+      "credential_profile": "internal-test-default",
+      "finished_utc": "2026-09-09T05:25:28.655181+00:00",
+      "runner_sha256": "84997ea0173e9fde63b858fc8aa46c0b839c230ff26550bace5442e6ecd23e0f",
+      "started_utc": "2026-09-09T05:24:52.579643+00:00",
+      "suites": [
+        {
+          "errors": [],
+          "failures": [],
+          "skips": [],
+          "successful": true,
+          "suite": "tests.e2e.classic.test_portainer_browser_e2e",
+          "tests": 3
+        },
+        {
+          "errors": [],
+          "failures": [],
+          "skips": [],
+          "successful": true,
+          "suite": "tests.e2e.classic.test_infisical_browser_e2e",
+          "tests": 3
+        },
+        {
+          "errors": [],
+          "failures": [],
+          "skips": [],
+          "successful": true,
+          "suite": "tests.e2e.classic.test_jenkins_browser_e2e",
+          "tests": 3
+        },
+        {
+          "errors": [],
+          "failures": [],
+          "skips": [],
+          "successful": true,
+          "suite": "tests.e2e.classic.test_nexus_browser_e2e",
+          "tests": 3
+        },
+        {
+          "errors": [],
+          "failures": [],
+          "skips": [],
+          "successful": true,
+          "suite": "tests.e2e.classic.test_sonarqube_browser_e2e",
+          "tests": 3
+        },
+        {
+          "errors": [],
+          "failures": [],
+          "skips": [],
+          "successful": true,
+          "suite": "tests.e2e.classic.test_pulsar_browser_e2e",
+          "tests": 6
+        },
+        {
+          "errors": [],
+          "failures": [],
+          "skips": [],
+          "successful": true,
+          "suite": "tests.e2e.classic.test_service_access_browser_e2e",
+          "tests": 3
+        },
+        {
+          "errors": [],
+          "failures": [],
+          "skips": [],
+          "successful": true,
+          "suite": "tests.e2e.classic.test_swagger_browser_e2e",
+          "tests": 3
+        }
+      ]
+    },
+    "override-20260909T052147Z": {
+      "commit": "7380f7519eeb05ed49bc5006422895eeebbb20a5",
+      "consent": "user-all-required-live-tests-20260909",
+      "credential_key": "TSW_JENKINS_ADMIN_PASSWORD",
+      "operations": [
+        {
+          "operation": "configure_override",
+          "operator_file_mode": "0o600",
+          "operator_source": "operator",
+          "value_replaces_default": true,
+          "vault_matches_override": true
+        },
+        {
+          "exit_code": 0,
+          "operation": "deployment_apply_override"
+        },
+        {
+          "default_rejected": true,
+          "expected_identity_authenticated": true,
+          "operation": "override_authentication"
+        },
+        {
+          "default_authenticated": true,
+          "exit_code": 0,
+          "operation": "restore_default",
+          "vault_restored": true
+        },
+        {
+          "operation": "temporary_override_cleanup",
+          "removed": true
+        }
+      ]
+    },
+    "override-20260909T052321Z": {
+      "commit": "7380f7519eeb05ed49bc5006422895eeebbb20a5",
+      "consent": "user-all-required-live-tests-20260909",
+      "credential_key": "TSW_JENKINS_ADMIN_PASSWORD",
+      "finished_utc": "2026-09-09T05:24:27.157529+00:00",
+      "operations": [
+        {
+          "operation": "configure_override",
+          "operator_file_mode": "0o600",
+          "operator_source": "operator",
+          "value_replaces_default": true,
+          "vault_matches_override": true
+        },
+        {
+          "exit_code": 0,
+          "operation": "deployment_apply_override"
+        },
+        {
+          "default_denial": {
+            "anonymous": false,
+            "http_status": 401,
+            "rejected": true
+          },
+          "expected_identity_authenticated": true,
+          "operation": "override_authentication"
+        },
+        {
+          "default_authenticated": true,
+          "exit_code": 0,
+          "operation": "restore_default",
+          "vault_restored": true
+        },
+        {
+          "operation": "temporary_override_cleanup",
+          "removed": true
+        }
+      ],
+      "runner_sha256": "098989f114c62ba812d789418776f68ab33401e3ae175bd867b649e686b16fe5",
+      "started_utc": "2026-09-09T05:23:21.602270+00:00"
+    }
+  }
+}
