@@ -61,7 +61,7 @@ security, branch/CI governance, documentation audiences, and release baselines.
 | `live-evidence-validation-expert` | Operations, CI, and release governance | Senior DevOps Engineer | `documentation/evidence/`, `documentation/system/live-operation-surfaces.adoc` | #125 |
 | `branch-ci-governance-expert` | Operations, CI, and release governance | Senior DevOps Engineer | `documentation/governance/branch-protection.md`, `documentation/governance/ci-quality-gates.md`, `documentation/governance/pr-review-policy.md` | #128 |
 | `release-baseline-governance-expert` | Operations, CI, and release governance | Root Architect | `documentation/release/`, `pyproject.toml`, `README.md` | #130 |
-| `documentation-audience-architect` | Documentation governance | Senior Documentation Engineer | `documentation/manuals/`, `README.md`, `documentation/README.adoc`, `documentation/user_guide/user-handbook.adoc` | #129 |
+| `documentation-audience-architect` | Documentation governance | Senior Documentation Engineer | `documentation/manuals/`, `README.md`, `documentation/README.adoc`, `documentation/user_guide/` | #129 |
 
 Conflict decision: no equivalent project skill with the same narrow ownership
 was found in the current registry. Existing broader skills remain escalation and

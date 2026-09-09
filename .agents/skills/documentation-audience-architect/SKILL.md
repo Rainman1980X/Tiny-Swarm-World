@@ -11,7 +11,7 @@ navigation.
 
 ## Scope
 Maintains `documentation/manuals/`, `README.md`,
-`documentation/README.adoc`, and `documentation/user_guide/user-handbook.adoc` when
+`documentation/README.adoc`, and `documentation/user_guide/` when
 audience structure changes.
 
 ## Non-goals
