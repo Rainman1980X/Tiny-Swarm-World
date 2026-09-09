@@ -1,897 +1,167 @@
 # Tiny Swarm World
 
-Tiny Swarm World is a local development and test infrastructure for simulating a production-like Docker Swarm microservices environment on a developer machine.
+Tiny Swarm World creates a local development and test environment with Docker
+Swarm, Portainer, Infisical, Nexus, Jenkins, Pulsar, SonarQube and supporting
+services. It provisions managed Linux containers through Incus and runs Docker
+Engine inside those containers.
 
-The default node-provider direction is **managed LXC through Incus**. Tiny Swarm World provisions Docker Swarm nodes as managed LXC instances and then bootstraps Docker Engine, Swarm, and the selected service stacks behind guarded workflow boundaries.
+The current implementation is the **Classic profile**. RC1 qualification is
+still in progress; follow the [RC1 acceptance tracker](https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/issues/294)
+for the remaining checks. A successful installation on one machine does not
+establish that every supported host and lifecycle has passed acceptance.
 
-The live-operation surface catalog is maintained in `documentation/system/live-operation-surfaces.adoc`.
+## Start here
 
-This README gives you a practical operator entry point:
+| What you want to do | Read |
+|---|---|
+| Prepare a machine and install for the first time | [Installation guide](documentation/user_guide/installation.adoc) |
+| Find service URLs and sign in | [User Handbook](documentation/user-handbook.adoc#open-the-services) and [credential catalog](documentation/arc42/08_configuration/internal-test-credential-catalog.md) |
+| Inspect or reconcile an existing installation | [Daily operation](documentation/user_guide/usage.adoc#daily-operation) |
+| Diagnose a failed run | [Troubleshooting](documentation/user_guide/troubleshooting.adoc#first-response) |
+| Change code or run development tests | [Developer Manual](documentation/manuals/developer-manual.md) |
+| Find architecture, security or audit references | [Documentation index](documentation/README.adoc) |
 
-1. Prepare WSL2 or Linux.
-2. Install and initialize Incus.
-3. Prepare the Python runtime.
-4. Run the guarded Tiny Swarm World installer.
-5. Diagnose common local setup problems.
+## Before you install
 
-Audience manuals: [operator](documentation/manuals/operator-manual.md) ·
-[developer](documentation/manuals/developer-manual.md) ·
-[security](documentation/manuals/security-manual.md) ·
-[audit](documentation/manuals/audit-manual.md) ·
-[live validation](documentation/manuals/live-validation-manual.md).
+Use a native Linux or WSL2 shell. WSL2 needs systemd; Windows-native product
+execution is not supported.
 
-## Quick start: clone -> install -> login
+Prepare these prerequisites in the same shell and user account that will run
+the installer:
 
-After the [Linux/WSL prerequisites](documentation/user_guide/installation.adoc)
-and Incus host setup are ready, run the normal path from the Linux/WSL shell:
+- Python **3.12 or newer**, with virtual-environment support, and Git. The
+  [compatibility workflow](.github/workflows/python-compatibility.yml) currently
+  tests Python 3.12 and 3.13.
+- Incus installed and initialized, with usable storage, networking and profiles.
+  `incus version` and `incus info` must work without `sudo`.
+- Host networking and capacity checked against the
+  [ready-for-install checklist](documentation/user_guide/installation.adoc#ready-for-install-checklist).
+- For WSL2 Windows-browser access, the existing
+  [Windows bridge prework](documentation/user-handbook.adoc#_complete_the_required_windows_prework_for_wsl2).
+  Native Linux does not need that bridge.
 
-```bash
-git clone https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World.git
-cd Tiny-Swarm-World
-./install.sh
-```
+The installer creates managed nodes and their Docker runtime. **It does not
+install or initialize the host's Incus daemon.** A host Docker installation
+does not replace Docker inside the managed nodes.
 
-No credential file is required for the ordinary internal-test installation.
-The installer resolves the deterministic `INTERNAL/TEST ONLY` catalog, prints
-the Portainer and Infisical URLs plus login identifiers, and intentionally does
-not print password values. Use the [canonical credential
-catalog](documentation/arc42/08_configuration/internal-test-credential-catalog.md)
-for the disposable login convention. Public or shared exposure with these
-defaults is outside the supported boundary.
+Prefer a checkout under the Linux home directory. A deliberate WSL2 checkout
+under `/mnt/c`, `/mnt/d` or another Windows mount requires the explicit
+filesystem exception described in the installation guide.
 
----
+## Prepare the checkout
 
-## Overview
-
-Use Tiny Swarm World to:
-
-- Develop and test Docker Swarm-oriented automation boundaries.
-- Keep compose stack deployment behind reviewed setup contracts.
-- Model service management and observation through Portainer-facing contracts.
-- Recreate cloud-like environments locally from a WSL2 or Linux shell without cloud costs.
-- Validate local infrastructure workflows before applying them to more expensive or remote targets.
-
-The system follows a hexagonal architecture and provides Python automation for provisioning, orchestration, deployment, and verification.
-
----
-
-## Features
-
-- LXC-native node-provider selection through Incus.
-- LXC-native Docker Engine setup inside managed LXC nodes.
-- Docker Swarm bootstrap for manager and worker nodes.
-- Fail-closed workflow boundaries for provider-native platform, artifact, and deployment behavior.
-- Portainer-facing service management contracts and compose assets.
-- Component configuration assets for:
-  - Portainer
-  - Nexus
-  - Jenkins
-  - Apache Pulsar
-  - SonarQube
-  - Swagger + NGINX
-  - Infisical
-  - Service-access dashboard
-- WSL2 capability checks for managed LXC providers.
-- Optional WSL2 `socat` forwarding for selected host access cases.
-- Rich test suite and enforced separation between domain, application, and infrastructure layers.
-
----
-
-## Supported Local Runtime
-
-Tiny Swarm World is intended to run from:
-
-- Native Linux shell, or
-- Ubuntu on WSL2 with systemd enabled.
-
-The default provider is:
-
-```text
-lxc_native
-```
-
-The preferred backend is:
-
-```text
-incus
-```
-
----
-
-## Prerequisites
-
-Required:
-
-- Windows with WSL2, or native Linux
-- Ubuntu-based shell recommended
-- systemd enabled when running under WSL2
-- Python 3.12 or newer
-- Git
-- Incus/LXD host management is a hard prerequisite for the default `lxc_native`
-  provider; the supported managed backend is Incus
-- Incus/LXD must already be installed and initialized by the host operator
-- `incus`/`lxc` client access for the current user, without `sudo`, from the
-  same Linux/WSL shell that will run `./install.sh`
-- Enough disk space for LXC images, Docker images, and service data
-
-Tiny Swarm World does not install or initialize Incus/LXD, create the host
-daemon, repair host storage or networks, create provider profiles, or change
-group membership automatically. If a host group or socket permission was
-changed, open a new Linux/WSL shell and verify `incus version` and `incus info`
-without `sudo` before continuing. The detailed checklist lives in
-`documentation/user_guide/installation.adoc`; provider-specific smoke and
-boundary notes live in `documentation/system/lxc-native-setup.adoc`.
-
-Recommended:
-
-- At least 20 GiB free disk space
-- 16 GiB RAM or more for the full service-access profile
-- `socat` when WSL2 host port-forwarding is required
-- Docker CLI for local diagnostics
-- PyCharm or IntelliJ IDEA
-
----
-
-# WSL/Linux Preinstall
-
-This section describes the host preparation expected before running the Tiny Swarm World installer.
-
-> In this project context, “LXC installation” means installing **Incus** and using the `incus` CLI to create managed Linux containers.
-
----
-
-## 1. WSL2 Preparation
-
-Run setup commands from inside the Linux/WSL shell. Verify the runtime from the
-distribution itself:
-
-```bash
-uname -a
-ps -p 1 -o comm=
-```
-
-Expected:
-
-```text
-VERSION 2
-```
-
-If the distribution is not WSL2, convert or recreate it as WSL2 outside this
-repository workflow, then return to the Linux shell.
-
-Restart Ubuntu:
-
-Restart the WSL distribution from your normal host workflow, then continue in
-the Linux shell.
-
-### 1.1 Place the checkout on the WSL Linux filesystem
-
-For WSL2, keep the repository below the Linux home directory, for example:
+Run these commands after the host prerequisites are ready:
 
 ```bash
 mkdir -p ~/projects
 cd ~/projects
-```
-
-A checkout on a Windows-mounted filesystem such as `/mnt/c`, `/mnt/d`, or
-`/mnt/e` blocks live installation by default. Tiny Swarm World resolves the
-repository path and classifies its longest matching `/proc/self/mountinfo`
-entry, so the policy is not tied to one drive letter. It does not move or copy
-the checkout automatically.
-
-Run static preflight to see the path-free `HOST-FILESYSTEM` decision:
-
-```bash
-tiny-swarm-world --preflight
-```
-
-Only when the Windows-mounted checkout is intentional, pass the narrow
-override explicitly:
-
-```bash
-./install.sh --allow-wsl-windows-filesystem
-```
-
-An applied live override is recorded atomically in owner-only local state at
-`${XDG_STATE_HOME:-$HOME/.local/state}/tiny-swarm-world/installation/project-filesystem-decision.json`.
-The state directory must itself be on a verified Linux filesystem; otherwise
-installation still blocks. The exact project path is confined to that protected
-document and is not included in normal preflight evidence, logs, or committed
-artifacts.
-
----
-
-## 2. Enable systemd in WSL2
-
-Incus, Docker, and several service workflows expect a systemd-based environment.
-
-Inside Ubuntu/WSL:
-
-```bash
-sudo tee /etc/wsl.conf >/dev/null <<'EOF'
-[boot]
-systemd=true
-EOF
-```
-
-Exit Ubuntu:
-
-```bash
-exit
-```
-
-Restart the WSL distribution so systemd is enabled for the next Linux shell.
-
-Verify:
-
-```bash
-ps -p 1 -o comm=
-```
-
-Expected:
-
-```text
-systemd
-```
-
-If this does not show `systemd`, do not continue with Incus setup yet.
-
----
-
-## 3. Install Base Packages
-
-Inside Ubuntu/WSL or native Ubuntu:
-
-```bash
-sudo apt update
-sudo apt install -y \
-  ca-certificates \
-  curl \
-  git \
-  jq \
-  make \
-  unzip \
-  zip \
-  rsync \
-  socat \
-  build-essential \
-  python3 \
-  python3-venv \
-  python3-pip \
-  snapd
-```
-
-Start and verify Snap:
-
-```bash
-sudo systemctl enable --now snapd
-sudo systemctl status snapd --no-pager
-```
-
-Ensure `/snap/bin` is available:
-
-```bash
-echo 'export PATH="$PATH:/snap/bin"' >> ~/.bashrc
-source ~/.bashrc
-```
-
----
-
-## 4. Prepare And Verify Incus
-
-Incus/LXD installation, initialization, storage, network, profile, and
-permission recovery are host responsibilities. The supported default managed
-backend is Incus, and Tiny Swarm World does not perform those host mutations.
-
-Use the canonical [ready-for-install checklist and optional smoke](documentation/user_guide/installation.adoc#ready-for-install-checklist)
-from the same Linux/WSL shell that will run `./install.sh`. It includes the
-no-`sudo` daemon check, profile/storage verification, bounded temporary
-container smoke, static preflight, and the handoff to live setup.
-
----
-
-## 8. Host Kernel and Bridge Settings
-
-For native Linux, Tiny Swarm World checks the following kernel controls before
-later setup phases and fails closed unless all three are active:
-
-- `net.bridge.bridge-nf-call-iptables=1`
-- `net.bridge.bridge-nf-call-ip6tables=1`
-- `net.ipv4.ip_forward=1`
-
-The automation only reads these controls. It does not load kernel modules,
-change `sysctl` values, create persistence files, or remove operator-owned
-settings during cleanup. If activation is required, the host operator may
-apply and review the following commands outside Tiny Swarm World:
-
-```bash
-sudo modprobe br_netfilter 2>/dev/null || true
-
-sudo tee /etc/sysctl.d/99-tiny-swarm-world.conf >/dev/null <<'EOF'
-net.bridge.bridge-nf-call-iptables=1
-net.bridge.bridge-nf-call-ip6tables=1
-net.ipv4.ip_forward=1
-EOF
-
-sudo sysctl --system
-```
-
-Verify:
-
-```bash
-sysctl net.ipv4.ip_forward
-sysctl net.bridge.bridge-nf-call-iptables
-sysctl net.bridge.bridge-nf-call-ip6tables
-```
-
-Expected:
-
-```text
-net.ipv4.ip_forward = 1
-net.bridge.bridge-nf-call-iptables = 1
-net.bridge.bridge-nf-call-ip6tables = 1
-```
-
-The persistence file is operator-owned. Tiny Swarm World cleanup leaves it
-untouched. After a change, rerun the read-only check only through an explicitly
-authorized live setup. If bridge controls are unavailable under WSL, record
-that actual non-success state; do not treat it as Native Linux success.
-
----
-
-## 9. Optional Docker CLI on Host
-
-The default `lxc_native` path installs and verifies Docker Engine inside managed LXC nodes after live consent. Host Docker is still useful for diagnostics.
-
-Install host Docker tools only if needed:
-
-```bash
-sudo apt update
-sudo apt install -y docker.io docker-compose-v2
-sudo systemctl enable --now docker
-sudo usermod -aG docker "$USER"
-```
-
-Restart WSL or log out and back in.
-
-Verify:
-
-```bash
-docker version
-docker ps
-```
-
-If Docker reports permission errors:
-
-```bash
-groups
-ls -l /var/run/docker.sock
-```
-
-The current user must be in the `docker` group.
-
----
-
-# Python Runtime Setup
-
-Tiny Swarm World supports Python 3.12 or newer. CI validates the minimum
-supported version, while newer Linux/WSL runtimes remain supported through the
-declared dependency ranges.
-
-The runtime dependencies use Python-3.12+-compatible ranges:
-
-```txt
-pydantic>=2.12,<3
-PyYAML>=6.0.3,<7
-requests>=2.34.2,<3
-ruamel.yaml>=0.18.16,<0.19
-```
-
-Create a clean virtual environment:
-
-```bash
-cd /mnt/d/Projects/Tiny-Swarm-World
-
-deactivate 2>/dev/null || true
-rm -rf .venv
-
-python3 -m venv .venv
-source .venv/bin/activate
-
-python -m pip install --upgrade pip setuptools wheel
-python -m pip install --require-hashes -r requirements.lock
-python -m pip install --no-deps -e .
-```
-
-Verify imports:
-
-```bash
-python - <<'PY'
-import pydantic
-import pydantic_core
-import yaml
-import requests
-import ruamel.yaml
-
-print("pydantic", pydantic.__version__)
-print("pydantic_core", pydantic_core.__version__)
-print("PyYAML", yaml.__version__)
-print("requests", requests.__version__)
-print("ruamel.yaml", ruamel.yaml.__version__)
-print("OK")
-PY
-```
-
----
-
-# Quick Start
-
-## 1. Clone the repository
-
-```bash
 git clone https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World.git
 cd Tiny-Swarm-World
-```
 
-## 2. Create and activate the virtual environment
-
-```bash
 python3 -m venv .venv
 source .venv/bin/activate
+python3 -m pip install --upgrade pip
+python3 -m pip install --require-hashes -r requirements.lock
+python3 -m pip install --no-deps -e .
 ```
 
-## 3. Install runtime dependencies
+Install the runtime dependencies before calling the installer. The wrapper
+imports Python modules before its internal dependency-bootstrap fallback can
+run; cloning the repository alone is not a complete setup.
 
-```bash
-python -m pip install --upgrade pip setuptools wheel
-python -m pip install --require-hashes -r requirements.lock
-python -m pip install --no-deps -e .
-```
-
-## 4. Install development tools
-
-```bash
-python -m pip install -r requirements-dev.txt
-```
-
-## 5. Run the quality gate
-
-```bash
-python tools/quality_gate.py quality
-```
-
-## 6. Inspect available workflows
+Inspect the available workflows and run static preflight:
 
 ```bash
 tiny-swarm-world --list-workflows
-```
-
-## 7. Run static preflight
-
-```bash
 tiny-swarm-world --preflight
 ```
 
-Running the module without explicit workflow arguments does not execute infrastructure commands.
+Resolve reported blockers before installing. Static preflight does not prove
+that services are running. Development tools and the full quality gate are
+described in the [Developer Manual](documentation/manuals/developer-manual.md);
+they are separate from preparing the runtime package.
 
----
+## Install a fresh test environment
 
-# Running the Installer
+**`./install.sh` resets the managed Tiny Swarm World environment before setup.**
+Use it only for a fresh or deliberately disposable installation. Existing
+managed nodes and their data may be removed. To keep an existing environment,
+use the [operation guide](documentation/user_guide/usage.adoc#daily-operation).
 
-The repository wrapper is:
+After completing the installation guide's host and networking checklist:
 
 ```bash
 ./install.sh
 ```
 
-For a deliberate fresh test-system reset and headless run:
+The default service profile is `service-access`. The installer asks for the
+reset phrase `RESET_TINY_SWARM_PLATFORM` and for live-operation consent.
+`--headless` changes presentation; it does not make the operation read-only.
+
+The standard internal-test path needs **no credential file**. It uses
+deterministic catalog values. These defaults are for isolated, disposable
+internal testing; use the documented access boundary before exposing services.
+
+If an override is needed, follow the
+[optional credential setup](documentation/user_guide/installation.adoc#operator-credential-overrides).
+A credential file must be user-owned, mode `0600`, inside a user-owned
+`0700` directory on a Linux-native filesystem. The WSL source-path exception
+does not relax that requirement.
+
+## Open services and verify the result
+
+After successful setup, the installer prints access targets and login
+identifiers. Start with the configured Service Access route, normally
+[https://service-access.tsw.local](https://service-access.tsw.local), when local
+name resolution, forwarding and TLS trust are configured.
+
+Use the [credential catalog](documentation/arc42/08_configuration/internal-test-credential-catalog.md)
+for default login details, or your protected source for an explicit override.
+Portainer uses `admin`; Infisical uses an email address. Service-specific
+exceptions are listed in the catalog. Passwords are not printed by the
+installer, and a dashboard secret reference does not prove the item exists in
+Infisical.
+
+Check the platform:
 
 ```bash
-source .venv/bin/activate
-
-PATH="$PWD/.venv/bin:$PATH" \
-PYTHONPATH="$PWD/src" \
-./install.sh --headless --confirm-reset --non-interactive-live-approval
+tiny-swarm-world --service-profile service-access platform verify
 ```
 
-The wrapper delegates policy, secret handling, host-runtime detection, evidence layout, reset sequencing, and headless execution to the Python installer entry point.
-
-Evidence is written below:
-
-```text
-.tiny-swarm-world/evidence/installation-tests/<host-runtime>/
-```
-
-where `<host-runtime>` is usually:
-
-```text
-wsl2
-```
-
-or:
-
-```text
-native_linux
-```
-
-Optional operator credential overrides are read from:
-
-```text
-.tiny-swarm-world/local/live-installation.env
-```
-
-The normal installer resolves missing internal-test credentials from the
-committed catalog and does not generate this file. If used, the file must be
-user-owned, mode `0600`, and stored on a Linux-native filesystem; it must not be
-committed.
-
----
-
-# Live Consent and Safety Model
-
-Mutating workflows can call Incus, Docker, networking, Portainer, Nexus, Jenkins, Pulsar, SonarQube, Swagger/NGINX, Infisical, image build, image push, and stack deployment commands.
-
-Normal mutating workflows require live consent before application services are constructed.
-
-Examples:
-
-```bash
-tiny-swarm-world setup run --live
-tiny-swarm-world platform init --live
-tiny-swarm-world platform reconcile --live
-tiny-swarm-world platform expose --live
-```
-
-Destructive workflows require additional confirmation phrases.
-
-Reset:
-
-```bash
-tiny-swarm-world platform reset --live --confirm RESET_TINY_SWARM_PLATFORM
-```
-
-Destroy:
-
-```bash
-tiny-swarm-world platform destroy --live --confirm DESTROY_TINY_SWARM_PLATFORM
-```
-
-The install wrapper maps deliberate test-system automation to the governed reset/setup flow:
-
-```bash
-./install.sh --headless --confirm-reset --non-interactive-live-approval
-```
-
----
-
-# Provider Backend Selection
-
-Default provider:
-
-```text
-lxc_native
-```
-
-Backend selection order:
-
-1. Explicit `--lxc-backend`
-2. `backend_selection.preferred_backend`
-3. Ordered `backend_selection.candidates` from `infra/config/node-providers/provider_config.yaml`
-
-Explicit Incus:
-
-```bash
-tiny-swarm-world --lxc-backend incus setup run --live
-```
-
----
-
-# Service Profile
-
-The guided setup selects the `service-access` management stack profile by default.
-
-Default installer command:
-
-```bash
-./install.sh --headless --confirm-reset --non-interactive-live-approval
-```
-
-Alternative base service set:
-
-```bash
-./install.sh --service-profile default --headless --confirm-reset --non-interactive-live-approval
-```
-
----
-
-# Configuration Files
-
-Important configuration locations:
-
-```text
-infra/config/node-providers/provider_config.yaml
-infra/config/installation-plan.yaml
-infra/config/ports.yaml
-infra/config/services.yml
-infra/config/health-checks.yaml
-infra/config/validation-plan.yaml
-infra/config/compose/
-infra/config/secrets/infisical-secrets.yaml
-```
-
-Local runtime artifacts:
-
-```text
-.tiny-swarm-world/
-.tiny-swarm-world/logs/
-.tiny-swarm-world/evidence/
-.tiny-swarm-world/local/live-installation.env
-```
-
-Do not commit local runtime artifacts or secret-bearing files.
-
----
-
-# Minimal Preinstall Smoke Test
-
-Use the [canonical ready-for-install checklist and optional Incus smoke](documentation/user_guide/installation.adoc#ready-for-install-checklist)
-from the Linux/WSL shell. The smoke is optional live provider validation, not a
-quality-gate command, and its named temporary container must be deleted
-explicitly. The README remains an entry point; the installation guide owns the
-command sequence.
-
----
-
-# Diagnostics
-
-## systemd
-
-```bash
-ps -p 1 -o comm=
-```
-
-## Incus
-
-```bash
-incus version
-incus info
-incus storage list
-incus network list
-incus profile show default
-incus list
-```
-
-## Docker
-
-```bash
-docker context ls
-docker version
-docker ps
-```
-
-## Python
-
-```bash
-which python
-python --version
-python -m pip --version
-python -c "import pydantic; print(pydantic.__version__)"
-```
-
----
-
-# Troubleshooting
-
-## `ModuleNotFoundError: No module named 'pydantic'`
-
-Cause: the installer is not using the project `.venv`, or dependencies are not installed.
-
-Fix:
-
-```bash
-cd /mnt/d/Projects/Tiny-Swarm-World
-source .venv/bin/activate
-python -m pip install --require-hashes -r requirements.lock
-python -m pip install --no-deps -e .
-```
-
-Run installer with venv and source path forced:
-
-```bash
-PATH="$PWD/.venv/bin:$PATH" \
-PYTHONPATH="$PWD/src" \
-./install.sh --headless --confirm-reset --non-interactive-live-approval
-```
-
-## `pydantic-core` build fails on a supported Python version
-
-Cause: an old Pydantic line is pinned.
-
-Use the declared Python-3.12+-compatible dependencies:
-
-```txt
-pydantic>=2.12,<3
-PyYAML>=6.0.3,<7
-requests>=2.34.2,<3
-ruamel.yaml>=0.18.16,<0.19
-```
-
-Then rebuild the venv:
-
-```bash
-rm -rf .venv
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip setuptools wheel
-python -m pip install --require-hashes -r requirements.lock
-python -m pip install --no-deps -e .
-```
-
-## `Failed getting root disk: No root device could be found`
-
-Cause: the Incus default profile has no root disk.
-
-Fix:
-
-```bash
-incus profile device add default root disk path=/ pool=default
-```
-
-If network is missing:
-
-```bash
-incus profile device add default eth0 nic name=eth0 network=incusbr0
-```
-
-## `snap: command not found`
-
-Fix:
-
-```bash
-sudo apt update
-sudo apt install -y snapd
-sudo systemctl enable --now snapd
-```
-
-## `System has not been booted with systemd`
-
-Fix `/etc/wsl.conf`:
-
-```ini
-[boot]
-systemd=true
-```
-
-Then restart the WSL distribution outside this repository workflow and rerun
-the Linux shell checks.
-
-## Docker permission denied
-
-Fix:
-
-```bash
-sudo usermod -aG docker "$USER"
-```
-
-Then restart the shell or WSL.
-
-## WSL distribution disk mounted read-only
-
-Do not continue with installer operations. Back up important data first.
-
-If the distribution still starts read-only, back it up before repair or
-deletion and rerun the checks from a fresh Linux/WSL shell.
-
----
-
-# Project Structure
-
-High-level directories:
-
-```text
-src/tiny_swarm_world/domain
-src/tiny_swarm_world/application
-src/tiny_swarm_world/infrastructure
-infra/config/compose
-infra/config/node-providers
-documentation
-tests
-tools
-```
-
-The architecture follows a domain/application/infrastructure split.
-
----
-
-# Development Quality Gate
-
-Prepare environment:
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip setuptools wheel
-python -m pip install --require-hashes -r requirements.lock
-python -m pip install --no-deps -e .
-python -m pip install -r requirements-dev.txt
-```
-
-Run full gate:
-
-```bash
-python tools/quality_gate.py quality
-```
-
-Run individual checks:
-
-```bash
-python tools/quality_gate.py lint
-python tools/quality_gate.py arch-lint
-python tools/quality_gate.py arch-tests
-python tools/quality_gate.py typecheck
-python tools/quality_gate.py test
-```
-
-Run explicit local supply-chain checks separately from the default quality
-gate:
-
-```bash
-python tools/security_gate.py dependencies
-python tools/security_gate.py sbom
-python tools/security_gate.py container-config  # requires explicit Trivy installation
-```
-
-Dependency and SBOM policy lives under `documentation/security/`. Scanner
-absence or missing image evidence is reported as missing, never as a pass.
-
-Do not run live Incus lifecycle, Docker Swarm, image build, image push, or service bootstrap commands as part of the development quality gate.
-
----
-
-# Skill and Agent Governance
-
-Tiny Swarm World agent and skill work is governed by:
-
-```text
-AGENTS.md
-QUALITY.md
-.agents/
-.codex/
-documentation/process/skills/audit/
-```
-
-Canonical governance navigation:
-
-```text
-documentation/process/skills/audit/skill-registry.md
-documentation/process/skills/audit/skill-registry.json
-documentation/process/skills/audit/organigramm.md
-documentation/process/skills/audit/owner-map.md
-```
-
-Project-specific skills live as discoverable files:
-
-```text
-.agents/skills/<skill-name>/SKILL.md
-```
-
-Grouped Markdown files are not authoritative skill entry points unless local discovery rules are changed by a later workflow.
-
-The current agent model keeps Tiny Swarm World:
-
-- Docker Swarm first
-- Kubernetes-aware but not Kubernetes-first
-- Python automation first
-- Console/status UI oriented
-
-It must not be reclassified as forensic analytics, a Spring Boot application, or a React frontend project.
-
----
-
-# Links
-
-- Incus: https://linuxcontainers.org/incus/
-- LXC: https://linuxcontainers.org/lxc/
-- Docker Swarm: https://docs.docker.com/engine/swarm/
-- Portainer: https://www.portainer.io/
-- WSL systemd documentation: https://learn.microsoft.com/windows/wsl/systemd
+Then sign in to the required services from the browser you intend to use.
+An HTTP 200 response or a login page proves neither authentication nor a fully
+working installation. See the
+[verification steps](documentation/user_guide/installation.adoc#verify-installed-runtime).
+
+If a route is unavailable, distinguish name resolution, forwarding, TLS,
+service readiness and authentication using the
+[troubleshooting guide](documentation/user_guide/troubleshooting.adoc#first-response).
+Use the evidence directory printed for your run, inspect exit codes first,
+and redact diagnostics before sharing them.
+
+## Reconcile, reset and update are different operations
+
+| Operation | Meaning |
+|---|---|
+| `platform verify` | Inspect the existing platform without repairing it. |
+| `platform reconcile --live` | Reconcile managed platform state with explicit consent; it is not a complete application update. |
+| `setup run --live` | Run the broader setup workflow without the installer's preliminary reset; it still changes infrastructure. |
+| `./install.sh` | Reset the managed environment, then perform fresh setup. |
+| Product update | A canonical update workflow and cross-host RC1 acceptance remain tracked in [#297](https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/issues/297). |
+
+There is no supported `./install.sh --update` command in this revision.
+Pulling new source code and running reconcile does not establish a supported
+upgrade of a running installation.
+
+See [Daily operation](documentation/user_guide/usage.adoc#daily-operation) for
+commands, configuration continuity and recovery choices.
+
+## For contributors
+
+The Python code follows a domain/application/infrastructure split.
+Start with the [Developer Manual](documentation/manuals/developer-manual.md),
+[AGENTS.md](AGENTS.md) and [QUALITY.md](QUALITY.md).
+
+The future [multi-runtime vision](https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/issues/251)
+covers Podman and Kubernetes. Those profiles are separate from the current
+Classic implementation.

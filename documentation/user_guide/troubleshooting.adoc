@@ -1,5 +1,48 @@
 = Troubleshooting
 
+[[first-response]]
+== First Response For Operators
+
+Start in the repository root with the same Python environment, service profile
+and configuration used by the failing run. Preserve its evidence directory.
+
+. Read the first failed phase and the printed evidence path.
+. Inspect `reset-run.exit` and, if it exists, `setup-run.exit` in that directory.
+  If reset failed, setup was not started and its exit file may be absent.
+. Run static diagnostics after runtime dependencies are available:
++
+[source,bash]
+----
+source .venv/bin/activate
+python3 tools/install_debugger.py
+tiny-swarm-world --preflight
+----
+. For an installed environment, use `platform verify` before selecting a
+  repair. It does not modify the platform.
+. Correct the named cause and choose the operation in
+  link:usage.adoc#daily-operation[Daily operation]. Do not automatically rerun
+  `./install.sh`: it resets managed state.
+
+[options="header"]
+|===
+| What you see | Next check
+| `ModuleNotFoundError` or missing CLI | Activate `.venv` and complete link:installation.adoc#_python_environment[Python Environment]; do not reset the platform.
+| Override permission error | Verify file ownership, `0600` file and `0700` parent on a Linux-native filesystem; see link:installation.adoc#operator-credential-overrides[optional overrides].
+| No password file after installation | Normal for the default path. Use the link:../arc42/08_configuration/internal-test-credential-catalog.md[credential catalog].
+| Login page responds but login fails | Check the effective service identity and credential source; HTTP 200 is not authentication.
+| DNS, connection or certificate error | Diagnose name resolution, forwarding and TLS separately from credentials.
+| Missing `--update` option | This revision has no supported update command; see https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/issues/297[#297].
+|===
+
+Before reporting a problem, record the commit (`git rev-parse HEAD`), host
+type, selected profile, failed phase, exit code and redacted error summary.
+Inspect logs privately and remove credentials, tokens, cookies, private keys
+and sensitive command output before sharing. A printed log path is not a
+redaction guarantee.
+
+The detailed sections below cover individual failures. Development quality
+tools are needed only when running the corresponding developer checks.
+
 == Quality Gate Fails: Missing Tool
 
 If Ruff, mypy, import-linter, or the Requests type stubs are missing, install
@@ -7,7 +50,7 @@ the development tools in the active Python environment:
 
 [source,bash]
 ----
-python3 -m pip install ruff mypy import-linter types-requests
+python3 -m pip install -r requirements-dev.txt
 ----
 
 Then rerun:
@@ -19,14 +62,17 @@ python3 tools/quality_gate.py quality
 
 == Import Errors For tiny_swarm_world
 
-Manual Python commands need the `src/` directory on `PYTHONPATH`:
+Activate the environment and install the runtime package from the repository
+root as described in link:installation.adoc#_python_environment[Python Environment].
+Verify imports without starting infrastructure:
 
 [source,bash]
 ----
-PYTHONPATH=src python3 -m unittest discover -s tests -t .
+python3 -c 'import tiny_swarm_world; import pydantic; import yaml; import requests'
 ----
 
-The quality gate configures this automatically.
+Source-checkout commands additionally need `PYTHONPATH=src`. The quality gate
+sets that variable itself, but it does not install missing dependencies.
 
 == import-linter Cannot Find Configuration
 
@@ -201,14 +247,16 @@ Check the reset evidence first:
 
 [source,bash]
 ----
-RUN_ID=20260604T120000Z
-HOST_RUNTIME=wsl2
-EVIDENCE_DIR=".tiny-swarm-world/evidence/installation-tests/$HOST_RUNTIME/$RUN_ID"
-cat "$EVIDENCE_DIR/reset-run.exit"
-cat "$EVIDENCE_DIR/setup-run.exit"
+# Replace this placeholder with the complete directory printed by your run.
+TSW_RUN_DIR='/path/printed/by/the/installer'
+cat "$TSW_RUN_DIR/reset-run.exit"
+if [ -f "$TSW_RUN_DIR/setup-run.exit" ]; then
+  cat "$TSW_RUN_DIR/setup-run.exit"
+fi
 ----
 
-Use the concrete host runtime and run ID printed by the wrapper. Supported
+Use the actual path printed by the wrapper; the placeholder above is not an
+existing directory. Supported
 host runtime directories are `wsl2` and `native_linux`; the run context file
 also records `host_runtime_type` and `selected_evidence_directory`.
 
@@ -529,19 +577,23 @@ done
 incus profile get docker-swarm security.privileged
 ----
 
-Only after confirming the nodes are disposable Tiny Swarm World state, remove
-the privileged setting from the location that reports `true`, then rerun the
-installer:
+Before changing a shared profile, inspect all of its consumers, not just the
+three expected TSW nodes:
 
 [source,bash]
 ----
-incus profile unset docker-swarm security.privileged
-incus config unset swarm-manager security.privileged
-incus config unset swarm-worker-1 security.privileged
-incus config unset swarm-worker-2 security.privileged
-
-./install.sh --headless --confirm-reset --non-interactive-live-approval
+incus profile show docker-swarm
 ----
+
+Review its `used_by` entries. If another workload uses the profile, ask the
+host operator to isolate or repair the TSW configuration without changing that
+workload. Confirm ownership and the intended privileged-ingress policy before
+changing any setting. Remove only the diagnosed setting at the specific
+instance or profile that owns it; do not unset every location as a batch.
+
+Recheck the guarded preflight afterwards. Run the fresh installer again only
+if discarding and recreating the managed environment is intentional; otherwise
+use link:usage.adoc#daily-operation[the appropriate operation].
 
 If `raw.*` appears, inspect the exact raw setting on the named instance or
 profile and remove only the setting that belongs to disposable Tiny Swarm
@@ -611,8 +663,10 @@ the targeted forwarding repair:
 ----
 
 If outbound internet is intentionally blocked or unreliable, configure APT
-mirrors that are reachable from inside the Incus containers, then rerun the
-installer:
+mirrors that are reachable from inside the Incus containers. The example below
+then performs a *deliberate fresh reset*: use it only when the managed
+environment is disposable. To retain existing state, choose a retry through
+link:usage.adoc#daily-operation[Daily operation] instead.
 
 [source,bash]
 ----

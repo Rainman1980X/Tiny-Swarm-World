@@ -1,34 +1,45 @@
 # Operator Manual
 
-This is the concise operator entry point. The canonical detailed instructions
-remain in the [User Handbook](../user-handbook.adoc) and
-[installation guide](../user_guide/installation.adoc).
+Use this page to choose the next task. Commands run from the repository root
+in a Linux or WSL2 shell with the project's Python environment active.
 
-## Before changing the host
+| Task | Instructions | Effect |
+|---|---|---|
+| First installation | [Installation guide](../user_guide/installation.adoc) | Prepares and then resets/creates the managed test environment. |
+| Open services and sign in | [User Handbook](../user-handbook.adoc#open-the-services) | Uses the configured routes and effective credentials. |
+| Inspect an installation | [Daily operation](../user_guide/usage.adoc#daily-operation) | Read-only platform verification. |
+| Reconcile or recover | [Daily operation](../user_guide/usage.adoc#daily-operation) | Explicitly changes managed state; preserves the distinction from fresh reset. |
+| Diagnose a failure | [First response](../user_guide/troubleshooting.adoc#first-response) | Starts with the first failed phase and exit codes. |
+| Change credentials | [Optional overrides](../user_guide/installation.adoc#operator-credential-overrides) | Supplies an explicit input; it is not an automatic rotation procedure. |
 
-Tiny Swarm World is Linux/WSL-only, Docker Swarm-first and LXC-native through
-Incus. Read the [live-operation surface catalog](../system/live-operation-surfaces.adoc)
-before any command that can mutate nodes, networking, Docker, Swarm or stacks.
-The default quality gate does not perform those mutations.
+## Before the first live run
 
-## Install and operate
+Incus installation, initialization, host networking and permissions are
+operator prerequisites. Tiny Swarm World installs Docker inside managed LXC
+nodes; it does not prepare the Incus host daemon for you.
 
-Use the [installation guide](../user_guide/installation.adoc), the
-[operator configuration contract](../arc42/08_configuration/operator-configuration-contract.md)
-and the [deployment view](../arc42/07_deployment_view.adoc). Preflight, reset
-confirmation, explicit live consent and readiness results are separate gates;
-a missing prerequisite is not a pass.
+**The installer wrapper resets the managed environment before setup.** Read the
+reset scope before running it on a machine with data you want to keep. Use
+`platform verify` to inspect an existing installation first.
 
-## Secrets and recovery
+## Credentials and evidence
 
-Use the [secret-handling policy](../security/secret-handling-policy.md) and
-[security controls](../security/security-controls.md). Keep credentials and
-private material outside committed documentation and evidence. For incidents
-or failed mutation, follow [incident response](../security/incident-response.md)
-and the recovery/rollback guidance in the [installation guide](../user_guide/installation.adoc).
+The standard internal-test installation uses the
+[credential catalog](../arc42/08_configuration/internal-test-credential-catalog.md)
+without a manually prepared password file. Overrides are optional and require
+a protected Linux-native file/directory when file-based. Infisical bootstrap
+login and synchronized service items are separate concerns.
 
-## Verification status
+Use the evidence path printed by your run. Redact diagnostics before sharing;
+keep credentials, session tokens and private material out of reports.
+For exposure policy or an incident, use the
+[Security Manual](security-manual.md).
 
-Local tests and the quality gate prove repository behavior only. Live install,
-TLS, DNS, browser and service readiness require the
-[Live Validation Manual](live-validation-manual.md) and explicit consent.
+## What is verified
+
+Static preflight and local tests do not prove live service access. A usable
+installation also needs successful platform verification and actual service
+logins. RC1 qualification is tracked in
+[#294](https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/issues/294).
+The supported update workflow remains pending; do not treat reset or reconcile
+as a product upgrade.
