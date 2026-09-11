@@ -66,6 +66,7 @@ management landing pages, and current product capability boundaries.
 include::09_decisions/adr-autonomous-setup-safety.adoc[leveloffset=+3]
 
 include::09_decisions/adr-explicit-non-interactive-live-consent.adoc[leveloffset=+3]
+include::09_decisions/adr-test-only-credential-override.adoc[leveloffset=+3]
 
 === ADR Backlog
 
