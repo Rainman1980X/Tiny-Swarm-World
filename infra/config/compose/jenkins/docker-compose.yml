@@ -4,7 +4,7 @@ services:
     environment:
       TSW_JENKINS_ADMIN_PASSWORD: ${TSW_JENKINS_ADMIN_PASSWORD}
     volumes:
-      - jenkins_home:/var/lib/jenkins
+      - jenkins_home:/var/jenkins_home
     networks:
       - service_access_link
     ports:

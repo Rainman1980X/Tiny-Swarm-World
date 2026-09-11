@@ -1609,24 +1609,38 @@ class TestComposition(unittest.TestCase):
         )
 
     def test_routing_evidence_failure_stops_apply_before_any_stack_step(self):
-        with patch.object(composition, "ComposeFileRepositoryYaml"):
-            services = composition.build_lxc_deployment_services(
-                backend=composition.ManagedLxcBackend.INCUS,
-            )
-        evidence_step = services.workflows.apply.pre_apply_steps[0]
-        first_stack_step = services.workflows.apply.steps[0]
+        from tiny_swarm_world.domain.host_environment import HostEnvironmentKind
+        from tiny_swarm_world.infrastructure import composition_deployment
 
-        with patch.object(
-            evidence_step,
-            "run",
-            side_effect=OSError("evidence write failed"),
-        ) as write_evidence:
-            with patch.object(first_stack_step, "run") as run_stack:
-                result = asyncio.run(services.workflows.apply.run())
+        for kind in (HostEnvironmentKind.NATIVE_LINUX, HostEnvironmentKind.WSL2):
+            with self.subTest(kind=kind), patch.object(
+                composition_deployment, "HostEnvironmentDetector"
+            ) as detector, patch.object(
+                composition_deployment, "NativeLinuxHostPreparation"
+            ) as host, patch.object(composition, "ComposeFileRepositoryYaml"):
+                detector.return_value.detect.return_value.environment = kind
+                host_result = host.return_value.verify.return_value
+                host_result.succeeded = True
+                host_result.verified = True
+                host_result.evidence = {}
+                services = composition.build_lxc_deployment_services(
+                    backend=composition.ManagedLxcBackend.INCUS,
+                )
+                evidence_step = services.workflows.apply.pre_apply_steps[0]
+                first_stack_step = services.workflows.apply.steps[0]
 
-        self.assertEqual(result.status.value, "failed_to_prepare")
-        write_evidence.assert_called_once_with()
-        run_stack.assert_not_called()
+                with patch.object(
+                    evidence_step,
+                    "run",
+                    side_effect=OSError("evidence write failed"),
+                ) as write_evidence, patch.object(first_stack_step, "run") as run_stack:
+                    result = asyncio.run(services.workflows.apply.run())
+
+                self.assertEqual(result.status.value, "failed_to_prepare")
+                write_evidence.assert_called_once_with()
+                run_stack.assert_not_called()
+                self.assertEqual(host.return_value.verify.call_count,
+                                 1 if kind is HostEnvironmentKind.NATIVE_LINUX else 0)
 
     def test_build_deployment_services_uses_operator_swarm_registry_endpoint_for_local_images(
         self,

@@ -6,8 +6,13 @@ do not implement a second precedence rule.
 
 ## Canonical precedence
 
+Before source selection, the current resolver rejects distinct nonempty
+operator and secure-provider values with `CredentialResolutionError`. It does
+not silently choose a winner for that conflicting-input case. Matching inputs
+and inputs with only one applicable source proceed to source selection.
+
 For a credential that supports all listed sources in the applicable lifecycle
-phase, the resolver applies this order:
+phase and passes that conflict check, the resolver applies this order:
 
 1. an applicable secure provider value (`vault`);
 2. an explicit operator value (`operator`), from the process environment or an
@@ -75,3 +80,20 @@ reconcile/restart must report both equality flags as true. A supported
 transition is acceptable only when its intended service key is the sole
 changed key and unrelated state remains healthy; live authentication and
 cleanup evidence are still required to qualify the target.
+
+## Live transition qualification boundary
+
+The opt-in runner at `tests/e2e/classic/run_credential_transition_live.py` checks
+an existing Jenkins startup-environment override with a matching Infisical
+value, rejection of the old Basic credential, observed cookie-session behavior
+across the resulting task replacement, reconcile, a controlled restart, and
+restoration. It does not implement a general rotation API or password-only
+session invalidation guarantee. Run it only against an explicitly authorized,
+healthy target with its protected environment and rollback material.
+
+Post-bootstrap vault-only selection does not rebuild an already running
+bootstrap consumer. Authenticating with an existing vault value is a bounded
+read/use check, not proof that an independently changed vault value propagated
+to a service. Issue #296's conflicting-source-winner requirement is unresolved
+against the current fail-closed conflict implementation; negative tests must
+not be reported as completion of that requirement.
