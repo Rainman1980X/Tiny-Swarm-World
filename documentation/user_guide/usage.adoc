@@ -1,5 +1,12 @@
 = Usage
 
+ifndef::user-guide-prefix[]
+:user-guide-prefix:
+endif::[]
+ifndef::user-reference-prefix[]
+:user-reference-prefix: ../
+endif::[]
+
 Tiny Swarm World contains two different kinds of workflows:
 
 * development workflows that are safe to run during normal coding
@@ -59,15 +66,130 @@ installer wrapper's resolved credentials or the environment of an earlier
 process. Ensure its effective configuration is supplied through the supported
 operator contract; if prerequisites are missing, diagnose them rather than
 using the reset wrapper as a workaround. See
-link:../arc42/08_configuration/operator-configuration-contract.md[the operator contract].
+link:{user-reference-prefix}arc42/08_configuration/operator-configuration-contract.md[the operator contract].
 
 After changes, verify routes and actual logins as described in
-link:installation.adoc#verify-installed-runtime[Verify the runtime].
+link:{user-guide-prefix}installation.adoc#verify-installed-runtime[Verify the runtime].
 Platform readiness or a login page alone is not authenticated acceptance.
 
 There is no supported `./install.sh --update` in this revision. Pulling source
 changes, reconciling platform resources and resetting an installation are
 different operations; none alone proves a supported product upgrade.
+
+[[open-the-services]]
+== Open The Services
+
+The default full setup uses the `service-access` profile. After a verified
+deployment, use the Service Access landing page as the operator start page:
+
+[source,text]
+----
+https://service-access.tsw.local
+----
+
+The dashboard is generated from the selected configuration. Its links are
+access targets, not proof of deployed, healthy or authenticated services.
+Open the page from the browser you intend to use; that browser's host must
+resolve the names, reach the forwarded ports and trust the configured TLS CA.
+
+Common preferred local service routes are:
+
+[options="header"]
+|===
+| Service | Preferred route | Notes
+| Service Access | `https://service-access.tsw.local` | Generated management table with service links and Infisical item references.
+| Infisical | `https://infisical.tsw.local` | Secret-management UI for authorized operators.
+| Portainer | `https://portainer.tsw.local` | Deployment gateway after bootstrap.
+| Nexus | `https://nexus.tsw.local` | Repository service and Docker proxy behavior.
+| Jenkins | `https://jenkins.tsw.local` | CI service.
+| Pulsar | `https://pulsar.tsw.local` | Pulsar Manager UI; use the catalog or effective override. The Infisical item is usable only after synchronization.
+| Pulsar Admin API | `https://pulsar-api.tsw.local/admin/v2/clusters` | Requires the effective bearer token; browser reachability is not an authenticated API check.
+| SonarQube | `https://sonarqube.tsw.local` | Static analysis service.
+| Swagger/NGINX | `https://swagger.tsw.local` | API documentation surface.
+| Traefik | ports `80` and `443` | Ingress owner for the service-access setup profile.
+|===
+
+Direct localhost ports such as `10000`, `10001`, `11080`, `12000`, `13081`,
+`14080`, `14081`, `16081`, and `17080` are diagnostic or compatibility access.
+They are not the preferred Service Access links. Localhost reachability depends
+on the selected provider, LXC profile proxy state, WSL forwarding, and verified
+stack deployment. Treat route defaults as operator targets, not proof that a
+service is healthy.
+
+[[infisical-credentials]]
+== Get Infisical Credentials
+
+Use the service-specific identifiers and password convention in the
+link:{user-reference-prefix}arc42/08_configuration/internal-test-credential-catalog.md[credential catalog].
+Portainer uses `admin`; Infisical uses its configured email address. The
+catalog documents the SonarQube exception and component-specific derivations.
+Do not assume every service uses the same username, or use password values
+copied from chat history or logs.
+
+Infisical has two distinct credential concerns:
+
+* bootstrap login credentials for the Infisical UI;
+* service credential entries synchronized into or referenced from Infisical.
+
+The bootstrap login email and initial admin password are resolved during
+installation from the deterministic catalog unless explicitly overridden in
+the process environment or protected local source. The canonical internal-test
+login identifier is `admin@tiny-swarm-world.local`; the catalog documents the
+disposable password convention. The installer prints the URL and identifier,
+but intentionally does not print password values.
+
+For an explicit override, use the protected file selected by
+`TSW_INSTALL_ENV_FILE` or the applicable configured source. A default install
+does not create a file for you. Do not assume a key's presence alone proves
+that its value is valid or in use.
+
+For the standard internal-test path, use the catalog's documented disposable
+login convention. For an explicit override, open the ignored local file in a
+private terminal or editor to read the bootstrap email and password, then use
+those values to sign in to Infisical at the configured Infisical route. The
+default external URL is:
+
+[source,text]
+----
+https://infisical.tsw.local
+----
+
+The direct `http://localhost:17080` URL remains a diagnostic compatibility
+target when provider forwarding exposes it.
+
+The installer uses the resolved catalog values and optional operator overrides
+for Infisical bootstrap. It does not write a separate Infisical credential or
+recovery file.
+
+After signing in, use the Infisical UI to reveal or copy service secret values.
+The Service Access dashboard intentionally shows only users and Infisical item
+references; it does not display password values. If Infisical item
+synchronization has not been enabled or completed, use the catalog for defaults
+or your protected source for overrides. No generated local credential file is
+implied; dashboard references are only navigation hints.
+
+If service items are missing, check whether synchronization was enabled and
+completed. See link:{user-guide-prefix}installation.adoc#optional-infisical-seeding[optional item
+seeding] for a deliberate fresh run; do not reset an existing environment just
+to populate missing items.
+
+[[reset-or-destroy]]
+== Reset Or Destroy A Disposable Environment
+
+Reset and destroy require exact confirmation and live consent. Preserve needed
+data first; these commands remove managed state and are not routine repairs.
+Keep the installed backend, service profile and effective configuration.
+
+[source,bash]
+----
+tiny-swarm-world --service-profile service-access platform reset --confirm RESET_TINY_SWARM_PLATFORM --live
+tiny-swarm-world --service-profile service-access platform destroy --confirm DESTROY_TINY_SWARM_PLATFORM --live
+----
+
+These are alternatives, not consecutive steps. If ownership or guarded provider
+settings block removal, follow
+link:{user-guide-prefix}troubleshooting.adoc#_refused_workflow_confirmation_missing[the reset diagnosis]
+before retrying. Do not delete unrelated Incus resources.
 
 == Development Quality Gate
 
@@ -261,13 +383,8 @@ Answer `y` only when changing local infrastructure is intentional. Without
 `--live` and the short confirmation, the entry point reports
 `REFUSED_LIVE_CONSENT_MISSING` before application services are constructed.
 
-Destructive platform workflows also require the exact confirmation phrase:
-
-[source,bash]
-----
-tiny-swarm-world platform reset --confirm RESET_TINY_SWARM_PLATFORM --live
-tiny-swarm-world platform destroy --confirm DESTROY_TINY_SWARM_PLATFORM --live
-----
+For destructive platform commands and their exact confirmation phrases, use
+<<reset-or-destroy>>.
 
 Reset and destroy are explicit confirmation contracts. Their destructive
 execution is limited to configured managed LXC-native nodes whose Tiny Swarm
@@ -435,7 +552,7 @@ Implemented repository assets:
 
 During LXC stack deployment, the dashboard HTML is rendered again from the
 effective service-access model and synchronized to
-`${TSW_REMOTE_STACK_ROOT}/service-access/dashboard/index.html` before the
+`$\{TSW_REMOTE_STACK_ROOT}/service-access/dashboard/index.html` before the
 service-access stack consumes its compose config. The committed dashboard file
 is not the hidden deployment source of truth for that remote Swarm config
 file.
@@ -452,11 +569,9 @@ Pulsar Manager, Pulsar Admin API, SonarQube, Swagger, Infisical and Service
 Access.
 It does not show password values.
 
-For default logins, use the
-link:../arc42/08_configuration/internal-test-credential-catalog.md[credential catalog].
-For overrides, use the protected source selected for the installation.
-Infisical item references are navigation hints until synchronization is verified;
-the dashboard does not store or reveal password values.
+For service routes and login steps, use <<open-the-services>> and
+<<infisical-credentials>>. Dashboard item references do not prove that
+synchronization or authentication has succeeded.
 
 Prometheus, Grafana, app, and API links are configuration-dependent. An
 optional link is rendered only when its service is enabled; disabled services

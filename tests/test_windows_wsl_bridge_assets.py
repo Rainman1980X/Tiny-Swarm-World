@@ -13,7 +13,7 @@ BRIDGE_PESTER_TESTS = REPOSITORY_ROOT / "tests" / "windows" / "tws-wsl-bridge.Te
 BRIDGE_GUIDE = REPOSITORY_ROOT / "tools" / "windows" / "README.windows-wsl-bridge.md"
 BRIDGE_CONFIG = REPOSITORY_ROOT / "tools" / "windows" / "tws-wsl-bridge.config.json"
 NETWORK_GUIDE = REPOSITORY_ROOT / "documentation" / "system" / "network.adoc"
-USER_HANDBOOK = REPOSITORY_ROOT / "documentation" / "user_guide" / "user-handbook.adoc"
+INSTALLATION_GUIDE = REPOSITORY_ROOT / "documentation" / "user_guide" / "installation.adoc"
 WINDOWS_POWERSHELL = Path(
     "/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe"
 )
@@ -252,7 +252,7 @@ class TestWindowsWslBridgeAssets(unittest.TestCase):
     def test_bridge_guides_document_reproducible_preparation(self):
         bridge_guide = BRIDGE_GUIDE.read_text(encoding="utf-8")
         network_guide = NETWORK_GUIDE.read_text(encoding="utf-8")
-        user_handbook = USER_HANDBOOK.read_text(encoding="utf-8")
+        installation_guide = INSTALLATION_GUIDE.read_text(encoding="utf-8")
 
         for expected in (
             "-Action prerequisites",
@@ -277,8 +277,8 @@ class TestWindowsWslBridgeAssets(unittest.TestCase):
             "%ProgramData%\\TinySwarmWorld\\WslBridge",
             "TSW_WINDOWS_EXPOSURE=disabled",
         ):
-            with self.subTest(handbook_expected=expected):
-                self.assertIn(expected, user_handbook)
+            with self.subTest(installation_expected=expected):
+                self.assertIn(expected, installation_guide)
 
 
 def _switch_block(script: str, action: str) -> str:
