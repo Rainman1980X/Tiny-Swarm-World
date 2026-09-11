@@ -157,7 +157,9 @@ Pulling new source code and running reconcile does not establish a supported
 upgrade of a running installation.
 
 See [Daily operation](documentation/user_guide/usage.adoc#daily-operation) for
-commands, configuration continuity and recovery choices.
+commands, configuration continuity and recovery choices. The
+[live operation surface catalog](documentation/system/live-operation-surfaces.adoc)
+identifies supported workflow boundaries and retained compatibility assets.
 
 ## For contributors
 
