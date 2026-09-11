@@ -1,5 +1,12 @@
 = Troubleshooting
 
+ifndef::user-guide-prefix[]
+:user-guide-prefix:
+endif::[]
+ifndef::user-reference-prefix[]
+:user-reference-prefix: ../
+endif::[]
+
 [[first-response]]
 == First Response For Operators
 
@@ -20,15 +27,15 @@ tiny-swarm-world --preflight
 . For an installed environment, use `platform verify` before selecting a
   repair. It does not modify the platform.
 . Correct the named cause and choose the operation in
-  link:usage.adoc#daily-operation[Daily operation]. Do not automatically rerun
+  link:{user-guide-prefix}usage.adoc#daily-operation[Daily operation]. Do not automatically rerun
   `./install.sh`: it resets managed state.
 
 [options="header"]
 |===
 | What you see | Next check
-| `ModuleNotFoundError` or missing CLI | Activate `.venv` and complete link:installation.adoc#_python_environment[Python Environment]; do not reset the platform.
-| Override permission error | Verify file ownership, `0600` file and `0700` parent on a Linux-native filesystem; see link:installation.adoc#operator-credential-overrides[optional overrides].
-| No password file after installation | Normal for the default path. Use the link:../arc42/08_configuration/internal-test-credential-catalog.md[credential catalog].
+| `ModuleNotFoundError` or missing CLI | Activate `.venv` and complete link:{user-guide-prefix}installation.adoc#_python_environment[Python Environment]; do not reset the platform.
+| Override permission error | Verify file ownership, `0600` file and `0700` parent on a Linux-native filesystem; see link:{user-guide-prefix}installation.adoc#operator-credential-overrides[optional overrides].
+| No password file after installation | Normal for the default path. Use the link:{user-reference-prefix}arc42/08_configuration/internal-test-credential-catalog.md[credential catalog].
 | Login page responds but login fails | Check the effective service identity and credential source; HTTP 200 is not authentication.
 | DNS, connection or certificate error | Diagnose name resolution, forwarding and TLS separately from credentials.
 | Missing `--update` option | This revision has no supported update command; see https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/issues/297[#297].
@@ -39,6 +46,20 @@ type, selected profile, failed phase, exit code and redacted error summary.
 Inspect logs privately and remove credentials, tokens, cookies, private keys
 and sensitive command output before sharing. A printed log path is not a
 redaction guarantee.
+
+If the installation evidence directory is no longer visible in your terminal,
+locate candidate evidence files under the configured root:
+
+[source,bash]
+----
+TSW_INSTALL_EVIDENCE_ROOT="${TSW_LIVE_EVIDENCE_ROOT:-${XDG_STATE_HOME:-$HOME/.local/state}/tiny-swarm-world/evidence/installation-tests}"
+find "$TSW_INSTALL_EVIDENCE_ROOT" -maxdepth 3 -type f \
+  \( -name 'context.txt' -o -name 'reset-run.exit' -o -name 'setup-run.exit' \) \
+  -print
+----
+
+Select the run matching the failing installation; timestamps alone are not
+proof that the logs describe the current environment.
 
 The detailed sections below cover individual failures. Development quality
 tools are needed only when running the corresponding developer checks.
@@ -63,7 +84,7 @@ python3 tools/quality_gate.py quality
 == Import Errors For tiny_swarm_world
 
 Activate the environment and install the runtime package from the repository
-root as described in link:installation.adoc#_python_environment[Python Environment].
+root as described in link:{user-guide-prefix}installation.adoc#_python_environment[Python Environment].
 Verify imports without starting infrastructure:
 
 [source,bash]
@@ -433,7 +454,7 @@ requires explicit deployment evidence.
 The committed dashboard is generated from the effective service-access model.
 For LXC stack deployment, the runtime renders the dashboard again and writes
 the generated HTML to
-`${TSW_REMOTE_STACK_ROOT}/service-access/dashboard/index.html` before the
+`$\{TSW_REMOTE_STACK_ROOT}/service-access/dashboard/index.html` before the
 service-access stack is deployed. The dashboard intentionally does not claim
 service reachability until observed evidence exists. Password values are not
 present in the dashboard; use the listed secret item reference only through
@@ -593,7 +614,7 @@ instance or profile that owns it; do not unset every location as a batch.
 
 Recheck the guarded preflight afterwards. Run the fresh installer again only
 if discarding and recreating the managed environment is intentional; otherwise
-use link:usage.adoc#daily-operation[the appropriate operation].
+use link:{user-guide-prefix}usage.adoc#daily-operation[the appropriate operation].
 
 If `raw.*` appears, inspect the exact raw setting on the named instance or
 profile and remove only the setting that belongs to disposable Tiny Swarm
@@ -666,7 +687,7 @@ If outbound internet is intentionally blocked or unreliable, configure APT
 mirrors that are reachable from inside the Incus containers. The example below
 then performs a *deliberate fresh reset*: use it only when the managed
 environment is disposable. To retain existing state, choose a retry through
-link:usage.adoc#daily-operation[Daily operation] instead.
+link:{user-guide-prefix}usage.adoc#daily-operation[Daily operation] instead.
 
 [source,bash]
 ----

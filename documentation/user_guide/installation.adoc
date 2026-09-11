@@ -1,5 +1,12 @@
 = Installation
 
+ifndef::user-guide-prefix[]
+:user-guide-prefix:
+endif::[]
+ifndef::user-reference-prefix[]
+:user-reference-prefix: ../
+endif::[]
+
 Tiny Swarm World is developed and operated from a Linux or WSL shell.
 Windows-native product execution is not supported. The elevated Windows bridge
 prework documented for default WSL2 browser exposure is a supported host setup
@@ -9,7 +16,7 @@ step; project automation itself continues to run from Linux or WSL.
 
 This page describes a fresh installation. *The installer resets managed Tiny
 Swarm World nodes before setup; their data may be lost.* For an existing
-environment, start with link:usage.adoc#daily-operation[Daily operation].
+environment, start with link:{user-guide-prefix}usage.adoc#daily-operation[Daily operation].
 A reset is not a repair step or a product update.
 
 For a first installation, complete the host prerequisites, prepare the Python
@@ -20,6 +27,57 @@ RC1 qualification is still in progress. See
 https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/issues/294[the RC1 tracker]
 for current acceptance gaps; this procedure is not a claim that every target
 and lifecycle has passed.
+
+== Operating Model
+
+Tiny Swarm World prepares a local Docker Swarm target environment on managed
+LXC nodes through Incus. The supported operator surface is the
+`tiny-swarm-world` CLI and the Linux/WSL `install.sh` wrapper. Multipass and
+Windows-native execution are not supported node-provider paths.
+
+[plantuml,installation-operator-map,svg]
+----
+@startuml
+skinparam componentStyle rectangle
+skinparam shadowing false
+
+actor Operator
+component "Linux/WSL shell" as Shell
+component "install.sh" as Installer
+component "tiny-swarm-world CLI" as CLI
+component "Incus" as Provider
+node "Managed Docker Swarm" as Swarm
+component "Service Access\nlanding page" as Access
+component "Infisical" as Infisical
+database "Ignored local env\nand evidence" as Local
+
+Operator --> Shell
+Shell --> Installer
+Shell --> CLI
+Installer --> CLI
+CLI --> Provider
+Provider --> Swarm
+Swarm --> Access
+Swarm --> Infisical
+Installer --> Local
+CLI --> Local
+Access --> Infisical : credential references
+@enduml
+----
+
+== Intended Identity Boundary
+
+Tiny Swarm World is an internal development and test environment tool. The
+deterministic catalog values are `INTERNAL/TEST ONLY` material for disposable
+local acceptance; unchanged defaults are not suitable for production, shared,
+public, or untrusted exposure.
+
+Enterprise identity and reachability remain outside the bootstrap path. AD,
+LDAP, SSO, VPN, firewall, network segmentation, and IAM policy are supplied
+and governed by the surrounding organization. When stronger or environment-
+specific credentials are required, provide them through the documented
+protected operator override or applicable Infisical path; do not edit the
+catalog or copy passwords into evidence.
 
 == Prerequisites
 
@@ -468,7 +526,7 @@ Replace `<backend-bridge>` with the bridge resolved from
 
 The standard internal-test path requires no credential preparation. It resolves
 the deterministic `INTERNAL/TEST ONLY` catalog values documented in the
-canonical link:../arc42/08_configuration/internal-test-credential-catalog.md[credential catalog]
+canonical link:{user-reference-prefix}arc42/08_configuration/internal-test-credential-catalog.md[credential catalog]
 and prints service targets after a successful run without printing passwords.
 Copy `.env.example` only when you need to provide an explicit operator
 override:
@@ -510,7 +568,26 @@ Use the catalog for default login details and the protected source for explicit
 overrides. Dashboard references do not prove that service values have been
 synchronized into Infisical. The current self-hosted workflow rejects external
 Infisical mode; see
-link:../arc42/08_configuration/credential-source-precedence.md[credential source precedence].
+link:{user-reference-prefix}arc42/08_configuration/credential-source-precedence.md[credential source precedence].
+
+[[optional-infisical-seeding]]
+==== Optional Infisical Item Seeding For A Fresh Run
+
+To request legacy Infisical item seeding during the fresh installation in
+step 7, set this option in the same Linux/WSL shell:
+
+[source,bash]
+----
+export TSW_SEED_INFISICAL_ITEMS=1
+----
+
+Continue with route preparation and the fresh-install step below. Do not run
+the installer just to populate missing items in an existing environment: it
+resets managed state. Review the supported synchronization contract first.
+
+The default installer value is `TSW_SEED_INFISICAL_ITEMS=0`, so do not assume
+that every catalog-managed service credential has already been copied into
+Infisical unless the setup evidence confirms it.
 
 === 6. Configure Local Route Names
 
@@ -523,10 +600,27 @@ Prometheus, Grafana, app, and API host routes are conditional. They appear in
 the generated access model, dashboard, health targets, and browser matrix only
 when the corresponding service is enabled by the selected configuration.
 
-When the services must be reachable from a Windows browser, first prepare the
-Windows side from elevated PowerShell. The prerequisite action is read-only;
-the install action creates the managed portproxy, Firewall, hosts-file,
-Windows service discovery agent, and local bridge-state contract:
+[[windows-wsl-prework]]
+==== Complete The Required Windows Prework For WSL2
+
+When running Tiny Swarm World in WSL2 with the default Windows exposure, prepare
+the Windows side *before* starting `./install.sh`. The installer deliberately
+stops before platform mutation when this bridge is missing, degraded, or stale.
+
+First confirm from Windows PowerShell that the intended WSL2 distribution is
+running and uses `systemd` as PID 1:
+
+[source,powershell]
+----
+wsl --list --verbose
+wsl -d <DistributionName> --exec sh -lc "ps -p 1 -o comm="
+----
+
+The second command must print `systemd`. Then open *PowerShell as
+Administrator* in the Tiny Swarm World repository root. If this is not the
+Windows default WSL distribution, first set its exact name in
+`tools/windows/tws-wsl-bridge.config.json` instead of keeping the automatic
+`"distro": "auto"` selection. Then run:
 
 [source,powershell]
 ----
@@ -535,10 +629,52 @@ Set-ExecutionPolicy -Scope Process Bypass
 .\tools\windows\tws-wsl-bridge.ps1 -Action install
 ----
 
-See `tools/windows/README.windows-wsl-bridge.md` for WSL 2, systemd, IP Helper,
-automatic discovery/reconcile, repair, status, and verification instructions.
-`install.sh` stops before any platform mutation when the current discovery
-heartbeat or Windows bridge state is required but missing, degraded, or stale.
+The first service installation opens a Windows credential dialog. Use the
+Windows account that owns the WSL distribution and enter its normal Windows
+password, not the Windows Hello PIN. The password is passed to the Windows
+Service Control Manager and is not stored in the repository.
+
+Installation publishes a protected runtime bundle below
+`%ProgramData%\TinySwarmWorld\WslBridge`; the service does not execute mutable
+files directly from the checkout. Re-run the elevated `-Action install` after
+reviewed bridge, configuration, or port-registry changes to upgrade that
+bundle.
+
+The protected heartbeat is stored at
+`%ProgramData%\TinySwarmWorld\WslBridge\bridge-state.json` and read from WSL via
+`/mnt/c/ProgramData/TinySwarmWorld/WslBridge/bridge-state.json`. The service does
+not write a checkout mirror. Hosts with a non-default WSL automount must expose
+the canonical ProgramData location before live setup.
+
+The tracked default uses `"listenAddress": "0.0.0.0"` and managed inbound
+Firewall rules, so its listeners are not limited to Windows loopback. Review
+the bridge configuration and Windows network profile before installation when
+the host is connected to an untrusted network.
+
+Verify the completed prework before returning to the WSL shell:
+
+[source,powershell]
+----
+Get-Service -Name TinySwarmWorldWslBridge
+.\tools\windows\tws-wsl-bridge.ps1 -Action status
+----
+
+The service must report `Running`, and bridge discovery must report `READY`.
+The service then keeps the Windows portproxy, Firewall, `*.tsw.local` hosts
+entries, and current WSL address aligned automatically.
+
+Only when Windows browser and localhost exposure are intentionally not needed,
+disable that contract explicitly in the WSL shell before installation:
+
+[source,bash]
+----
+export TSW_WINDOWS_EXPOSURE=disabled
+----
+
+See `tools/windows/README.windows-wsl-bridge.md` for distro selection, repair,
+status, verification, and uninstall details.
+
+==== Linux Shell Name Resolution
 
 For WSL/Linux shell checks, add the routed names to `/etc/hosts`. If a
 matching `tsw.local` line already exists, update that line instead of adding
@@ -551,11 +687,9 @@ sudo tee -a /etc/hosts >/dev/null <<'EOF'
 EOF
 ----
 
-When opening the services from a Windows browser against a WSL-hosted runtime,
-add the same hostnames to the Windows host resolver with Administrator rights,
-or configure a local DNS server that resolves `*.tsw.local` to `127.0.0.1`.
-Use a wildcard DNS entry only for name resolution; Traefik still needs the
-service-access stack and the published `80` and `443` ingress ports.
+For Windows browsers, use the managed bridge configured above. The bridge
+maintains the Windows host entries; do not add a second competing set.
+Name resolution alone does not establish forwarding, TLS trust or service health.
 
 === 7. Run The Fresh Install
 
@@ -618,7 +752,14 @@ have passed on a live host without matching redacted `LIVE_*` evidence.
 [[verify-installed-runtime]]
 === 8. Verify The Runtime
 
-After installation, verify the managed nodes and Swarm state:
+Start with the non-mutating workflow, keeping the installed service profile:
+
+[source,bash]
+----
+tiny-swarm-world --service-profile service-access platform verify
+----
+
+Then verify the managed nodes and Swarm state:
 
 [source,bash]
 ----
@@ -660,32 +801,15 @@ A login page or HTTP 200 from Jenkins likewise does not prove authentication.
 
 === 9. Login Targets
 
-Use routed HTTPS URLs for browser access:
-
-* Service Access: `https://service-access.tsw.local`
-* Portainer: `https://portainer.tsw.local`
-* Nexus: `https://nexus.tsw.local`
-* Jenkins: `https://jenkins.tsw.local`
-* Pulsar Manager: `https://pulsar.tsw.local`
-* Pulsar Admin API: `https://pulsar-api.tsw.local/admin/v2/clusters`
-* SonarQube: `https://sonarqube.tsw.local`
-* Swagger/NGINX: `https://swagger.tsw.local`
-* Infisical: `https://infisical.tsw.local`
-
-Use the service-specific identifiers and password convention in the
-link:../arc42/08_configuration/internal-test-credential-catalog.md[credential catalog].
-Portainer uses `admin`; Infisical uses the configured email address, whose
-catalog default is `admin@tiny-swarm-world.local`. Do not assume every service
-uses the same username.
-That catalog also documents the SonarQube exception and all component-specific
-derivations. For an explicit override, use the protected local source or
-process environment. Do not use copied password values from chat history or
-logs.
+Open link:{user-guide-prefix}usage.adoc#open-the-services[the service routes] from your intended
+browser, then follow link:{user-guide-prefix}usage.adoc#infisical-credentials[the credential access
+procedure]. Those sections are the canonical sources for service URLs,
+service-specific identities and Infisical synchronization limits.
 
 === 10. Re-run And Recovery Rules
 
 Start with read-only verification and classify the first failed phase.
-Use link:usage.adoc#daily-operation[Daily operation] to choose between platform
+Use link:{user-guide-prefix}usage.adoc#daily-operation[Daily operation] to choose between platform
 reconciliation, broader setup without a preliminary reset, and a deliberate
 fresh reset. Reuse the same service profile and effective configuration.
 
@@ -900,7 +1024,7 @@ Portainer stack create and update calls can take longer than ordinary API
 lookups while Docker Swarm pulls images or reconciles services. The installer
 uses a longer Portainer stack operation timeout by default. On especially slow
 hosts, raise it before an explicitly intended fresh reset, or use the
-non-reset setup path in link:usage.adoc#daily-operation[Daily operation]:
+non-reset setup path in link:{user-guide-prefix}usage.adoc#daily-operation[Daily operation]:
 
 [source,bash]
 ----

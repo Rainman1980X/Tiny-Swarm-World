@@ -16,8 +16,10 @@ include::README.adoc[leveloffset=+1]
 
 include::arc42.adoc[leveloffset=+1]
 
-:handbook-guide-prefix: user_guide/
-:handbook-reference-prefix:
-include::user_guide/user-handbook.adoc[leveloffset=+1]
-:handbook-guide-prefix!:
-:handbook-reference-prefix!:
+:user-guide-prefix: user_guide/
+:user-reference-prefix:
+include::user_guide/installation.adoc[leveloffset=+1]
+include::user_guide/usage.adoc[leveloffset=+1]
+include::user_guide/troubleshooting.adoc[leveloffset=+1]
+:user-guide-prefix!:
+:user-reference-prefix!:

@@ -87,7 +87,7 @@ behavior in sync with these user pages.
 ## Follow-up: place the handbook in user_guide
 
 The user requested a closer review of the handbook's logical location.
-The canonical file is now `documentation/user_guide/user-handbook.adoc`,
+At the PR #305 revision, the canonical file was `documentation/user_guide/user-handbook.adoc`,
 next to the installation, usage and troubleshooting guides. The former file
 is removed, not duplicated.
 
@@ -112,3 +112,56 @@ Verification:
 - The only Python changes are a diagnostic path string and a test fixture
   path. No runtime control flow changed. Full product suite and rendered
   AsciiDoc preview remain unexecuted; this follow-up does not claim them.
+
+## Follow-up: integrate the handbook contents into the user guides
+
+The user clarified that moving the file was insufficient: the handbook must
+be absorbed into the existing task-oriented guides. This follow-up starts
+from main `fec160ad52fbed840ea7ee215ea1bc917106deee`, after PR #305 was merged.
+The standalone handbook is deleted; no replacement handbook or redirect stub
+is retained. Existing unique reference material stays in its canonical source.
+
+| Former handbook topic | Canonical destination and treatment |
+| --- | --- |
+| Introduction, next steps and reference navigation | Root README and documentation index link directly to the three guides. |
+| Operating model and identity boundary | Installation: operating model and internal-test identity boundary, including the existing operator diagram. |
+| Prerequisites and Python environment | Existing Installation prerequisites, host-provider checklist and Python environment; duplicate commands removed. |
+| Windows prework | Installation: `windows-wsl-prework`, including distro, systemd, service identity, protected bundle, heartbeat, exposure and verification. |
+| Operator configuration | Existing Installation optional overrides and source-precedence reference. |
+| Guided installation | Existing Installation fresh-install sequence and protected evidence location. Optional Infisical seeding is selected before step 7, not executed as a second reset. |
+| Direct CLI use | Usage: daily operation, main entrypoint and reset/destroy. Duplicate reset commands replaced with a cross-reference; ownership checks retained. |
+| Service routes and Infisical login | Usage: `open-the-services` and `infisical-credentials`. Installation links there instead of repeating the service list. |
+| Finished-install verification | Installation: `verify-installed-runtime`, with read-only platform verification followed by existing node, route and login checks. |
+| Evidence lookup and troubleshooting | Troubleshooting: `first-response`, evidence search and existing phase-specific recovery procedures. |
+| Update status | Existing Usage daily-operation boundary and Installation recovery section; #297 remains unresolved. |
+
+The aggregate `documentation/document.adoc` includes Installation, Usage and
+Troubleshooting directly. Relative-link prefixes support both standalone and
+aggregate reading. Navigation, active audit/ownership references, registry
+hashes, the installer diagnostic URL and the existing bridge documentation
+test now point to the relevant guide. Historical review/change records keep
+their original revision-specific paths.
+
+The Python changes only redirect a diagnostic URL and retarget a documentation
+fixture; runtime control flow, infrastructure behavior and test assertions are
+unchanged. No live infrastructure or authenticated browser operations ran.
+
+Independent read-only review found the content complete and no safety/link
+blocker. Its remaining duplicate reset/destroy block was consolidated.
+The three guides render to HTML without warnings. The aggregate also renders;
+it retains one pre-existing missing-attribute warning for
+`TSW_REMOTE_STACK_ROOT` in the included architecture documentation. PlantUML
+diagram rendering was not executed. All 25 local guide links and target-guide
+anchors resolve, and the aggregate contains the resolved guide prefixes with
+no handbook reference. The two targeted test modules ran 22 tests: 21 passed,
+one skipped because the optional PowerShell runtime is unavailable.
+
+Full local verification: after installing the locked runtime, editable package
+and CI-pinned lint/type/architecture tools in an isolated Linux Python 3.12
+environment, `python tools/quality_gate.py quality` completed with exit code 0.
+Verification-policy, Ruff, all three import contracts, 18 architecture tests
+and the typecheck of 647 files passed; unittest discovery was invoked by the
+gate. The captured discovery output has no final count summary, so no full-suite
+test count is claimed here. Initial attempts exposed missing local tooling
+(`ruff`, then `packaging`); these environment dependencies were installed before
+the successful full rerun. GitHub CI/Sonar for the new PR remains pending.

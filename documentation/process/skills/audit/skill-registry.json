@@ -205,7 +205,7 @@
         "documentation/manuals/",
         "README.md",
         "documentation/README.adoc",
-        "documentation/user_guide/user-handbook.adoc"
+        "documentation/user_guide/"
       ],
       "supported_workflows": ["documentation audience architecture"],
       "related_issues": [129],
