@@ -64,3 +64,14 @@ Reruns are idempotent. Bootstrap inputs are reused from the same operator or
 catalog source; post-bootstrap Infisical values are kept when present. A
 credential rotation is an explicit future operation and is not inferred from a
 normal install rerun.
+
+## Before/after drift evidence
+
+Reconcile and restart checks may compare two in-memory resolution snapshots.
+The comparison reports only the credential keys whose effective value or
+source label changed, plus `values_equal` and `sources_equal` booleans. It does
+not persist values, hashes, fingerprints, or provider responses. An unchanged
+reconcile/restart must report both equality flags as true. A supported
+transition is acceptable only when its intended service key is the sole
+changed key and unrelated state remains healthy; live authentication and
+cleanup evidence are still required to qualify the target.

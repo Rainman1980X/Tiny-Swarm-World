@@ -1358,6 +1358,25 @@ class TestComposition(unittest.TestCase):
         self.assertEqual(len(services.workflows.apply.steps), 15)
         self.assertEqual(len(services.workflows.verify.checks), 9)
 
+    def test_deployment_kernel_guard_is_native_only_and_covers_bootstrap(self):
+        from tiny_swarm_world.domain.host_environment import HostEnvironmentKind
+        from tiny_swarm_world.infrastructure import composition_deployment
+
+        for kind in HostEnvironmentKind:
+            with self.subTest(kind=kind), patch.object(
+                composition_deployment, "HostEnvironmentDetector"
+            ) as detector, patch.object(composition, "ComposeFileRepositoryYaml"):
+                detector.return_value.detect.return_value.environment = kind
+                services = composition.build_lxc_deployment_services(
+                    backend=composition.ManagedLxcBackend.INCUS,
+                )
+                for workflow in (services.workflows.bootstrap, services.workflows.apply):
+                    self.assertEqual(len(workflow.prerequisite_checks),
+                                     0 if kind is HostEnvironmentKind.WSL2 else 1)
+                    if kind not in (HostEnvironmentKind.NATIVE_LINUX, HostEnvironmentKind.WSL2):
+                        self.assertEqual(workflow.prerequisite_checks[0].verify().status,
+                                         VerificationStatus.BLOCKED)
+
     def test_default_provider_artifact_services_use_lxc_clients_when_backend_is_available(
         self,
     ):

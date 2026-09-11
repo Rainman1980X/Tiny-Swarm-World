@@ -7,6 +7,13 @@ calls so legacy facade patch points remain effective.
 
 from __future__ import annotations
 
+from tiny_swarm_world.application.services.deployment.verify_host_prerequisites import (
+    VerifyHostPrerequisites,
+)
+from tiny_swarm_world.domain.host_environment import HostEnvironmentKind
+from tiny_swarm_world.infrastructure.adapters.host import NativeLinuxHostPreparation
+from tiny_swarm_world.infrastructure.adapters.host.host_environment_detector import HostEnvironmentDetector
+
 from tiny_swarm_world.application.services.deployment.ensure_external_swarm_secret import (
     EnsureExternalSwarmSecret,
 )
@@ -155,6 +162,13 @@ def build_lxc_deployment_services(
     progress: PortWorkflowProgress | None = None,
 ) -> DeploymentServices:
     project_paths = default_project_paths()
+    host_environment = HostEnvironmentDetector().detect().environment
+    prerequisite_checks = () if host_environment is HostEnvironmentKind.WSL2 else (
+        VerifyHostPrerequisites(
+            NativeLinuxHostPreparation()
+            if host_environment is HostEnvironmentKind.NATIVE_LINUX else None
+        ),
+    )
     local_file_storage = LocalFileStorage()
     selected_service_profile = ServiceStackProfile(service_profile)
     service_stack_contracts = service_stack_contracts_for_profile(selected_service_profile)
@@ -360,6 +374,7 @@ def build_lxc_deployment_services(
             bootstrap=DeploymentApplyWorkflow(
                 bootstrap_steps,
                 kind=DeploymentWorkflowKind.BOOTSTRAP,
+                prerequisite_checks=prerequisite_checks,
             ),
             apply=DeploymentApplyWorkflow(
                 cast(
@@ -375,6 +390,7 @@ def build_lxc_deployment_services(
                 ),
                 pre_apply_steps=tuple(pre_apply_steps),
                 pre_apply_checks=pre_apply_checks,
+                prerequisite_checks=prerequisite_checks,
             ),
             verify=DeploymentVerifyWorkflow(
                 readiness_checks,

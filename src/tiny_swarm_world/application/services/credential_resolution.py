@@ -43,6 +43,68 @@ class CredentialResolutionSnapshot:
             sort_keys=True,
         )
 
+    def compare_to(
+        self,
+        before: "CredentialResolutionSnapshot",
+    ) -> "CredentialResolutionComparison":
+        """Compare effective state without exposing credential material.
+
+        Values are compared only in memory. The returned evidence contains
+        credential names, source labels, and equality/change booleans; it does
+        not contain values, hashes, or fingerprints.
+        """
+        keys = tuple(sorted(set(before.resolutions) | set(self.resolutions)))
+        changed_keys = tuple(
+            key
+            for key in keys
+            if before.resolutions.get(key, None) is None
+            or self.resolutions.get(key, None) is None
+            or before.resolutions[key].value != self.resolutions[key].value
+        )
+        changed_source_keys = tuple(
+            key
+            for key in keys
+            if before.resolutions.get(key, None) is None
+            or self.resolutions.get(key, None) is None
+            or before.resolutions[key].source != self.resolutions[key].source
+        )
+        return CredentialResolutionComparison(
+            keys=keys,
+            changed_keys=changed_keys,
+            changed_source_keys=changed_source_keys,
+        )
+
+
+@dataclass(frozen=True)
+class CredentialResolutionComparison:
+    """Safe before/after evidence for reconcile, restart, or transitions."""
+
+    keys: tuple[str, ...]
+    changed_keys: tuple[str, ...]
+    changed_source_keys: tuple[str, ...]
+
+    @property
+    def values_equal(self) -> bool:
+        return not self.changed_keys
+
+    @property
+    def sources_equal(self) -> bool:
+        return not self.changed_source_keys
+
+    @property
+    def stable(self) -> bool:
+        return self.values_equal and self.sources_equal
+
+    def evidence(self) -> dict[str, object]:
+        """Return comparison facts suitable for protected evidence."""
+        return {
+            "keys": list(self.keys),
+            "values_equal": self.values_equal,
+            "sources_equal": self.sources_equal,
+            "changed_keys": list(self.changed_keys),
+            "changed_source_keys": list(self.changed_source_keys),
+        }
+
 
 class CredentialResolutionService:
     """Apply the domain policy at bootstrap and post-bootstrap boundaries."""
