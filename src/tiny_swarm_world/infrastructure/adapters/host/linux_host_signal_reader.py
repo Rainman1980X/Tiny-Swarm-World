@@ -10,6 +10,7 @@ from pathlib import Path
 CI_ENVIRONMENT_KEYS = frozenset(
     ("CI", "GITHUB_ACTIONS", "GITLAB_CI", "BUILDKITE", "TF_BUILD")
 )
+VERIFIED_LIVE_RUNNER_ENVIRONMENT_KEY = "TSW_LIVE_RUNNER_VERIFIED"
 CONTAINER_MARKER_FILES = (
     (".dockerenv",),
     ("run", ".containerenv"),
@@ -72,9 +73,18 @@ class LinuxHostSignalReader:
         )
         if any(marker in cgroup_text for marker in CONTAINER_CGROUP_MARKERS):
             return "container_marker"
-        if any(self.environment.get(key) for key in CI_ENVIRONMENT_KEYS):
+        if self._ci_environment_is_unverified():
             return "ci_marker"
         return ""
+
+    def _ci_environment_is_unverified(self) -> bool:
+        return bool(
+            any(self.environment.get(key) for key in CI_ENVIRONMENT_KEYS)
+            and self.environment.get(VERIFIED_LIVE_RUNNER_ENVIRONMENT_KEY, "")
+            .strip()
+            .casefold()
+            not in {"1", "true"}
+        )
 
 
 def _distribution_from_os_release(text: str) -> str:

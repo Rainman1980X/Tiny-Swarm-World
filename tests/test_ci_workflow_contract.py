@@ -94,6 +94,8 @@ class CiWorkflowContractTests(unittest.TestCase):
         self.assertIn("live_approval:", workflow)
         self.assertIn("options: [approve, block]", workflow)
         self.assertIn("runs-on: [self-hosted, linux, tsw-classic]", workflow)
+        self.assertIn('TSW_LIVE_RUNNER_VERIFIED: "1"', workflow)
+        self.assertIn("TSW_CLASSIC_TARGET_OWNER: ${{ inputs.target_owner || vars.TSW_CLASSIC_TARGET_OWNER }}", workflow)
         self.assertIn("environment:", workflow)
         self.assertIn("tiny-swarm-world-classic-live", workflow)
         self.assertIn("needs: qualify-runner", workflow)
@@ -103,8 +105,11 @@ class CiWorkflowContractTests(unittest.TestCase):
         self.assertIn("command -v incus", workflow)
         self.assertIn("command -v docker", workflow)
         self.assertIn("run_classic_acceptance.py --approve-live", workflow)
+        self.assertIn("--test-only", workflow)
         self.assertIn("TSW_CLASSIC_UPDATE_STACK", workflow)
         self.assertIn("TSW_CLASSIC_UPDATE_FROM_IMAGE", workflow)
+        self.assertNotIn("TSW_CLASSIC_CREDENTIAL_ROTATION_REFERENCE", workflow)
+        self.assertNotIn("--credential-rotation-reference", workflow)
         self.assertIn("actions/upload-artifact@", workflow)
         self.assertIn("if-no-files-found: error", workflow)
         self.assertNotIn("runs-on: ubuntu-latest", workflow)
@@ -130,10 +135,15 @@ class CiWorkflowContractTests(unittest.TestCase):
             '"recovery"',
             '"recovery_e2e"',
             '"TSW_RUN_POST_INSTALL_BROWSER_LIVE=1"',
+            '"PYTHONPATH=src"',
+            '"tests.e2e.classic.test_post_install_browser_live"',
             '"update"',
             '"platform"',
             '"runner"',
             '"target_owner_reference_present"',
+            '"execution_profile"',
+            '"not_applicable_test_only"',
+            '"--test-only"',
         ):
             with self.subTest(marker=marker):
                 self.assertIn(marker, runner)

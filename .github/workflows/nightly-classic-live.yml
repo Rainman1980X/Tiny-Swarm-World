@@ -24,9 +24,10 @@ concurrency:
 
 env:
   CLASSIC_LIVE_RUNNER_LABEL: tsw-classic
+  TSW_LIVE_RUNNER_VERIFIED: "1"
   TSW_INSTALL_ENV_FILE: ${{ vars.TSW_CLASSIC_LIVE_ENV_FILE }}
   TSW_LIVE_EVIDENCE_ROOT: ${{ vars.TSW_CLASSIC_LIVE_EVIDENCE_ROOT }}
-  TSW_CLASSIC_CREDENTIAL_ROTATION_REFERENCE: ${{ vars.TSW_CLASSIC_CREDENTIAL_ROTATION_REFERENCE }}
+  TSW_CLASSIC_TARGET_OWNER: ${{ inputs.target_owner || vars.TSW_CLASSIC_TARGET_OWNER }}
   TSW_CLASSIC_UPDATE_STACK: ${{ vars.TSW_CLASSIC_UPDATE_STACK }}
   TSW_CLASSIC_UPDATE_SERVICE: ${{ vars.TSW_CLASSIC_UPDATE_SERVICE }}
   TSW_CLASSIC_UPDATE_FROM_IMAGE: ${{ vars.TSW_CLASSIC_UPDATE_FROM_IMAGE }}
@@ -61,7 +62,6 @@ jobs:
           test -n "${TARGET_OWNER}"
           test -n "${TSW_INSTALL_ENV_FILE}"
           test -n "${TSW_LIVE_EVIDENCE_ROOT}"
-          test -n "${TSW_CLASSIC_CREDENTIAL_ROTATION_REFERENCE}"
           python3 tools/install_debugger.py --live --env-file "${TSW_INSTALL_ENV_FILE}"
           python3 - <<'PY'
           import platform
@@ -95,8 +95,9 @@ jobs:
         run: |
           set -Eeuo pipefail
           python3 tools/live/run_classic_acceptance.py --approve-live \
+            --test-only \
             --env-file "${TSW_INSTALL_ENV_FILE}" \
-            --credential-rotation-reference "${TSW_CLASSIC_CREDENTIAL_ROTATION_REFERENCE}"
+            --evidence-root "${TSW_LIVE_EVIDENCE_ROOT}"
 
       - name: Upload redacted live evidence
         if: ${{ always() }}

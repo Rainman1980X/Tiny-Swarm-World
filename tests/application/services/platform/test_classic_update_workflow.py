@@ -121,6 +121,21 @@ class ClassicUpdateWorkflowTest(unittest.IsolatedAsyncioTestCase):
         factory.assert_called_once_with(_plan().rollback_plan)
         state_store.save.assert_called_once_with(_plan().rollback_plan)
 
+    async def test_recover_uses_recorded_plan_when_static_compose_still_has_source(self) -> None:
+        workflow, factory, state_store, _ = _workflow()
+        state_store.load.return_value = SimpleNamespace(plan=_plan())
+
+        result = await workflow.recover(
+            "jenkins",
+            "jenkins",
+            preview=False,
+            live_consent=LiveConsent(live_flag=True, confirmed=True),
+        )
+
+        self.assertEqual(PlatformWorkflowStatus.COMPLETED, result.status)
+        factory.assert_called_once_with(_plan().rollback_plan)
+        state_store.save.assert_called_once_with(_plan().rollback_plan)
+
     async def test_recover_without_state_fails_closed(self) -> None:
         workflow, factory, _, _ = _workflow()
         workflow.state_store.load.return_value = None

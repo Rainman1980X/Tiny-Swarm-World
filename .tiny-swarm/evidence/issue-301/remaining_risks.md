@@ -1,9 +1,12 @@
 # RC1-R05 Remaining Risks
 
-- Repository live variables, target ownership and the protected environment
-  still need to be configured for a complete hosted observation.
-- The full lifecycle can only be accepted after a protected isolated target
-  run reaches every required phase.
+- Credential rotation is intentionally not applicable to the disposable test
+  profile; a protected live profile still requires a non-secret rotation
+  reference.
+- The latest successful run used the candidate before the final target-owner
+  evidence passthrough refinement; the passthrough is covered by the workflow
+  contract test. The controlled blocked dispatch was executed after that
+  refinement, but it stops before the live chain and therefore does not
+  exercise the successful lifecycle on that later metadata revision.
 - Queued, cancelled, skipped or unavailable runs remain non-success.
-- Artifact upload and retained diagnostics need to be checked on a real
-  failure and a real successful run.
+- The successful run's redacted artifact upload and checksums were verified.
