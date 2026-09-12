@@ -42,6 +42,19 @@ EVIDENCE_ROOT = (
 )
 TEST_COUNT_PATTERN = re.compile(r"Ran (\d+) tests? in ([0-9.]+)s")
 SKIP_PATTERN = re.compile(r"skipped=(\d+)")
+CLASSIC_E2E_COMMAND = (
+    "env",
+    "PYTHONPATH=src",
+    "TSW_RUN_POST_INSTALL_BROWSER_LIVE=1",
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests/e2e/classic",
+    "-t",
+    ".",
+)
 
 
 @dataclass(frozen=True)
@@ -218,18 +231,7 @@ def main() -> int:
         ),
         (
             "classic_e2e",
-            (
-                "env",
-                "TSW_RUN_POST_INSTALL_BROWSER_LIVE=1",
-                "python3",
-                "-m",
-                "unittest",
-                "discover",
-                "-s",
-                "tests/e2e/classic",
-                "-t",
-                ".",
-            ),
+            CLASSIC_E2E_COMMAND,
             900,
         ),
         (
@@ -249,18 +251,7 @@ def main() -> int:
         ),
         (
             "reconcile_e2e",
-            (
-                "env",
-                "TSW_RUN_POST_INSTALL_BROWSER_LIVE=1",
-                "python3",
-                "-m",
-                "unittest",
-                "discover",
-                "-s",
-                "tests/e2e/classic",
-                "-t",
-                ".",
-            ),
+            CLASSIC_E2E_COMMAND,
             900,
         ),
         (
@@ -288,18 +279,7 @@ def main() -> int:
         ),
         (
             "update_e2e",
-            (
-                "env",
-                "TSW_RUN_POST_INSTALL_BROWSER_LIVE=1",
-                "python3",
-                "-m",
-                "unittest",
-                "discover",
-                "-s",
-                "tests/e2e/classic",
-                "-t",
-                ".",
-            ),
+            CLASSIC_E2E_COMMAND,
             900,
         ),
         (
@@ -324,18 +304,7 @@ def main() -> int:
         ),
         (
             "recovery_e2e",
-            (
-                "env",
-                "TSW_RUN_POST_INSTALL_BROWSER_LIVE=1",
-                "python3",
-                "-m",
-                "unittest",
-                "discover",
-                "-s",
-                "tests/e2e/classic",
-                "-t",
-                ".",
-            ),
+            CLASSIC_E2E_COMMAND,
             900,
         ),
     )
@@ -610,11 +579,11 @@ def _safe_command_label(operation: str) -> str:
         "platform_verify": "bash tsw --json platform verify",
         "reconcile": "bash tsw --live --approve-live --json platform reconcile",
         "update": "bash tsw --live --approve-live --json platform update --stack <configured> --service <configured>",
-        "classic_e2e": "env TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
-        "reconcile_e2e": "env TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
-        "update_e2e": "env TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
+        "classic_e2e": "env PYTHONPATH=src TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
+        "reconcile_e2e": "env PYTHONPATH=src TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
+        "update_e2e": "env PYTHONPATH=src TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
         "recovery": "bash tsw --live --approve-live --json platform update --recover --stack <configured> --service <configured>",
-        "recovery_e2e": "env TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
+        "recovery_e2e": "env PYTHONPATH=src TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
     }.get(operation, operation)
 
 
