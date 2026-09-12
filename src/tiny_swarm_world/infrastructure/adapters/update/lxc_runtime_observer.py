@@ -9,6 +9,7 @@ from collections.abc import Mapping
 from tiny_swarm_world.application.ports.update import (
     PortUpdateRuntimeObserver,
     UpdateObservationError,
+    UpdateObservationChanged,
 )
 from tiny_swarm_world.domain.update import (
     UpdateRuntimeObservation,
@@ -66,6 +67,8 @@ class LxcUpdateRuntimeObserver(PortUpdateRuntimeObserver):
             raise UpdateObservationError("invalid_service_identity")
         try:
             return await asyncio.to_thread(self._observe, stack_name, service_name)
+        except UpdateObservationChanged:
+            raise
         except (OSError, RuntimeError, ValueError, TypeError, KeyError) as exc:
             # Do not propagate raw command output or parser inputs into evidence.
             raise UpdateObservationError("runtime_observation_unavailable") from exc
@@ -82,13 +85,24 @@ class LxcUpdateRuntimeObserver(PortUpdateRuntimeObserver):
             f"-- {shlex.quote(service)}"
         )
         after = _mapping(json.loads(self._read(inspect_command)))
-        if before != after or _text(before, "name") != service:
-            raise ValueError("service_changed_during_observation")
+        if (
+            _text(before, "name") != service
+            or _text(after, "name") != service
+            or _text(before, "id") != _text(after, "id")
+        ):
+            raise ValueError("service_identity_changed_during_observation")
+        for record in (before, after):
+            _number(record, "version")
+            _text(record, "image")
+            _text(record, "rollout", allow_empty=True)
+            _number(_mapping(_mapping(record["mode"])["Replicated"]), "Replicas")
         mode = _mapping(before["mode"])
         replicated = _mapping(mode["Replicated"])
         tasks = tuple(
             _task(json.loads(line)) for line in task_output.splitlines() if line.strip()
         )
+        if before != after:
+            raise UpdateObservationChanged("service_changed_during_observation")
         return UpdateRuntimeObservation(
             stack_name=stack_name,
             service_name=service_name,

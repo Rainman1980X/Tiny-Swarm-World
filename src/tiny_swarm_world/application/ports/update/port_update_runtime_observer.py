@@ -9,6 +9,10 @@ class UpdateObservationError(RuntimeError):
     """Runtime state could not be observed completely and safely."""
 
 
+class UpdateObservationChanged(UpdateObservationError):
+    """The same service changed while its runtime snapshot was being read."""
+
+
 class PortUpdateRuntimeObserver(ABC):
     @abstractmethod
     async def observe(

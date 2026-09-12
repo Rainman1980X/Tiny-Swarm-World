@@ -93,6 +93,9 @@ paused or otherwise unconverged rollouts do not count as success. An already
 converged target is a verified no-op without deployment or metadata replacement.
 Image updates do not bootstrap or synchronize global secrets, or reconfigure
 administrative access for unrelated services.
+If the same service changes while a post-update snapshot is read, the verifier
+repeats only that read within its existing bounded wait. It does not redeploy;
+invalid observations or changed service identities still fail verification.
 
 Use `platform update --recover --stack jenkins --service jenkins --preview`
 to preview recovery, then replace `--preview` with `--live --approve-live` to

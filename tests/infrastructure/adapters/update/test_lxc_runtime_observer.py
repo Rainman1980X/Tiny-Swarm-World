@@ -5,7 +5,10 @@ import subprocess
 import unittest
 from unittest.mock import Mock
 
-from tiny_swarm_world.application.ports.update import UpdateObservationError
+from tiny_swarm_world.application.ports.update import (
+    UpdateObservationError,
+    UpdateObservationChanged,
+)
 from tiny_swarm_world.domain.node_provider import ManagedLxcBackend
 from tiny_swarm_world.infrastructure.adapters.clients.lxc.command.manager_shell_gateway import (
     LxcManagerShellGateway,
@@ -120,6 +123,24 @@ class LxcUpdateRuntimeObserverTest(unittest.IsolatedAsyncioTestCase):
                 observer, _ = _observer(tasks=[task])
                 with self.assertRaises(UpdateObservationError):
                     await observer.observe("jenkins", "jenkins")
+
+    async def test_valid_same_service_change_is_classified_as_unstable(self):
+        observer, _ = _observer(after=_service(version=11, rollout="updating"))
+        with self.assertRaises(UpdateObservationChanged):
+            await observer.observe("jenkins", "jenkins")
+
+    async def test_identity_or_schema_failure_is_not_a_retryable_change(self):
+        for after, tasks in (
+            (_service(id="replacement"), [_task()]),
+            (_service(version=True), [_task()]),
+            (_service(image=None), [_task()]),
+            (_service(version=11), [_task(state="Unknown")]),
+        ):
+            with self.subTest(after=after, tasks=tasks):
+                observer, _ = _observer(after=after, tasks=tasks)
+                with self.assertRaises(UpdateObservationError) as raised:
+                    await observer.observe("jenkins", "jenkins")
+                self.assertNotIsInstance(raised.exception, UpdateObservationChanged)
 
     async def test_unknown_task_states_fail_closed(self):
         for state, desired_state in (
