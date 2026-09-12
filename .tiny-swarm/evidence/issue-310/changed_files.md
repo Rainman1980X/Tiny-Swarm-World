@@ -3,4 +3,5 @@
 - documentation/arc42/05_analysis/rc1-maintenance-triage.adoc
 - .tiny-swarm/evidence/issue-310/
 
-No product source module was changed by this triage.
+Related tracking: existing #329 and new #331. No product source/configuration
+changes. Final release decision remains owned by R06.

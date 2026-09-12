@@ -4,6 +4,6 @@
 - [x] Concrete observations classified.
 - [x] Bounded follow-up files, contracts, regressions and benefit defined.
 - [x] No speculative source refactor introduced.
-- [x] No release blocker found that requires routing.
-- [ ] Independent architecture/test review returns PASS.
-- [x] Residual risk is available for R06 consumption.
+- [x] Three concrete update blockers routed to #297 and lifecycle consumers.
+- [x] Independent architecture/test review returns PASS.
+- [x] R06 integration owner acknowledges explicit #329/#331 maintenance debt.
