@@ -75,6 +75,11 @@ The disposable test workflow uses the same Linux runner, consent, ownership,
 secure-file and lifecycle guards with `--test-only`. In that profile credential
 rotation is not applicable, so no rotation-reference variable is read. An
 unmarked protected/live invocation still requires a valid rotation reference.
+The qualified self-hosted workflow sets `TSW_LIVE_RUNNER_VERIFIED=1` after
+selecting the explicit `self-hosted`, `linux`, `tsw-classic` runner. This marker
+allows that qualified Linux/WSL CI process to pass host classification while
+generic CI remains sandbox-only; container and cgroup markers still take
+precedence.
 The workflow variables therefore provide the runner-local env-file path, the
 native evidence-root path, the target-owner reference, and the selected update
 stack, service, source image and target image. The workflow uploads only the
