@@ -12,5 +12,6 @@ remains in the canonical runner. The tester/evidence reviewer checked
 redaction, exit propagation, concurrency, target-owner and phase-order
 contracts.
 
-Local contracts are verified. A real protected runner run, artifact review
-and controlled failure drill remain required before completion.
+Local contracts and the current runner registration/capability observation are
+verified. A protected environment dispatch against an owned target, artifact
+review and controlled failure drill remain required before completion.
