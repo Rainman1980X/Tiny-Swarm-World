@@ -121,6 +121,68 @@ class LxcUpdateRuntimeObserverTest(unittest.IsolatedAsyncioTestCase):
                 with self.assertRaises(UpdateObservationError):
                     await observer.observe("jenkins", "jenkins")
 
+    async def test_unknown_task_states_fail_closed(self):
+        for state, desired_state in (
+            ("InvalidState", "InvalidState"),
+            ("InvalidState 1 minute ago", "Shutdown"),
+            ("Shutdown 1 minute ago", "InvalidState"),
+        ):
+            with self.subTest(state=state, desired_state=desired_state):
+                observer, _ = _observer(
+                    tasks=[
+                        _task(),
+                        _task(
+                            id="unknown-task",
+                            image="unrelated:9",
+                            state=state,
+                            desired_state=desired_state,
+                        ),
+                    ]
+                )
+                with self.assertRaises(UpdateObservationError):
+                    await observer.observe("jenkins", "jenkins")
+
+    async def test_recognized_terminal_history_is_preserved(self):
+        for state in (
+            "Complete",
+            "Shutdown",
+            "Failed",
+            "Rejected",
+            "Remove",
+            "Orphaned",
+        ):
+            with self.subTest(state=state):
+                observer, _ = _observer(
+                    tasks=[
+                        _task(),
+                        _task(
+                            id="history",
+                            image="old:1",
+                            state=state + " 1 minute ago",
+                            desired_state="Shutdown",
+                        ),
+                    ]
+                )
+                observed = await observer.observe("jenkins", "jenkins")
+                self.assertEqual(2, len(observed.tasks))
+                self.assertTrue(observed.converged("jenkins:2"))
+
+    async def test_recognized_pending_tasks_do_not_converge(self):
+        for state in (
+            "New",
+            "Allocated",
+            "Pending",
+            "Assigned",
+            "Accepted",
+            "Preparing",
+            "Ready",
+            "Starting",
+        ):
+            with self.subTest(state=state):
+                observer, _ = _observer(tasks=[_task(state=state + " 1 second ago")])
+                observed = await observer.observe("jenkins", "jenkins")
+                self.assertFalse(observed.converged("jenkins:2"))
+
     async def test_command_errors_and_invalid_json_do_not_escape_as_success(self):
         for result in (
             subprocess.CompletedProcess([], 1, "", "raw-private-output"),

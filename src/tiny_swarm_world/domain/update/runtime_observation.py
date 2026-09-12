@@ -55,12 +55,18 @@ class UpdateRuntimeObservation:
             "rollback_completed",
         }
 
-    def converged(self, image: str) -> bool:
+    def converged(self, image: str, *, allow_completed_rollback: bool = False) -> bool:
         active = self.active_tasks
         digests = {task.image.partition("@")[2] for task in active}
         return (
             bool(self.service_id)
-            and self.rollout_state in {"", "completed"}
+            and (
+                self.rollout_state in {"", "completed"}
+                or (
+                    allow_completed_rollback
+                    and self.rollout_state == "rollback_completed"
+                )
+            )
             and self.desired_replicas > 0
             and len(active) == self.desired_replicas
             and len({task.task_id for task in active}) == len(active)

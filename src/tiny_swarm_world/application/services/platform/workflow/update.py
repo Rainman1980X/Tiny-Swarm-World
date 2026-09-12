@@ -140,7 +140,7 @@ class ClassicUpdateWorkflow:
                 "Runtime observation is unavailable; no mutation was started.",
                 {"reason": "runtime_observation_unavailable"},
             )
-        if observed.converged(plan.target_image):
+        if observed.converged(plan.target_image, allow_completed_rollback=recovery):
             return self._runtime_completed(
                 plan, observed, executed=False, recovery=recovery
             )
@@ -217,7 +217,7 @@ class ClassicUpdateWorkflow:
                 return self._runtime_failure(
                     plan, "service_identity_changed", observation=observed
                 )
-            if observed.converged(plan.target_image):
+            if observed.converged(plan.target_image, allow_completed_rollback=recovery):
                 return self._runtime_completed(
                     plan,
                     observed,

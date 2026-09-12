@@ -20,6 +20,26 @@ from tiny_swarm_world.infrastructure.adapters.clients.lxc.command.manager_shell_
 
 
 _IDENTIFIER = re.compile(r"^[a-z0-9][a-z0-9_.-]*$")
+# Docker Engine TaskState values apply to both current and desired task state.
+_TASK_STATES = frozenset(
+    {
+        "new",
+        "allocated",
+        "pending",
+        "assigned",
+        "accepted",
+        "preparing",
+        "ready",
+        "starting",
+        "running",
+        "complete",
+        "shutdown",
+        "failed",
+        "rejected",
+        "remove",
+        "orphaned",
+    }
+)
 # Project only public identity/rollout fields: the gateway logs command output.
 _SERVICE_FORMAT = (
     '{"id":{{json .ID}},"version":{{json .Version.Index}},'
@@ -109,9 +129,13 @@ def _number(record: Mapping[str, object], key: str) -> int:
 
 def _task(value: object) -> UpdateTaskObservation:
     record = _mapping(value)
+    state = _text(record, "state").split()[0].lower()
+    desired_state = _text(record, "desired_state").lower()
+    if state not in _TASK_STATES or desired_state not in _TASK_STATES:
+        raise ValueError("unknown_runtime_task_state")
     return UpdateTaskObservation(
         task_id=_text(record, "id"),
         image=_text(record, "image"),
-        state=_text(record, "state").split()[0].lower(),
-        desired_state=_text(record, "desired_state").lower(),
+        state=state,
+        desired_state=desired_state,
     )
