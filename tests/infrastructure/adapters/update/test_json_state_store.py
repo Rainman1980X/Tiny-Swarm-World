@@ -23,3 +23,18 @@ class JsonUpdateStateStoreTest(unittest.TestCase):
             self.assertEqual(0o700, (Path(directory) / "updates").stat().st_mode & 0o777)
             self.assertEqual(0o600, (Path(directory) / "updates/jenkins__jenkins.json").stat().st_mode & 0o777)
             self.assertEqual(plan, saved.plan)
+
+    def test_load_returns_none_for_missing_state(self) -> None:
+        with TemporaryDirectory() as directory:
+            store = JsonUpdateStateStore(Path(directory) / "updates")
+
+            self.assertIsNone(store.load("jenkins", "jenkins"))
+
+    def test_load_returns_none_for_malformed_state(self) -> None:
+        with TemporaryDirectory() as directory:
+            root = Path(directory) / "updates"
+            root.mkdir()
+            (root / "jenkins__jenkins.json").write_text("{malformed", encoding="utf-8")
+            store = JsonUpdateStateStore(root)
+
+            self.assertIsNone(store.load("jenkins", "jenkins"))
