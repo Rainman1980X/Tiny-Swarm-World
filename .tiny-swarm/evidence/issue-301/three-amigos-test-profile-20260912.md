@@ -33,6 +33,7 @@ are the required local checks.
   them would be a separate governance change.
 - GitHub variables contain paths, ownership labels and update image metadata;
   the test credentials stay only in the runner-local secure env file.
-- A real hosted lifecycle remains unverified until the workflow is dispatched.
+- The hosted lifecycle is now verified by run 34719043422; the controlled
+  blocked-dispatch behavior is verified by run 34720172182.
 - No protected/live workflow is allowed to bypass rotation unless it opts into
   the explicit test-only profile.
