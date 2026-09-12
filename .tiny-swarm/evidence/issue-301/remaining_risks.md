@@ -1,7 +1,9 @@
 # RC1-R05 Remaining Risks
 
-- Repository live variables, target ownership and the protected environment
-  still need to be configured for a complete hosted observation.
+- Repository live variables, target ownership, update image references and the
+  protected environment still need to be configured for a complete hosted
+  observation. Credential rotation is intentionally not applicable to the
+  disposable test profile.
 - The local test installation passed, but the full Fresh → Reconcile → Update
   → Recovery lifecycle can only be accepted after a protected isolated target
   run reaches every required phase.

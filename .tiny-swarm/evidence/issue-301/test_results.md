@@ -1,6 +1,8 @@
 # RC1-R05 Test Results
 
 - Runner and CI workflow contract tests: **passed**.
+- Disposable test-profile rotation bypass and redacted evidence-status tests:
+  **passed**.
 - Python syntax compilation for the runner: **passed**.
 - git diff --check: **passed**.
 - Runner registration observation: **PASS**, `tsw-protected-wsl2` online with
@@ -18,3 +20,6 @@
   verification; redacted evidence is recorded in `test-install-20260912.md`.
 - No protected-environment dispatch, full Fresh → Reconcile → Update →
   Recovery lifecycle or controlled failure drill was executed.
+- The disposable workflow no longer reads
+  `TSW_CLASSIC_CREDENTIAL_ROTATION_REFERENCE`; the remaining GitHub variables
+  and runner-local 0600 env file are still prerequisites.

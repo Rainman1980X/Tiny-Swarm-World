@@ -6,6 +6,9 @@
 - [x] Redacted runner provenance fields added to terminal evidence.
 - [x] Current intended runner and local Linux/Incus/Docker capabilities
   qualified.
+- [x] Disposable test profile does not require credential-rotation metadata.
+- [x] Test workflow documents the remaining variables and keeps secure-file
+  and lifecycle guards.
 - [ ] Isolated target and protected environment qualified.
 - [ ] Full Fresh → Reconcile → Update → Recovery run succeeded.
 - [ ] Controlled required-scenario failure produced a non-green result.

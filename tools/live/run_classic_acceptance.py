@@ -63,6 +63,11 @@ def main() -> int:
         "--credential-rotation-reference",
         help="Non-secret reference proving the previously exposed credential was rotated or revoked.",
     )
+    parser.add_argument(
+        "--test-only",
+        action="store_true",
+        help="Run the disposable test profile; credential rotation is not applicable.",
+    )
     parser.add_argument("--update-stack", default=os.environ.get("TSW_CLASSIC_UPDATE_STACK"))
     parser.add_argument("--update-service", default=os.environ.get("TSW_CLASSIC_UPDATE_SERVICE"))
     parser.add_argument("--update-from-image", default=os.environ.get("TSW_CLASSIC_UPDATE_FROM_IMAGE"))
@@ -91,6 +96,7 @@ def main() -> int:
             secret_storage=None,
             evidence_storage=evidence_storage,
             credential_rotation_reference=None,
+            test_only=args.test_only,
         )
 
     if not env_file.is_file():
@@ -105,9 +111,12 @@ def main() -> int:
             secret_storage=None,
             evidence_storage=evidence_storage,
             credential_rotation_reference=None,
+            test_only=args.test_only,
         )
 
-    if not _valid_rotation_reference(args.credential_rotation_reference):
+    if not _rotation_reference_valid_for_profile(
+        args.test_only, args.credential_rotation_reference
+    ):
         return _write_terminal_result(
             evidence_dir,
             run_id=run_id,
@@ -119,6 +128,7 @@ def main() -> int:
             secret_storage=None,
             evidence_storage=evidence_storage,
             credential_rotation_reference=None,
+            test_only=args.test_only,
         )
 
     source_filesystem = assess_evidence_directory(
@@ -144,6 +154,7 @@ def main() -> int:
             secret_storage=secret_storage,
             evidence_storage=evidence_storage,
             credential_rotation_reference=args.credential_rotation_reference,
+            test_only=args.test_only,
         )
 
     update_values = (
@@ -164,6 +175,7 @@ def main() -> int:
             secret_storage=secret_storage,
             evidence_storage=evidence_storage,
             credential_rotation_reference=args.credential_rotation_reference,
+            test_only=args.test_only,
         )
 
     environment = os.environ.copy()
@@ -342,6 +354,7 @@ def main() -> int:
         secret_storage=secret_storage,
         evidence_storage=evidence_storage,
         credential_rotation_reference=args.credential_rotation_reference,
+        test_only=args.test_only,
     )
 
 
@@ -457,12 +470,14 @@ def _write_terminal_result(
     secret_storage: RuntimePathAssessment | None,
     evidence_storage: RuntimePathAssessment,
     credential_rotation_reference: str | None,
+    test_only: bool = False,
 ) -> int:
     finished_at = _utc_now()
     payload = {
         "run_id": run_id,
         "repository_commit": _git_commit(),
         "scenario": "classic_live_chain",
+        "execution_profile": "disposable_test" if test_only else "protected_live",
         "host_class": _host_class(),
         "host": {
             "class": _host_class(),
@@ -490,8 +505,10 @@ def _write_terminal_result(
         ),
         "evidence_storage": evidence_storage.to_safe_dict(),
         "credential_rotation": {
-            "status": "recorded" if credential_rotation_reference else "not_recorded",
-            "reference_present": bool(credential_rotation_reference),
+            "status": _rotation_evidence_status(test_only, credential_rotation_reference),
+            "reference_present": (
+                bool(credential_rotation_reference) if not test_only else False
+            ),
             "reference_value": "not_recorded",
         },
         "operations": [
@@ -547,6 +564,16 @@ def _safe_command_label(operation: str) -> str:
 
 def _valid_rotation_reference(value: str | None) -> bool:
     return bool(value and re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:-]{1,127}", value))
+
+
+def _rotation_reference_valid_for_profile(test_only: bool, value: str | None) -> bool:
+    return test_only or _valid_rotation_reference(value)
+
+
+def _rotation_evidence_status(test_only: bool, value: str | None) -> str:
+    if test_only:
+        return "not_applicable_test_only"
+    return "recorded" if value else "not_recorded"
 
 
 def _git_commit() -> str:
