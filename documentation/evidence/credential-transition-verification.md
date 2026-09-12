@@ -1,11 +1,15 @@
 # CRED-09 credential transition verification
 
+> Historical checkpoint from 2026-09-11. Its PARTIAL/BLOCKED statements describe
+> the candidate tested then. Current source-precedence completion is documented
+> in [the 2026-09-12 report](cred09-source-precedence-completion.md).
+
 This record concerns [issue #296](https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/issues/296),
 following [#277](https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/issues/277),
 [#285](https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/issues/285) and
 [PR #293](https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/pull/293).
 The user explicitly authorized live tests and publication on 2026-09-11.
-The issue remains **PARTIAL**; the unsupported cases below are not passes.
+At that checkpoint, the issue remained **PARTIAL**; the unsupported cases below are not passes.
 
 ## Executed scope
 

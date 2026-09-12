@@ -1,0 +1,532 @@
+{
+  "schema_version": 1,
+  "issue": 296,
+  "tested_candidate": "81443e80aad88cf4a9a647cb3241486f06c43e43",
+  "credential_material_included": false,
+  "digest_scope": "runner code only; no credential hashes",
+  "scope": "service-access Jenkins startup consumer",
+  "runs": [
+    {
+      "candidate": "81443e80aad88cf4a9a647cb3241486f06c43e43",
+      "host": "wsl2",
+      "scenario": "vault-only",
+      "profile": "service-access",
+      "started_utc": "2026-09-12T07:12:42.868547+00:00",
+      "finished_utc": "2026-09-12T07:15:03.308016+00:00",
+      "duration_seconds": 140.439,
+      "process_exit_code": 0,
+      "status": "LIVE_VERIFIED",
+      "operations": [
+        {
+          "operation": "source_resolution",
+          "utc": "2026-09-12T07:12:46.812312+00:00",
+          "bootstrap_source": "default",
+          "selected_source": "vault",
+          "distinct_operator_and_vault": false,
+          "independent_vault_change": true,
+          "only_intended_key_changed": true
+        },
+        {
+          "operation": "before_readiness",
+          "utc": "2026-09-12T07:12:53.297029+00:00",
+          "exit_code": 0
+        },
+        {
+          "operation": "baseline_deployment",
+          "utc": "2026-09-12T07:13:13.357464+00:00",
+          "exit_code": 0,
+          "service_specs_equal": true,
+          "consumed_source": "vault",
+          "authenticated": true,
+          "bootstrap_source": "default",
+          "catalog_value_confirmed": true
+        },
+        {
+          "operation": "baseline_session",
+          "utc": "2026-09-12T07:13:14.643753+00:00",
+          "authenticated": true
+        },
+        {
+          "operation": "override",
+          "utc": "2026-09-12T07:13:46.533632+00:00",
+          "exit_code": 0,
+          "duration_seconds": 31.742,
+          "new_identity_authenticated": true,
+          "old_identity_rejected": true,
+          "old_status": 401,
+          "previous_cookie_authenticated": false,
+          "previous_cookie_status": 200,
+          "session_scope": "credential_update_and_task_replacement",
+          "changed_services": [
+            "jenkins_jenkins"
+          ],
+          "changed_vault_keys": [
+            "TSW_JENKINS_ADMIN_PASSWORD"
+          ],
+          "consumed_source": "vault",
+          "runtime_value_equals_selected": true,
+          "non_effective_input_rejected": true
+        },
+        {
+          "operation": "reconcile",
+          "utc": "2026-09-12T07:13:54.589555+00:00",
+          "exit_code": 0,
+          "values_equal": true,
+          "authenticated": true,
+          "service_specs_equal": true,
+          "sources_equal": true
+        },
+        {
+          "operation": "redeployment",
+          "utc": "2026-09-12T07:14:14.394966+00:00",
+          "exit_code": 0,
+          "service_specs_equal": true,
+          "consumed_source": "vault",
+          "authenticated": true
+        },
+        {
+          "operation": "controlled_jenkins_restart",
+          "utc": "2026-09-12T07:14:25.624527+00:00",
+          "exit_code": 0,
+          "authenticated": true,
+          "task_replaced": true,
+          "service_specs_equal": true,
+          "vault_values_equal": true,
+          "sources_equal": true,
+          "runtime_value_equals_selected": true,
+          "source_provenance": "unchanged service specification from verified deployment"
+        },
+        {
+          "operation": "restore_vault",
+          "utc": "2026-09-12T07:14:25.936174+00:00",
+          "completed": true
+        },
+        {
+          "operation": "restore",
+          "utc": "2026-09-12T07:14:56.901204+00:00",
+          "exit_code": 0,
+          "authenticated": true,
+          "override_rejected": true,
+          "vault_values_equal": true,
+          "service_specs_equal": true,
+          "complete": true,
+          "consumed_source": "vault"
+        },
+        {
+          "operation": "after_readiness",
+          "utc": "2026-09-12T07:15:03.306937+00:00",
+          "exit_code": 0
+        },
+        {
+          "operation": "cleanup",
+          "utc": "2026-09-12T07:15:03.307344+00:00",
+          "temporary_secret_removed": true
+        }
+      ],
+      "runner_sha256": "e3e9dae7b8af78271bef86863fba86ad435b8261661ca6dbe793253430c03869",
+      "protected_report_reference": "cred09-transitions/20260912T071242Z/result.json",
+      "run_id": "20260912T071242Z",
+      "command": "PYTHONPATH=src python3 -m tests.e2e.classic.run_credential_transition_live --approve-live --env-file <protected> --scenario vault-only",
+      "working_tree_modified": false
+    },
+    {
+      "candidate": "81443e80aad88cf4a9a647cb3241486f06c43e43",
+      "host": "wsl2",
+      "scenario": "conflicting-sources",
+      "profile": "service-access",
+      "started_utc": "2026-09-12T07:16:14.215458+00:00",
+      "finished_utc": "2026-09-12T07:18:32.932228+00:00",
+      "duration_seconds": 138.717,
+      "process_exit_code": 0,
+      "status": "LIVE_VERIFIED",
+      "operations": [
+        {
+          "operation": "source_resolution",
+          "utc": "2026-09-12T07:16:17.697561+00:00",
+          "bootstrap_source": "operator",
+          "selected_source": "vault",
+          "distinct_operator_and_vault": true,
+          "independent_vault_change": false,
+          "only_intended_key_changed": true
+        },
+        {
+          "operation": "before_readiness",
+          "utc": "2026-09-12T07:16:24.064250+00:00",
+          "exit_code": 0
+        },
+        {
+          "operation": "baseline_deployment",
+          "utc": "2026-09-12T07:16:44.464301+00:00",
+          "exit_code": 0,
+          "service_specs_equal": true,
+          "consumed_source": "vault",
+          "authenticated": true,
+          "bootstrap_source": "default",
+          "catalog_value_confirmed": true
+        },
+        {
+          "operation": "baseline_session",
+          "utc": "2026-09-12T07:16:45.640305+00:00",
+          "authenticated": true
+        },
+        {
+          "operation": "override",
+          "utc": "2026-09-12T07:17:16.335351+00:00",
+          "exit_code": 0,
+          "duration_seconds": 30.542,
+          "new_identity_authenticated": true,
+          "old_identity_rejected": true,
+          "old_status": 401,
+          "previous_cookie_authenticated": false,
+          "previous_cookie_status": 200,
+          "session_scope": "credential_update_and_task_replacement",
+          "changed_services": [
+            "jenkins_jenkins"
+          ],
+          "changed_vault_keys": [
+            "TSW_JENKINS_ADMIN_PASSWORD"
+          ],
+          "consumed_source": "vault",
+          "runtime_value_equals_selected": true,
+          "non_effective_input_rejected": true
+        },
+        {
+          "operation": "reconcile",
+          "utc": "2026-09-12T07:17:24.094219+00:00",
+          "exit_code": 0,
+          "values_equal": true,
+          "authenticated": true,
+          "service_specs_equal": true,
+          "sources_equal": true
+        },
+        {
+          "operation": "redeployment",
+          "utc": "2026-09-12T07:17:44.253160+00:00",
+          "exit_code": 0,
+          "service_specs_equal": true,
+          "consumed_source": "vault",
+          "authenticated": true
+        },
+        {
+          "operation": "controlled_jenkins_restart",
+          "utc": "2026-09-12T07:17:55.523285+00:00",
+          "exit_code": 0,
+          "authenticated": true,
+          "task_replaced": true,
+          "service_specs_equal": true,
+          "vault_values_equal": true,
+          "sources_equal": true,
+          "runtime_value_equals_selected": true,
+          "source_provenance": "unchanged service specification from verified deployment"
+        },
+        {
+          "operation": "restore_vault",
+          "utc": "2026-09-12T07:17:55.829780+00:00",
+          "completed": true
+        },
+        {
+          "operation": "restore",
+          "utc": "2026-09-12T07:18:26.329540+00:00",
+          "exit_code": 0,
+          "authenticated": true,
+          "override_rejected": true,
+          "vault_values_equal": true,
+          "service_specs_equal": true,
+          "complete": true,
+          "consumed_source": "vault"
+        },
+        {
+          "operation": "after_readiness",
+          "utc": "2026-09-12T07:18:32.929152+00:00",
+          "exit_code": 0
+        },
+        {
+          "operation": "cleanup",
+          "utc": "2026-09-12T07:18:32.929585+00:00",
+          "temporary_secret_removed": true
+        }
+      ],
+      "runner_sha256": "e3e9dae7b8af78271bef86863fba86ad435b8261661ca6dbe793253430c03869",
+      "protected_report_reference": "cred09-transitions/20260912T071614Z/result.json",
+      "run_id": "20260912T071614Z",
+      "command": "PYTHONPATH=src python3 -m tests.e2e.classic.run_credential_transition_live --approve-live --env-file <protected> --scenario conflicting-sources",
+      "working_tree_modified": false
+    },
+    {
+      "candidate": "81443e80aad88cf4a9a647cb3241486f06c43e43",
+      "host": "native_linux",
+      "scenario": "vault-only",
+      "profile": "service-access",
+      "started_utc": "2026-09-12T07:19:03.119619+00:00",
+      "finished_utc": "2026-09-12T07:20:06.667530+00:00",
+      "duration_seconds": 63.548,
+      "process_exit_code": 0,
+      "status": "LIVE_VERIFIED",
+      "operations": [
+        {
+          "operation": "source_resolution",
+          "utc": "2026-09-12T07:19:03.984419+00:00",
+          "bootstrap_source": "default",
+          "selected_source": "vault",
+          "distinct_operator_and_vault": false,
+          "independent_vault_change": true,
+          "only_intended_key_changed": true
+        },
+        {
+          "operation": "before_readiness",
+          "utc": "2026-09-12T07:19:04.623730+00:00",
+          "exit_code": 0
+        },
+        {
+          "operation": "baseline_deployment",
+          "utc": "2026-09-12T07:19:11.400048+00:00",
+          "exit_code": 0,
+          "service_specs_equal": true,
+          "consumed_source": "vault",
+          "authenticated": true,
+          "bootstrap_source": "default",
+          "catalog_value_confirmed": true
+        },
+        {
+          "operation": "baseline_session",
+          "utc": "2026-09-12T07:19:12.515742+00:00",
+          "authenticated": true
+        },
+        {
+          "operation": "override",
+          "utc": "2026-09-12T07:19:30.497382+00:00",
+          "exit_code": 0,
+          "duration_seconds": 17.842,
+          "new_identity_authenticated": true,
+          "old_identity_rejected": true,
+          "old_status": 401,
+          "previous_cookie_authenticated": false,
+          "previous_cookie_status": 200,
+          "session_scope": "credential_update_and_task_replacement",
+          "changed_services": [
+            "jenkins_jenkins"
+          ],
+          "changed_vault_keys": [
+            "TSW_JENKINS_ADMIN_PASSWORD"
+          ],
+          "consumed_source": "vault",
+          "runtime_value_equals_selected": true,
+          "non_effective_input_rejected": true
+        },
+        {
+          "operation": "reconcile",
+          "utc": "2026-09-12T07:19:32.037752+00:00",
+          "exit_code": 0,
+          "values_equal": true,
+          "authenticated": true,
+          "service_specs_equal": true,
+          "sources_equal": true
+        },
+        {
+          "operation": "redeployment",
+          "utc": "2026-09-12T07:19:38.456066+00:00",
+          "exit_code": 0,
+          "service_specs_equal": true,
+          "consumed_source": "vault",
+          "authenticated": true
+        },
+        {
+          "operation": "controlled_jenkins_restart",
+          "utc": "2026-09-12T07:19:49.225610+00:00",
+          "exit_code": 0,
+          "authenticated": true,
+          "task_replaced": true,
+          "service_specs_equal": true,
+          "vault_values_equal": true,
+          "sources_equal": true,
+          "runtime_value_equals_selected": true,
+          "source_provenance": "unchanged service specification from verified deployment"
+        },
+        {
+          "operation": "restore_vault",
+          "utc": "2026-09-12T07:19:49.467762+00:00",
+          "completed": true
+        },
+        {
+          "operation": "restore",
+          "utc": "2026-09-12T07:20:06.054723+00:00",
+          "exit_code": 0,
+          "authenticated": true,
+          "override_rejected": true,
+          "vault_values_equal": true,
+          "service_specs_equal": true,
+          "complete": true,
+          "consumed_source": "vault"
+        },
+        {
+          "operation": "after_readiness",
+          "utc": "2026-09-12T07:20:06.666563+00:00",
+          "exit_code": 0
+        },
+        {
+          "operation": "cleanup",
+          "utc": "2026-09-12T07:20:06.666945+00:00",
+          "temporary_secret_removed": true
+        }
+      ],
+      "runner_sha256": "e3e9dae7b8af78271bef86863fba86ad435b8261661ca6dbe793253430c03869",
+      "protected_report_reference": "cred09-transitions/20260912T071903Z/result.json",
+      "run_id": "20260912T071903Z",
+      "command": "PYTHONPATH=src .venv/bin/python -m tests.e2e.classic.run_credential_transition_live --approve-live --env-file <protected> --scenario vault-only",
+      "working_tree_modified": false
+    },
+    {
+      "candidate": "81443e80aad88cf4a9a647cb3241486f06c43e43",
+      "host": "native_linux",
+      "scenario": "conflicting-sources",
+      "profile": "service-access",
+      "started_utc": "2026-09-12T07:21:01.839688+00:00",
+      "finished_utc": "2026-09-12T07:22:05.470561+00:00",
+      "duration_seconds": 63.631,
+      "process_exit_code": 0,
+      "status": "LIVE_VERIFIED",
+      "operations": [
+        {
+          "operation": "source_resolution",
+          "utc": "2026-09-12T07:21:02.665696+00:00",
+          "bootstrap_source": "operator",
+          "selected_source": "vault",
+          "distinct_operator_and_vault": true,
+          "independent_vault_change": false,
+          "only_intended_key_changed": true
+        },
+        {
+          "operation": "before_readiness",
+          "utc": "2026-09-12T07:21:03.282216+00:00",
+          "exit_code": 0
+        },
+        {
+          "operation": "baseline_deployment",
+          "utc": "2026-09-12T07:21:09.913825+00:00",
+          "exit_code": 0,
+          "service_specs_equal": true,
+          "consumed_source": "vault",
+          "authenticated": true,
+          "bootstrap_source": "default",
+          "catalog_value_confirmed": true
+        },
+        {
+          "operation": "baseline_session",
+          "utc": "2026-09-12T07:21:10.878745+00:00",
+          "authenticated": true
+        },
+        {
+          "operation": "override",
+          "utc": "2026-09-12T07:21:28.773874+00:00",
+          "exit_code": 0,
+          "duration_seconds": 17.762,
+          "new_identity_authenticated": true,
+          "old_identity_rejected": true,
+          "old_status": 401,
+          "previous_cookie_authenticated": false,
+          "previous_cookie_status": 200,
+          "session_scope": "credential_update_and_task_replacement",
+          "changed_services": [
+            "jenkins_jenkins"
+          ],
+          "changed_vault_keys": [
+            "TSW_JENKINS_ADMIN_PASSWORD"
+          ],
+          "consumed_source": "vault",
+          "runtime_value_equals_selected": true,
+          "non_effective_input_rejected": true
+        },
+        {
+          "operation": "reconcile",
+          "utc": "2026-09-12T07:21:30.381695+00:00",
+          "exit_code": 0,
+          "values_equal": true,
+          "authenticated": true,
+          "service_specs_equal": true,
+          "sources_equal": true
+        },
+        {
+          "operation": "redeployment",
+          "utc": "2026-09-12T07:21:37.175221+00:00",
+          "exit_code": 0,
+          "service_specs_equal": true,
+          "consumed_source": "vault",
+          "authenticated": true
+        },
+        {
+          "operation": "controlled_jenkins_restart",
+          "utc": "2026-09-12T07:21:48.047573+00:00",
+          "exit_code": 0,
+          "authenticated": true,
+          "task_replaced": true,
+          "service_specs_equal": true,
+          "vault_values_equal": true,
+          "sources_equal": true,
+          "runtime_value_equals_selected": true,
+          "source_provenance": "unchanged service specification from verified deployment"
+        },
+        {
+          "operation": "restore_vault",
+          "utc": "2026-09-12T07:21:48.286026+00:00",
+          "completed": true
+        },
+        {
+          "operation": "restore",
+          "utc": "2026-09-12T07:22:04.845608+00:00",
+          "exit_code": 0,
+          "authenticated": true,
+          "override_rejected": true,
+          "vault_values_equal": true,
+          "service_specs_equal": true,
+          "complete": true,
+          "consumed_source": "vault"
+        },
+        {
+          "operation": "after_readiness",
+          "utc": "2026-09-12T07:22:05.469800+00:00",
+          "exit_code": 0
+        },
+        {
+          "operation": "cleanup",
+          "utc": "2026-09-12T07:22:05.470182+00:00",
+          "temporary_secret_removed": true
+        }
+      ],
+      "runner_sha256": "e3e9dae7b8af78271bef86863fba86ad435b8261661ca6dbe793253430c03869",
+      "protected_report_reference": "cred09-transitions/20260912T072101Z/result.json",
+      "run_id": "20260912T072101Z",
+      "command": "PYTHONPATH=src .venv/bin/python -m tests.e2e.classic.run_credential_transition_live --approve-live --env-file <protected> --scenario conflicting-sources",
+      "working_tree_modified": false
+    }
+  ],
+  "post_install": [
+    {
+      "candidate": "81443e80aad88cf4a9a647cb3241486f06c43e43",
+      "host": "wsl2",
+      "run": "20260912T071906Z",
+      "tests": 37,
+      "live_checks": 8,
+      "static_checks": 29,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "process_exit_code": 0,
+      "status": "LIVE_VERIFIED",
+      "scope": "HTTP/API/TLS; not Selenium"
+    },
+    {
+      "candidate": "81443e80aad88cf4a9a647cb3241486f06c43e43",
+      "host": "native_linux",
+      "run": "20260912T072311Z",
+      "tests": 37,
+      "live_checks": 8,
+      "static_checks": 29,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "process_exit_code": 0,
+      "status": "LIVE_VERIFIED",
+      "scope": "HTTP/API/TLS; not Selenium"
+    }
+  ]
+}
