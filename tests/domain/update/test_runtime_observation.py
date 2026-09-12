@@ -82,3 +82,10 @@ class UpdateRuntimeObservationTest(unittest.TestCase):
             ),
         )
         self.assertFalse(observation.converged("repo:1"))
+
+    def test_completed_rollback_requires_explicit_recovery_target_convergence(self):
+        observation = replace(self.observation(), rollout_state="rollback_completed")
+        self.assertTrue(observation.rollout_failed)
+        self.assertFalse(observation.converged("repo:1"))
+        self.assertTrue(observation.converged("repo:1", allow_completed_rollback=True))
+        self.assertFalse(observation.converged("repo:2", allow_completed_rollback=True))

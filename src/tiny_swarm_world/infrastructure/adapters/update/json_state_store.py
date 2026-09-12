@@ -50,15 +50,24 @@ class JsonUpdateStateStore(PortUpdateStateStore):
             return None
         try:
             payload = json.loads(content)
+            if not isinstance(payload, dict) or not isinstance(
+                payload.get("plan"), dict
+            ):
+                raise ValueError("Update state and plan must be objects.")
             plan_data = payload["plan"]
+            plan_fields = {
+                field: _required_text(plan_data[field])
+                for field in (
+                    "stack_name",
+                    "service_name",
+                    "source_image",
+                    "target_image",
+                )
+            }
+            recorded_at = _required_text(payload["recorded_at"])
             state = ClassicUpdateState(
-                plan=ClassicUpdatePlan(
-                    stack_name=str(plan_data["stack_name"]),
-                    service_name=str(plan_data["service_name"]),
-                    source_image=str(plan_data["source_image"]),
-                    target_image=str(plan_data["target_image"]),
-                ),
-                recorded_at=str(payload["recorded_at"]),
+                plan=ClassicUpdatePlan(**plan_fields),
+                recorded_at=recorded_at,
             )
             if (
                 state.plan.stack_name != stack_name
@@ -80,3 +89,9 @@ class JsonUpdateStateStore(PortUpdateStateStore):
         ):
             raise ValueError("Invalid update state identity.")
         return self.root / f"{stack_name}__{service_name}.json"
+
+
+def _required_text(value: object) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("Update state fields must be nonempty strings.")
+    return value

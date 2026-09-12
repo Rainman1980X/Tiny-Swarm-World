@@ -2,14 +2,34 @@ from __future__ import annotations
 
 from pathlib import Path
 from tempfile import TemporaryDirectory
+import json
 import unittest
 from unittest.mock import patch
 
+from tests.application.services.platform.test_classic_update_workflow import (
+    _consent,
+    _plan,
+    _workflow,
+)
 from tiny_swarm_world.domain.update import ClassicUpdatePlan
 from tiny_swarm_world.infrastructure.adapters.update import JsonUpdateStateStore
 
 
 class JsonUpdateStateStoreTest(unittest.TestCase):
+    def test_null_source_state_is_rejected(self) -> None:
+        for field, value, payload in _invalid_records():
+            with (
+                self.subTest(field=field, value=value),
+                TemporaryDirectory() as directory,
+            ):
+                path = Path(directory) / "jenkins__jenkins.json"
+                content = json.dumps(payload)
+                path.write_text(content, encoding="utf-8")
+                store = JsonUpdateStateStore(Path(directory))
+                with self.assertRaises(ValueError):
+                    store.load("jenkins", "jenkins")
+                self.assertEqual(content, path.read_text(encoding="utf-8"))
+
     def test_round_trip_persists_only_update_metadata_with_private_file(self) -> None:
         with TemporaryDirectory() as directory:
             store = JsonUpdateStateStore(Path(directory) / "updates")
@@ -86,3 +106,43 @@ class JsonUpdateStateStoreTest(unittest.TestCase):
             store = JsonUpdateStateStore(Path(directory))
             with self.assertRaises(ValueError):
                 store.load("../outside", "service")
+
+
+class CorruptUpdateStateRecoveryTest(unittest.IsolatedAsyncioTestCase):
+    async def test_corrupt_state_never_reaches_recovery_deployment(self) -> None:
+        for field, value, payload in _invalid_records():
+            with (
+                self.subTest(field=field, value=value),
+                TemporaryDirectory() as directory,
+            ):
+                path = Path(directory) / "jenkins__jenkins.json"
+                content = json.dumps(payload)
+                path.write_text(content, encoding="utf-8")
+                workflow, factory, _, _ = _workflow(initial="new:1", target="None")
+                workflow.state_store = JsonUpdateStateStore(Path(directory))
+                result = await workflow.recover(
+                    "jenkins", "jenkins", preview=False, live_consent=_consent()
+                )
+                self.assertEqual("blocked", result.status.value)
+                self.assertFalse(result.executed)
+                factory.assert_not_called()
+                workflow.runtime_observer.observe.assert_not_awaited()
+                self.assertEqual(content, path.read_text(encoding="utf-8"))
+
+
+def _invalid_records():
+    for field in (
+        "stack_name",
+        "service_name",
+        "source_image",
+        "target_image",
+        "recorded_at",
+    ):
+        for value in (None, 7, 1.5, True, [], {}, "", " \t "):
+            payload = {
+                "plan": _plan().to_dict(),
+                "recorded_at": "2026-09-13T12:00:00+00:00",
+            }
+            target = payload if field == "recorded_at" else payload["plan"]
+            target[field] = value
+            yield field, value, payload

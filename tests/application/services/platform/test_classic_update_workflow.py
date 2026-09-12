@@ -242,6 +242,53 @@ class ClassicUpdateWorkflowTest(unittest.IsolatedAsyncioTestCase):
         factory.assert_called_once_with(_plan().rollback_plan)
         state_store.save.assert_not_called()
 
+    async def test_completed_rollback_recovery_is_noop(self) -> None:
+        workflow, factory, store, _ = _workflow()
+        store.load.return_value = SimpleNamespace(plan=_plan())
+        workflow.runtime_observer.observe.side_effect = [
+            _runtime("old:1", rollout="rollback_completed"),
+            _runtime("old:1", rollout="rollback_completed"),
+        ]
+        for _ in range(2):
+            result = await workflow.recover(
+                "jenkins", "jenkins", preview=False, live_consent=_consent()
+            )
+            self.assertEqual(PlatformWorkflowStatus.COMPLETED, result.status)
+            self.assertFalse(result.executed)
+        factory.assert_not_called()
+        store.save.assert_not_called()
+        self.assertEqual(_plan(), store.load.return_value.plan)
+
+    async def test_failed_forward_rollout_is_not_a_target_noop(self) -> None:
+        workflow, factory, store, _ = _workflow()
+        workflow.runtime_observer.observe.side_effect = [
+            _runtime("new:1", rollout="rollback_completed")
+        ]
+        result = await workflow.run(_plan(), preview=False, live_consent=_consent())
+        self.assertEqual(PlatformWorkflowStatus.BLOCKED, result.status)
+        factory.assert_not_called()
+        store.save.assert_not_called()
+
+    async def test_recovery_requires_convergence_despite_rollback_status(self) -> None:
+        for observed in (
+            _runtime("old:1", rollout="paused"),
+            _runtime("old:1", rollout="updating"),
+            _runtime("old:1", rollout="rollback_started"),
+            _runtime("old:1", rollout="rollback_paused"),
+            _runtime("old:1", task_image="new:1", rollout="rollback_completed"),
+        ):
+            with self.subTest(observed=observed):
+                workflow, factory, store, _ = _workflow()
+                store.load.return_value = SimpleNamespace(plan=_plan())
+                workflow.runtime_observer.observe.side_effect = [observed] * 3
+                result = await workflow.recover(
+                    "jenkins", "jenkins", preview=False, live_consent=_consent()
+                )
+                self.assertEqual(PlatformWorkflowStatus.FAILED_TO_VERIFY, result.status)
+                self.assertTrue(result.executed)
+                factory.assert_called_once_with(_plan().rollback_plan)
+                store.save.assert_not_called()
+
     async def test_apply_uses_running_source_even_when_compose_is_stale(self) -> None:
         workflow, factory, _, _ = _workflow()
         workflow.compose_repository.get_services_of.return_value = (
@@ -341,6 +388,8 @@ class ClassicUpdateWorkflowTest(unittest.IsolatedAsyncioTestCase):
     async def test_failed_rollout_or_replaced_service_stops_verification(self) -> None:
         for observed in (
             _runtime("new:1", rollout="paused"),
+            _runtime("old:1", rollout="rollback_completed"),
+            _runtime("new:1", rollout="rollback_completed"),
             replace(_runtime("new:1"), service_id="replacement"),
         ):
             with self.subTest(observed=observed):
