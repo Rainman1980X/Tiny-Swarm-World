@@ -20,6 +20,10 @@ class TestSecureRuntimePaths(unittest.TestCase):
             ("env", "PYTHONPATH=src", "TSW_RUN_POST_INSTALL_BROWSER_LIVE=1"),
             run_classic_acceptance.CLASSIC_E2E_COMMAND[:3],
         )
+        self.assertEqual(
+            "tests.e2e.classic.test_post_install_browser_live",
+            run_classic_acceptance.CLASSIC_E2E_COMMAND[-1],
+        )
 
     def test_drvfs_path_is_rejected_even_when_stat_reports_0600(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

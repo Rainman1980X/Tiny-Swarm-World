@@ -49,11 +49,7 @@ CLASSIC_E2E_COMMAND = (
     "python3",
     "-m",
     "unittest",
-    "discover",
-    "-s",
-    "tests/e2e/classic",
-    "-t",
-    ".",
+    "tests.e2e.classic.test_post_install_browser_live",
 )
 
 
@@ -579,11 +575,11 @@ def _safe_command_label(operation: str) -> str:
         "platform_verify": "bash tsw --json platform verify",
         "reconcile": "bash tsw --live --approve-live --json platform reconcile",
         "update": "bash tsw --live --approve-live --json platform update --stack <configured> --service <configured>",
-        "classic_e2e": "env PYTHONPATH=src TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
-        "reconcile_e2e": "env PYTHONPATH=src TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
-        "update_e2e": "env PYTHONPATH=src TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
+        "classic_e2e": "env PYTHONPATH=src TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest tests.e2e.classic.test_post_install_browser_live",
+        "reconcile_e2e": "env PYTHONPATH=src TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest tests.e2e.classic.test_post_install_browser_live",
+        "update_e2e": "env PYTHONPATH=src TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest tests.e2e.classic.test_post_install_browser_live",
         "recovery": "bash tsw --live --approve-live --json platform update --recover --stack <configured> --service <configured>",
-        "recovery_e2e": "env PYTHONPATH=src TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
+        "recovery_e2e": "env PYTHONPATH=src TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest tests.e2e.classic.test_post_install_browser_live",
     }.get(operation, operation)
 
 
