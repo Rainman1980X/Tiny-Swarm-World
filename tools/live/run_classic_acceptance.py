@@ -414,9 +414,8 @@ def _summarize(operation: str, stdout: str, stderr: str) -> dict[str, object]:
             "runtime_seconds": float(match.group(2)) if match else None,
             "skipped": int(skips.group(1)) if skips else 0,
         }
-    try:
-        payload = json.loads(stdout)
-    except json.JSONDecodeError:
+    payload = _find_structured_payload(stdout, stderr)
+    if payload is None:
         return {"result": "completed_without_structured_summary" if not stderr else "failed"}
     if not isinstance(payload, dict):
         return {"result": "completed_without_structured_summary"}
@@ -433,6 +432,24 @@ def _summarize(operation: str, stdout: str, stderr: str) -> dict[str, object]:
         else None,
         "result_count": result_count,
     }
+
+
+def _find_structured_payload(
+    stdout: str, stderr: str
+) -> dict[str, object] | list[object] | None:
+    candidates: list[tuple[int, dict[str, object] | list[object]]] = []
+    decoder = json.JSONDecoder()
+    for stream in (stdout, stderr):
+        for match in re.finditer(r"(?m)^[\[{]", stream):
+            try:
+                payload, _ = decoder.raw_decode(stream[match.start() :])
+            except json.JSONDecodeError:
+                continue
+            if isinstance(payload, (dict, list)):
+                candidates.append((len(stream[match.start() :]), payload))
+    if not candidates:
+        return None
+    return max(candidates, key=lambda candidate: candidate[0])[1]
 
 
 def _structured_result(payload: dict[str, object]) -> str:
