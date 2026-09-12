@@ -1,0 +1,45 @@
+# Context Pack: RC1-R01
+
+Workflow id: `rc1-evidence-completion-20260912`
+Workflow path: `documentation/workflow/issues/issue-297/workflow.md`
+Issue: #297
+Slice: `RC1-E01`
+Authoring branch: `feature/workflow-rc1-evidence-20260912`
+Planned execution branch: `feature/rc1-evidence-execution-20260912`
+Execution profile: `FULL_PATH`
+Status: `READY_FOR_WORKFLOW_EXECUTION`
+
+This context pack is navigation only. Root AGENTS.md, QUALITY.md, process documents, ADRs, Arc42 and the issue-local workflow remain authoritative.
+
+## Affected areas
+
+- canonical update workflow
+- Classic acceptance runner
+- WSL2 and native-Linux lifecycle
+
+## Required roles
+
+- Senior Requirement Engineer
+- Senior System Architect
+- Senior Python Automation Developer
+- Senior Tester
+- Senior Workflow Architect
+- Issue Completion Auditor
+
+Conditional: Senior DevOps, Live Evidence Validation, Security Sandbox, Documentation and Release Baseline Governance as the slice requires.
+
+## Quality commands
+
+- `git diff --check`
+- `python3 tools/quality_gate.py quality`
+
+## Governing file hashes
+
+- `AGENTS.md`: `bc0e6e0c09ac3d61a450a7fe16c3e4de9e6fbb8bdc688aad58f10a3d18b31041`
+- `QUALITY.md`: `7097ff31c68f178fe685c1d7d5cbc18c257a7cf5d2f727979fb2b5ab9c029c7e`
+- `documentation/process/issue-completion-discipline.md`: `3db2d080b7cfbbc3737907a61c67ce6a361485c8993cf4a20c1c5fe2dc743bc3`
+- `documentation/process/verification-state-policy.md`: `5b6e2eefde66a1b8492afafc2976e59ac40f16e7100f79f730b97b254febdcfd`
+- `.agents/skills/workflow-authoring/SKILL.md`: `5733f64086f113d578544b4d2d0297554237296adf0dc2df5ebe641e50dec9e5`
+- `.agents/skills/three-amigos-requirement-gatekeeper/SKILL.md`: `76659e618cb706e8990cdf44441aeaed219465044175826adca5357ae8acc5b4`
+- `.agents/orchestrator/routing-rules.md`: `3accea3112bc207eda96e02b3fe4831b79669f7c8f6a5668f577fca7d0fed050`
+- `documentation/arc42/11_risks_and_debt.adoc`: `d29026dfcb3a2fe235686aeffddf388fa111bac9352f33d96d0b7621c12c6fbb`

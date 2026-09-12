@@ -237,3 +237,15 @@ locks. Local verification remains the authoritative default. Live LXC/Incus,
 Docker/Swarm, Portainer/Nexus, browser/Selenium and SonarQube checks remain
 opt-in and must use the verification-state policy with observable redacted
 evidence. The #189 local quality pass is not live or external evidence.
+
+
+=== RC1 Evidence Completion Follow-up (2026-09-12)
+
+The remaining RC1 evidence requirements are governed by the indexed workflow
+`documentation/workflow/workflow.index.md` and its issue-local slices. The
+workflow keeps WSL2 and native-Linux validation separate, freezes the exact
+candidate before live execution, serializes shared target and release evidence,
+and preserves `LIVE_*` and external-gate non-success states. R05 is a
+read-only reconciliation of already verified hosted evidence. The workflow
+must not convert local, historical, queued, skipped, blocked or unavailable
+results into RC1 acceptance.
