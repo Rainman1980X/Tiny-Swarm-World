@@ -1,6 +1,9 @@
 # RC1-R08 Remaining Risks
 
-- Trivy must be installed and its candidate-matched report retained.
+- DS-0002 HIGH requires a non-root runtime decision for all three custom
+  Dockerfiles. Service Access currently contracts internal HTTP on port 80;
+  changing its NGINX user may require a coordinated internal-port and routing
+  contract change.
 - Version tags without resolved digests limit reproducibility for several
   configured images.
 - Portainer/agent and Traefik Docker socket capability remains a reviewed
