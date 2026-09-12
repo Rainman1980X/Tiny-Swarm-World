@@ -1541,10 +1541,22 @@ services:
                 self.assertIn(base_image_line, dockerfile)
                 self.assertIn(copy_line, dockerfile)
                 self.assertIn("pid /tmp/nginx.pid", dockerfile)
+                self.assertIn("USER nginx", dockerfile)
                 self.assertNotIn("apk add", dockerfile)
                 self.assertNotIn("setcap", dockerfile)
                 if service_name == "service-access-nginx":
                     self.assertNotIn("generate-self-signed-cert.sh", dockerfile)
+
+        jenkins_dockerfile = (
+            repository_root
+            / "infra"
+            / "config"
+            / "compose"
+            / "jenkins"
+            / "image"
+            / "Dockerfile"
+        ).read_text(encoding="utf-8")
+        self.assertIn("USER jenkins", jenkins_dockerfile)
 
     def test_service_access_image_publisher_packages_dashboard_and_nginx_assets(self):
         publisher = _CapturingImagePublisher()
