@@ -16,3 +16,7 @@ Local contracts, the current runner registration/capability observation, a
 clean test-only Incus/LXC installation and a fail-closed dispatch drill are
 verified. A protected environment dispatch against an owned target and a
 controlled failure drill remain required before completion.
+
+The follow-up test-profile requirements R05-11 through R05-14 pass the local
+Three-Amigos review and targeted verification. They do not close the original
+issue: hosted full-lifecycle evidence and the failure drill remain open.

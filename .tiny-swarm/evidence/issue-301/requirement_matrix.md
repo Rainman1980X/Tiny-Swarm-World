@@ -16,6 +16,10 @@ Branch: feature/rc1-r05-runner-qualification-20260912
 | R05-08 | Required failures propagate non-green; no skipped success. | Runner exit status and workflow job dependency | Existing tests; live failure drill pending | VERIFIED_LOCAL |
 | R05-09 | Scheduled and manual dispatch behavior is validated. | Existing schedule/dispatch inputs and approval guard | Approved manual dispatch reached runner and failed closed on missing prerequisites | VERIFIED_DISPATCH_GUARD_PENDING_LIVE |
 | R05-10 | Link successful run and evidence into RC1. | Release evidence consumer path defined | Successful run pending | BLOCKED_LIVE |
+| R05-11 | Disposable test execution must not require a credential-rotation reference. | Explicit test-only execution profile in the canonical runner and workflow | `test_disposable_test_profile_does_not_require_rotation_reference`; workflow contract test | VERIFIED_LOCAL |
+| R05-12 | The test workflow must stop reading the rotation-reference GitHub variable while retaining consent, Linux, ownership, secure-file and update-input guards. | Nightly workflow test-only invocation and reduced variable contract | `test_classic_live_workflow_is_protected_and_fail_closed` | VERIFIED_LOCAL |
+| R05-13 | Terminal evidence must identify the disposable test profile and record rotation as not applicable without writing a credential or reference value. | Redacted runner summary fields | `test_disposable_test_profile_does_not_require_rotation_reference`; static redaction contract | VERIFIED_LOCAL |
+| R05-14 | Operator documentation must explain the remaining GitHub variables and the runner-local secure env file. | Updated secure live/test path guide | `git diff --check`; documentation inspection | VERIFIED_LOCAL |
 
 The issue remains open because the protected environment, owned target and
 full self-hosted execution have not yet been supplied or observed.

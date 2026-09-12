@@ -108,6 +108,18 @@ class TestSecureRuntimePaths(unittest.TestCase):
         self.assertFalse(run_classic_acceptance._valid_rotation_reference("raw secret"))
         self.assertTrue(run_classic_acceptance._valid_rotation_reference("ticket-271-20260829"))
 
+    def test_disposable_test_profile_does_not_require_rotation_reference(self) -> None:
+        self.assertTrue(run_classic_acceptance._rotation_reference_valid_for_profile(True, None))
+        self.assertFalse(run_classic_acceptance._rotation_reference_valid_for_profile(False, None))
+        self.assertEqual(
+            "not_applicable_test_only",
+            run_classic_acceptance._rotation_evidence_status(True, "ignored-reference"),
+        )
+        self.assertEqual(
+            "recorded",
+            run_classic_acceptance._rotation_evidence_status(False, "ticket-271-20260829"),
+        )
+
 
 def _mountinfo(root: Path, filesystem_type: str, source: str) -> str:
     return (

@@ -103,8 +103,11 @@ class CiWorkflowContractTests(unittest.TestCase):
         self.assertIn("command -v incus", workflow)
         self.assertIn("command -v docker", workflow)
         self.assertIn("run_classic_acceptance.py --approve-live", workflow)
+        self.assertIn("--test-only", workflow)
         self.assertIn("TSW_CLASSIC_UPDATE_STACK", workflow)
         self.assertIn("TSW_CLASSIC_UPDATE_FROM_IMAGE", workflow)
+        self.assertNotIn("TSW_CLASSIC_CREDENTIAL_ROTATION_REFERENCE", workflow)
+        self.assertNotIn("--credential-rotation-reference", workflow)
         self.assertIn("actions/upload-artifact@", workflow)
         self.assertIn("if-no-files-found: error", workflow)
         self.assertNotIn("runs-on: ubuntu-latest", workflow)
@@ -134,6 +137,9 @@ class CiWorkflowContractTests(unittest.TestCase):
             '"platform"',
             '"runner"',
             '"target_owner_reference_present"',
+            '"execution_profile"',
+            '"not_applicable_test_only"',
+            '"--test-only"',
         ):
             with self.subTest(marker=marker):
                 self.assertIn(marker, runner)
