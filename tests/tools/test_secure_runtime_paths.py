@@ -120,6 +120,14 @@ class TestSecureRuntimePaths(unittest.TestCase):
             run_classic_acceptance._rotation_evidence_status(False, "ticket-271-20260829"),
         )
 
+    def test_structured_summary_accepts_runner_status_lines_before_json(self) -> None:
+        payload = run_classic_acceptance._find_structured_payload(
+            "setup phase started\n{\n  \"status\": \"completed\"\n}\n",
+            "",
+        )
+
+        self.assertEqual({"status": "completed"}, payload)
+
 
 def _mountinfo(root: Path, filesystem_type: str, source: str) -> str:
     return (
