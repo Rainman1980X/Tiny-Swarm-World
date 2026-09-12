@@ -96,6 +96,27 @@ class TestComposition(unittest.TestCase):
         runner.run_text.assert_not_called()
         deployment_builder.assert_not_called()
 
+    def test_image_update_does_not_bootstrap_or_synchronize_unrelated_secrets(self):
+        with (
+            patch.object(composition, "ComposeFileRepositoryYaml"),
+            patch.object(composition, "LxcSwarmRuntime"),
+            patch.object(
+                composition, "InfisicalCliClient",
+                side_effect=AssertionError("Image updates must not initialize Infisical"),
+            ),
+        ):
+            services = composition.build_lxc_deployment_services(
+                backend=composition.ManagedLxcBackend.INCUS,
+                service_profile=ServiceStackProfile.SERVICE_ACCESS,
+                update_stack_name="jenkins",
+            )
+
+        self.assertEqual((), services.workflows.bootstrap.steps)
+        self.assertEqual(1, len(services.workflows.apply.steps))
+        step = services.workflows.apply.steps[0]
+        self.assertIsInstance(step, EnsureSwarmStack)
+        self.assertEqual("jenkins", step.service_stack.stack_name)
+
     def setUp(self):
         self._infisical_env_patcher = patch.dict(
             os.environ,
