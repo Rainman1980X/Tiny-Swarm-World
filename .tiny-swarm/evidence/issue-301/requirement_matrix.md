@@ -14,7 +14,7 @@ Branch: feature/rc1-r05-runner-qualification-20260912
 | R05-06 | Produce a real successful final-candidate run. | Workflow remains configured for protected runner | No successful run available | BLOCKED_LIVE |
 | R05-07 | Evidence records SHA, runner, scenarios, durations and artifacts. | Payload now records safe runner identity/label and phase timings | Static inspection; real artifact pending | VERIFIED_LOCAL_PENDING_LIVE |
 | R05-08 | Required failures propagate non-green; no skipped success. | Runner exit status and workflow job dependency | Existing tests; live failure drill pending | VERIFIED_LOCAL |
-| R05-09 | Scheduled and manual dispatch behavior is validated. | Existing schedule/dispatch inputs and approval guard | Static contract; real dispatch pending | VERIFIED_LOCAL_PENDING_LIVE |
+| R05-09 | Scheduled and manual dispatch behavior is validated. | Existing schedule/dispatch inputs and approval guard | Approved manual dispatch reached runner and failed closed on missing prerequisites | VERIFIED_DISPATCH_GUARD_PENDING_LIVE |
 | R05-10 | Link successful run and evidence into RC1. | Release evidence consumer path defined | Successful run pending | BLOCKED_LIVE |
 
 The issue remains open because the protected environment, owned target and
