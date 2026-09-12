@@ -127,3 +127,33 @@ The complete local gate after this scope repair passed under Python 3.12.14:
 2,062 tests, 18 explicit live/optional skips; lint, verification policy,
 three import contracts, 18 architecture tests and 674 typechecked files passed.
 Retained log: `tsw-rc1-r01-scope-quality.log`. This is local verification only.
+
+### Post-apply observation boundary
+
+At execution SHA `3b68ca95`, native update verification failed at
+23:24:24.704 UTC; Docker reported the selected update completed at
+23:24:24.602 UTC and subsequent inspection found the correct running B task.
+The first summary does not retain its nested typed reason, so a changing
+snapshot is an inference from timing and source inspection, not a proven
+root-cause label for that historical attempt. Canonical recovery succeeded.
+
+Source review and deterministic tests expose an immediate-failure path when
+the same service changes between the observer's two inspections. A distinct
+`UpdateObservationChanged` now permits only this read to repeat within the
+existing post-apply attempt/time bound. Deployment is not repeated. Invalid
+schema/task state, replaced identity, missing access and pre-apply instability
+still fail closed; continuous changes exhaust the bound without success.
+The successful result records the observation attempt count. Forty-one focused
+workflow/adapter tests pass, including transient and exhausted observations.
+This scoped requirement/architecture/QA fallback applies the resilience skill;
+it does not claim a new independent-agent review.
+
+The controlled WSL failing image at `3b68ca95` produced a nonzero update result,
+then canonical recovery and repeated recovery succeeded. Jenkins identity,
+configuration, credentials and fixture data were preserved. Post-recovery
+acceptance passed 25 live tests plus seven API checks with zero skips.
+Retained sequence: `scope-validation/20260912T232350Z.json`.
+
+Full local quality after the typed observation repair: PASS under Python
+3.12.14, 2,066 tests with 18 explicit live/optional skips, all architecture,
+lint, policy and type checks passed. Log: `tsw-rc1-snapshot-quality.log`.
