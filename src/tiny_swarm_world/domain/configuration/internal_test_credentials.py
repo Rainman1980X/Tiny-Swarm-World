@@ -20,7 +20,9 @@ from types import MappingProxyType
 
 
 INTERNAL_TEST_PROFILE = "internal-test"
-INTERNAL_TEST_PASSWORD = "TSW1234STW5678"
+INTERNAL_TEST_CREDENTIAL_SEED = "TSW1234STW5678"
+# Compatibility name retained for the internal-test profile API.
+INTERNAL_TEST_PASSWORD = INTERNAL_TEST_CREDENTIAL_SEED
 INTERNAL_TEST_LOGIN_EMAIL = "admin@tiny-swarm-world.local"
 _TRAEFIK_INTERNAL_TEST_SALT = "abcdefghijklmnopqrstuu"
 
@@ -230,7 +232,7 @@ def _machine_password_constraint(startup_semantics: str) -> CredentialConstraint
 
 
 def _pulsar_signing_key() -> str:
-    raw_key = hashlib.sha256(f"{INTERNAL_TEST_PASSWORD}:pulsar".encode("utf-8")).digest()
+    raw_key = hashlib.sha256(f"{INTERNAL_TEST_CREDENTIAL_SEED}:pulsar".encode("utf-8")).digest()
     return base64.b64encode(raw_key).decode("ascii")
 
 
@@ -245,7 +247,7 @@ def _pulsar_admin_token(signing_key: str) -> str:
 
 def _traefik_htpasswd() -> str:
     """Return bcrypt cost 12 for admin and the fixed internal-test salt."""
-    password = INTERNAL_TEST_PASSWORD.encode("utf-8")
+    password = INTERNAL_TEST_CREDENTIAL_SEED.encode("utf-8")
     salt = f"$2y$12${_TRAEFIK_INTERNAL_TEST_SALT}".encode("ascii")
     # bcrypt's deterministic result for this fixed test password and salt.
     digest = "2RTzyBNB53lHFlC35Xz6WdoFIplGrUi"

@@ -124,6 +124,11 @@ class CiWorkflowContractTests(unittest.TestCase):
             "raw stdout, stderr, credentials and environment values were not written",
             "tools/install_debugger.py",
             '"classic_e2e"',
+            '"reconcile"',
+            '"reconcile_e2e"',
+            '"update_e2e"',
+            '"recovery"',
+            '"recovery_e2e"',
             '"TSW_RUN_POST_INSTALL_BROWSER_LIVE=1"',
             '"update"',
             '"platform"',
@@ -133,6 +138,12 @@ class CiWorkflowContractTests(unittest.TestCase):
         self.assertIn("capture_output=True", runner)
         self.assertNotIn("print(completed.stdout", runner)
         self.assertNotIn("print(completed.stderr", runner)
+        self.assertLess(runner.index('"classic_e2e"'), runner.index('"reconcile"'))
+        self.assertLess(runner.index('"reconcile"'), runner.index('"reconcile_e2e"'))
+        self.assertLess(runner.index('"reconcile_e2e"'), runner.index('"update"'))
+        self.assertLess(runner.index('"update"'), runner.index('"update_e2e"'))
+        self.assertLess(runner.index('"update_e2e"'), runner.index('"recovery"'))
+        self.assertLess(runner.index('"recovery"'), runner.index('"recovery_e2e"'))
 
     def test_branch_protection_status_checks_are_documented(self) -> None:
         documentation = (REPOSITORY_ROOT / "documentation/governance/ci-quality-gates.md").read_text(
