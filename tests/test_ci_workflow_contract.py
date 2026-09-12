@@ -134,6 +134,7 @@ class CiWorkflowContractTests(unittest.TestCase):
             '"recovery"',
             '"recovery_e2e"',
             '"TSW_RUN_POST_INSTALL_BROWSER_LIVE=1"',
+            '"PYTHONPATH=src"',
             '"update"',
             '"platform"',
             '"runner"',
