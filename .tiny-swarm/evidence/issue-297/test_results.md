@@ -87,3 +87,14 @@ failures or errors. Repeat update reported `no_op`, retained the same task and
 container, and preserved the original recovery metadata. Recovery restored
 the original image and fixture data. Native update, interrupted-update proof
 and hosted execution remain open; these observations do not close R01.
+
+### Published runner PATH regression
+
+Compatibility run 34723984143 failed the approved-runtime-path regression on
+Python 3.12 and 3.13: a login shell replaced the supplied PATH. The operation
+launcher now uses a non-login shell while retaining explicit protected-config
+loading and evidence-path pinning. Thirty targeted runner/authentication/CI
+contract tests pass locally. Required hosted checks must pass on the new head.
+The existing real three-role review remains historical; further review uses
+an explicit requirement/architecture/QA fallback because all callable agents
+reported their usage limit.

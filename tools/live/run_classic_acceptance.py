@@ -375,7 +375,7 @@ def _run_operation(
     )
     try:
         completed = subprocess.run(
-            ["bash", "-lc", shell_command],
+            ["bash", "-c", shell_command],
             cwd=REPOSITORY_ROOT,
             env=environment,
             capture_output=True,
