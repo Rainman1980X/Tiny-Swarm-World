@@ -1,6 +1,6 @@
 = RC1 Central Module Maintenance Triage
 
-Date: 2026-09-12
+Date: 2026-09-13
 
 The review uses responsibility boundaries, ports and regression ownership
 alongside line counts. File size alone is not a release defect.
@@ -33,10 +33,12 @@ alongside line counts. File size alone is not a release defect.
 | application/services/platform/preflight_service.py
 | A broad preflight service coordinates host, configuration, ports, resources,
   filesystem and secret checks through many optional ports.
-| Acceptable orchestration boundary; it depends on ports and remains
-  fail-closed.
-| Post-RC1 group checks into named preflight collaborators without changing
-  result taxonomy.
+| Standard setup wires the relevant collaborators; executed blocking checks
+  prevent progression. Direct construction can omit optional checks. Protected
+  filesystem-override evidence failure blocks authorization; general summary
+  persistence is best-effort and does not establish evidence completeness.
+| Post-RC1 define collaborator/evidence completeness under issue #331, keeping
+  protected authorization and existing failure results intact.
 
 | __main__.py
 | Entry-point dispatch, serialization and operator summaries have grown with
@@ -58,4 +60,31 @@ capacity rejection, provider lifecycle success, provider failure propagation
 and redacted evidence. The expected benefit is smaller provider changes with
 the same safety and evidence behavior.
 
-No observation in this review is promoted to an RC1 release blocker.
+== Independent review and routed defects
+
+Architecture reviewer Poincare and test/evidence reviewer Faraday independently
+inspected candidate product tree 320f11f8722cb26fa289326178cae8a6486df1b5.
+Faraday ran 57 preflight/authorizer tests under Python 3.12.14 and eight
+in-memory contract checks. Large module size alone remains maintenance debt.
+
+Three concrete update defects are RC1 blockers owned by #297: recovery
+overwrites its original plan, source validation reads configuration rather
+than runtime, and completion lacks explicit task-image convergence. Their
+lifecycle consumers are #299/#301 and final acceptance owner is #302. The
+focused corrections and live evidence must pass before release acceptance.
+The blockers and baseline source/test reproducers are registered in #294 and
+#297 under the independent review section dated 2026-09-13.
+
+Missing optional collaborators concern custom/incomplete wiring. General
+summary-write suppression also applies to standard wiring. Both limitations
+are bounded debt tracked in #331. Standard setup
+wiring and protected override authorization were checked separately; a
+preflight PASS is never proof that required release artifacts exist. Issue
+#329 owns remaining LXC qualification orchestration, including
+_host_capacity_block and _verify_provider_resources; existing parsing already
+lives in lxc/resource/resolution.py.
+
+R06 integration owner Codex acknowledges #329/#331 as explicit maintenance
+residuals. This disposition does not waive R01 blockers or missing live,
+external or release evidence. See .tiny-swarm/evidence/issue-310/ for the
+independent audit and verification details.
