@@ -12,8 +12,7 @@ Branch: feature/rc1-r07-operator-journey-20260912
 | R07-04 | Align reset, verify, reconcile, setup, update and recovery semantics. | README, Usage, Installation and update ADR | VERIFIED_LOCAL |
 | R07-05 | Execute documented journey on qualified targets. | Journey contract | BLOCKED_LIVE |
 | R07-06 | Record duration/resource observations by host/profile. | Runner timing fields and live evidence contract | BLOCKED_LIVE |
-| R07-07 | Render/check guides and links. | Source docs tests pass; renderer unavailable | BLOCKED_TOOLING |
+| R07-07 | Render/check guides and links. | Linux container render; source docs tests | VERIFIED_LOCAL |
 | R07-08 | Independent operator-oriented review. | completion_audit.md | INCOMPLETE_PENDING_LIVE |
 
-The issue remains open until a qualified target walkthrough and a usable
-Linux documentation renderer are available.
+The issue remains open until a qualified target walkthrough is available.
