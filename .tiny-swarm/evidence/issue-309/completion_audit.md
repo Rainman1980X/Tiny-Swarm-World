@@ -13,5 +13,6 @@ checked tool versions, local scan results and explicit unavailable-tool
 handling.
 
 The static inventory and dependency/SBOM evidence are acceptable locally.
-Trivy, resolved image identity capture and candidate live boundary evidence
-remain required before completion.
+Trivy execution is now evidenced, but its three HIGH DS-0002 findings remain
+unresolved. Resolved image identity capture and candidate live boundary
+evidence also remain required before completion.
