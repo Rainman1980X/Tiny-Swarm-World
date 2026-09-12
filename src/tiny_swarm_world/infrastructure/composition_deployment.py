@@ -242,7 +242,10 @@ def build_lxc_deployment_services(
     secret_manifest_entries = SecretManifestRenderer(local_file_storage).run()
     infisical_cli_client = None
     infisical_secret_sync_step = None
-    if selected_service_profile is ServiceStackProfile.SERVICE_ACCESS:
+    if (
+        selected_service_profile is ServiceStackProfile.SERVICE_ACCESS
+        and update_stack_name is None
+    ):
         infisical_cli_client = InfisicalCliClient(base_url=_self_hosted_infisical_url())
         infisical_secret_sync_step = InfisicalSecretSyncStep(
             cli=infisical_cli_client,
@@ -303,22 +306,23 @@ def build_lxc_deployment_services(
         application_steps = _prioritize_infisical_apply_steps(
             (stack_steps["traefik"], *application_steps)
         )
-    sonarqube_admin_step = EnsureSonarqubeAdminAccess(
-        sonarqube_client=SonarqubeHttpClient(
-            _operator_config_value(
-                "TSW_SONARQUBE_URL",
-                _local_http_url("localhost", "12000"),
-            )
-        ),
-        username=_operator_config_value("TSW_SONARQUBE_ADMIN_USERNAME", "admin"),
-        password=_operator_secret_value("TSW_SONARQUBE_ADMIN_PASSWORD"),
-        progress=progress,
-    )
-    application_steps = _with_post_stack_steps(
-        application_steps,
-        "sonarqube",
-        (sonarqube_admin_step,),
-    )
+    if any(contract.stack_name == "sonarqube" for contract in service_stack_contracts):
+        sonarqube_admin_step = EnsureSonarqubeAdminAccess(
+            sonarqube_client=SonarqubeHttpClient(
+                _operator_config_value(
+                    "TSW_SONARQUBE_URL",
+                    _local_http_url("localhost", "12000"),
+                )
+            ),
+            username=_operator_config_value("TSW_SONARQUBE_ADMIN_USERNAME", "admin"),
+            password=_operator_secret_value("TSW_SONARQUBE_ADMIN_PASSWORD"),
+            progress=progress,
+        )
+        application_steps = _with_post_stack_steps(
+            application_steps,
+            "sonarqube",
+            (sonarqube_admin_step,),
+        )
     service_stack_by_name = {contract.stack_name: contract for contract in service_stack_contracts}
     infisical_apply_readiness_steps = (
         _infisical_apply_readiness_steps(
