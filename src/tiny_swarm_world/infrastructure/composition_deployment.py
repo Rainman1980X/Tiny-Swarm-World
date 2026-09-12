@@ -7,6 +7,7 @@ calls so legacy facade patch points remain effective.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from functools import partial
 
 from tiny_swarm_world.application.services.deployment.verify_host_prerequisites import (
@@ -120,6 +121,8 @@ def build_deployment_services_for_provider(
     node_provider_request: NodeProviderSelectionRequest | None = None,
     ui: PortUI | None = None,
     progress: PortWorkflowProgress | None = None,
+    image_overrides: Mapping[str, str] | None = None,
+    update_stack_name: str | None = None,
 ) -> DeploymentServices:
     provider_request = node_provider_request or _default_node_provider_request()
     backend = _lxc_backend_for_provider_request(provider_request)
@@ -130,6 +133,8 @@ def build_deployment_services_for_provider(
             backend=backend,
             ui=ui,
             progress=progress,
+            image_overrides=image_overrides,
+            update_stack_name=update_stack_name,
         )
     return DeploymentServices(
         workflows=DeploymentWorkflows(
@@ -162,6 +167,8 @@ def build_lxc_deployment_services(
     service_profile: ServiceStackProfile | str = DEFAULT_SETUP_SERVICE_PROFILE,
     ui: PortUI | None = None,
     progress: PortWorkflowProgress | None = None,
+    image_overrides: Mapping[str, str] | None = None,
+    update_stack_name: str | None = None,
 ) -> DeploymentServices:
     project_paths = default_project_paths()
     host_environment = HostEnvironmentDetector().detect().environment
@@ -174,9 +181,20 @@ def build_lxc_deployment_services(
     local_file_storage = LocalFileStorage()
     selected_service_profile = ServiceStackProfile(service_profile)
     service_stack_contracts = service_stack_contracts_for_profile(selected_service_profile)
+    if update_stack_name is not None:
+        service_stack_contracts = tuple(
+            contract
+            for contract in service_stack_contracts
+            if contract.stack_name == update_stack_name
+        )
+        if not service_stack_contracts:
+            raise ValueError(f"unknown update stack: {update_stack_name}")
+    effective_environment = dict(os.environ)
+    effective_environment.update(image_overrides or {})
     compose_repository = ComposeFileRepositoryYaml(
         project_paths=project_paths,
         service_profile=selected_service_profile,
+        environment=effective_environment,
     )
     routing_evidence_step = WriteEffectiveAccessModelEvidence(
         effective_access_model_repository=compose_repository,
@@ -215,6 +233,12 @@ def build_lxc_deployment_services(
         ),
     )
     stack_environment = _deployment_stack_environment(selected_service_profile)
+    for environment_name, image_ref in (image_overrides or {}).items():
+        if update_stack_name is not None:
+            stack_environment.setdefault(update_stack_name, {})[environment_name] = image_ref
+        for stack_environment_values in stack_environment.values():
+            if environment_name in stack_environment_values:
+                stack_environment_values[environment_name] = image_ref
     secret_manifest_entries = SecretManifestRenderer(local_file_storage).run()
     infisical_cli_client = None
     infisical_secret_sync_step = None
@@ -245,15 +269,15 @@ def build_lxc_deployment_services(
             stack_environment=stack_environment.get(contract.stack_name),
             credential_snapshot=(partial(infisical_secret_sync_step.resolved_snapshot,
                                          ("TSW_JENKINS_ADMIN_PASSWORD",))
-                                 if contract.stack_name == "jenkins" and infisical_secret_sync_step is not None
+                                 if update_stack_name is None and contract.stack_name == "jenkins" and infisical_secret_sync_step is not None
                                  else None),
             credential_keys=(("TSW_JENKINS_ADMIN_PASSWORD",)
-                             if contract.stack_name == "jenkins" and infisical_secret_sync_step is not None
+                             if update_stack_name is None and contract.stack_name == "jenkins" and infisical_secret_sync_step is not None
                              else ()),
         )
         for contract in service_stack_contracts
     }
-    bootstrap_steps = (
+    bootstrap_steps = () if update_stack_name is not None else (
         stack_steps["portainer"],
         EnsurePortainerAdminAccess(
             portainer_admin_client=portainer_admin_client,
@@ -272,9 +296,10 @@ def build_lxc_deployment_services(
     application_steps: tuple[object, ...] = tuple(
         stack_steps[contract.stack_name]
         for contract in service_stack_contracts
-        if contract.stack_name not in {"portainer", "nexus", "traefik"}
+        if update_stack_name is not None
+        or contract.stack_name not in {"portainer", "nexus", "traefik"}
     )
-    if selected_service_profile is ServiceStackProfile.SERVICE_ACCESS:
+    if selected_service_profile is ServiceStackProfile.SERVICE_ACCESS and update_stack_name is None:
         application_steps = _prioritize_infisical_apply_steps(
             (stack_steps["traefik"], *application_steps)
         )
@@ -295,9 +320,13 @@ def build_lxc_deployment_services(
         (sonarqube_admin_step,),
     )
     service_stack_by_name = {contract.stack_name: contract for contract in service_stack_contracts}
-    infisical_apply_readiness_steps = _infisical_apply_readiness_steps(
-        selected_service_profile,
-        service_stack_by_name=service_stack_by_name,
+    infisical_apply_readiness_steps = (
+        _infisical_apply_readiness_steps(
+            selected_service_profile,
+            service_stack_by_name=service_stack_by_name,
+        )
+        if update_stack_name is None
+        else ()
     )
     infisical_secret_management_steps: tuple[object, ...] = ()
     infisical_seed_steps: tuple[object, ...] = ()
@@ -344,11 +373,17 @@ def build_lxc_deployment_services(
         )
         for contract in service_stack_contracts
     )
-    pre_apply_steps: list[DeploymentPreApplyStep] = [
-        routing_evidence_step,
-        _PrepareLxcStackAssets(swarm_runtime, "traefik"),
-        _PrepareLxcStackAssets(swarm_runtime, "swagger"),
-    ]
+    pre_apply_steps: list[DeploymentPreApplyStep] = []
+    if update_stack_name is None:
+        pre_apply_steps.extend(
+            (
+                routing_evidence_step,
+                _PrepareLxcStackAssets(swarm_runtime, "traefik"),
+                _PrepareLxcStackAssets(swarm_runtime, "swagger"),
+            )
+        )
+    elif update_stack_name in {"traefik", "swagger", "service-access"}:
+        pre_apply_steps.append(_PrepareLxcStackAssets(swarm_runtime, update_stack_name))
     pre_apply_checks: tuple[VerifyExternalSwarmInput, ...] = ()
     if "traefik" in service_stack_by_name:
         traefik_gui_users_secret_name = _operator_config_value(
@@ -378,7 +413,7 @@ def build_lxc_deployment_services(
                 verification_target_id=_TRAEFIK_GUI_USERS_EXTERNAL_SECRET_TARGET,
             ),
         )
-    if selected_service_profile is ServiceStackProfile.SERVICE_ACCESS:
+    if selected_service_profile is ServiceStackProfile.SERVICE_ACCESS and update_stack_name is None:
         pre_apply_steps.append(_PrepareLxcStackAssets(swarm_runtime, "service-access"))
 
     return DeploymentServices(

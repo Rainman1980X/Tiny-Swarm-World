@@ -40,6 +40,7 @@ _RUNTIME_BUILDER_NAMES = (
     "build_deployment_services_for_provider",
     "build_lxc_deployment_services",
     "build_setup_services",
+    "build_classic_update_workflow",
     "build_application_services",
 )
 
@@ -51,6 +52,7 @@ _BOUNDARY_MODULES = {
     "build_deployment_services_for_provider": "composition_deployment",
     "build_lxc_deployment_services": "composition_deployment",
     "build_setup_services": "composition_setup",
+    "build_classic_update_workflow": "composition_setup",
     "build_application_services": "composition_setup",
     "run_setup_with_terminal_status": "composition_setup",
 }
@@ -222,6 +224,10 @@ def build_lxc_deployment_services(*args: Any, **kwargs: Any) -> Any:
 
 def build_setup_services(*args: Any, **kwargs: Any) -> Any:
     return _delegate("build_setup_services", *args, **kwargs)
+
+
+def build_classic_update_workflow(*args: Any, **kwargs: Any) -> Any:
+    return _delegate("build_classic_update_workflow", *args, **kwargs)
 
 
 def build_application_services(*args: Any, **kwargs: Any) -> Any:

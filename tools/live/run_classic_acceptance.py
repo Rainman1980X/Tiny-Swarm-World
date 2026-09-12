@@ -63,6 +63,10 @@ def main() -> int:
         "--credential-rotation-reference",
         help="Non-secret reference proving the previously exposed credential was rotated or revoked.",
     )
+    parser.add_argument("--update-stack", default=os.environ.get("TSW_CLASSIC_UPDATE_STACK"))
+    parser.add_argument("--update-service", default=os.environ.get("TSW_CLASSIC_UPDATE_SERVICE"))
+    parser.add_argument("--update-from-image", default=os.environ.get("TSW_CLASSIC_UPDATE_FROM_IMAGE"))
+    parser.add_argument("--update-to-image", default=os.environ.get("TSW_CLASSIC_UPDATE_TO_IMAGE"))
     args = parser.parse_args()
 
     started_at = _utc_now()
@@ -142,6 +146,26 @@ def main() -> int:
             credential_rotation_reference=args.credential_rotation_reference,
         )
 
+    update_values = (
+        args.update_stack,
+        args.update_service,
+        args.update_from_image,
+        args.update_to_image,
+    )
+    if any(not value or not value.strip() for value in update_values):
+        return _write_terminal_result(
+            evidence_dir,
+            run_id=run_id,
+            started_at=started_at,
+            status="LIVE_PREREQUISITE_MISSING",
+            operations=(),
+            reason="canonical update stack, service and source/target images are required",
+            source_filesystem=source_filesystem,
+            secret_storage=secret_storage,
+            evidence_storage=evidence_storage,
+            credential_rotation_reference=args.credential_rotation_reference,
+        )
+
     environment = os.environ.copy()
     # Keep application-generated preflight evidence inside the runner's
     # already-qualified evidence root, including when the root was selected by
@@ -177,6 +201,28 @@ def main() -> int:
                 "verify",
             ),
             300,
+        ),
+        (
+            "update",
+            (
+                "./tsw",
+                "--live",
+                "--approve-live",
+                "--json",
+                "--service-profile",
+                "service-access",
+                "platform",
+                "update",
+                "--stack",
+                args.update_stack.strip(),
+                "--service",
+                args.update_service.strip(),
+                "--from-image",
+                args.update_from_image.strip(),
+                "--to-image",
+                args.update_to_image.strip(),
+            ),
+            1800,
         ),
         (
             "classic_e2e",
@@ -401,6 +447,7 @@ def _safe_command_label(operation: str) -> str:
         "diagnostics": "python3 tools/install_debugger.py --live",
         "setup": "./tsw --live --approve-live --json setup run",
         "platform_verify": "./tsw --json platform verify",
+        "update": "./tsw --live --approve-live --json platform update --stack <configured> --service <configured>",
         "classic_e2e": "env TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
     }.get(operation, operation)
 

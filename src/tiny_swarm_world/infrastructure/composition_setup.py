@@ -7,6 +7,15 @@ calls so legacy facade patch points remain effective.
 
 from __future__ import annotations
 
+import os
+from pathlib import Path
+
+from tiny_swarm_world.application.services.platform.workflow.update import (
+    ClassicUpdateWorkflow,
+)
+from tiny_swarm_world.domain.update import image_override_environment_name
+from tiny_swarm_world.infrastructure.adapters.update import JsonUpdateStateStore
+
 from .composition_runtime import (
     AGGREGATE_INSTANCE,
     ApplicationServices,
@@ -264,6 +273,44 @@ def build_setup_services(
                 ),
             )
         )
+    )
+
+
+def build_classic_update_workflow(
+    service_profile: ServiceStackProfile | str = DEFAULT_SETUP_SERVICE_PROFILE,
+    node_provider_request: NodeProviderSelectionRequest | None = None,
+) -> ClassicUpdateWorkflow:
+    from . import composition as facade
+
+    compose_repository = facade.build_compose_file_repository(
+        service_profile=service_profile,
+    )
+
+    def deployment_workflow_for(plan):
+        image_environment = image_override_environment_name(
+            plan.stack_name,
+            plan.service_name,
+        )
+        services = facade.build_deployment_services_for_provider(
+            service_profile=service_profile,
+            node_provider_request=node_provider_request,
+            image_overrides={image_environment: plan.target_image},
+            update_stack_name=plan.stack_name,
+        )
+        return services.workflows.apply
+
+    configured_state_root = os.environ.get("TSW_UPDATE_STATE_ROOT", "").strip()
+    if configured_state_root:
+        state_root = Path(configured_state_root).expanduser()
+    else:
+        state_home = os.environ.get("XDG_STATE_HOME", "").strip()
+        state_root = (
+            Path(state_home).expanduser() if state_home else Path.home() / ".local" / "state"
+        ) / "tiny-swarm-world" / "updates"
+    return ClassicUpdateWorkflow(
+        compose_repository=compose_repository,
+        deployment_workflow_factory=deployment_workflow_for,
+        state_store=JsonUpdateStateStore(state_root),
     )
 
 def build_application_services(

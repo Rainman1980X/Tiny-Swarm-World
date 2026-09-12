@@ -103,6 +103,8 @@ class CiWorkflowContractTests(unittest.TestCase):
         self.assertIn("command -v incus", workflow)
         self.assertIn("command -v docker", workflow)
         self.assertIn("run_classic_acceptance.py --approve-live", workflow)
+        self.assertIn("TSW_CLASSIC_UPDATE_STACK", workflow)
+        self.assertIn("TSW_CLASSIC_UPDATE_FROM_IMAGE", workflow)
         self.assertIn("actions/upload-artifact@", workflow)
         self.assertIn("if-no-files-found: error", workflow)
         self.assertNotIn("runs-on: ubuntu-latest", workflow)
@@ -123,6 +125,8 @@ class CiWorkflowContractTests(unittest.TestCase):
             "tools/install_debugger.py",
             '"classic_e2e"',
             '"TSW_RUN_POST_INSTALL_BROWSER_LIVE=1"',
+            '"update"',
+            '"platform"',
         ):
             with self.subTest(marker=marker):
                 self.assertIn(marker, runner)

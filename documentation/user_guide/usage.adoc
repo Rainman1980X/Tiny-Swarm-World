@@ -39,7 +39,7 @@ intentionally on a WSL Windows mount, the applicable commands also need
 | Reconcile managed platform | `platform reconcile --live` | Mutates managed platform state; does not constitute a full service update.
 | Run the broader setup again | `setup run --live` | Mutates infrastructure and services without the wrapper's preliminary reset.
 | Recreate a disposable environment | `./install.sh` | Resets managed state before fresh setup.
-| Upgrade a running installation | Follow https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/issues/297[#297] | Canonical update support and acceptance remain incomplete.
+| Upgrade a running installation | `platform update --stack ... --service ... --from-image ... --to-image ...` | Preview first; requires live consent and preserves rollback metadata.
 |===
 
 For an intentional platform reconciliation, followed by verification:
@@ -72,9 +72,23 @@ After changes, verify routes and actual logins as described in
 link:{user-guide-prefix}installation.adoc#verify-installed-runtime[Verify the runtime].
 Platform readiness or a login page alone is not authenticated acceptance.
 
-There is no supported `./install.sh --update` in this revision. Pulling source
-changes, reconciling platform resources and resetting an installation are
-different operations; none alone proves a supported product upgrade.
+The supported update is a single existing stack service image transition. A
+preview validates the source image and selected service without mutation:
+
+[source,bash]
+----
+PYTHONPATH=src python3 -m tiny_swarm_world platform update \
+  --stack jenkins --service jenkins \
+  --from-image 127.0.0.1:13500/jenkins:0.2.0 \
+  --to-image 127.0.0.1:13500/jenkins:0.3.0 --preview --json
+----
+
+Apply the reviewed transition with `--live --approve-live`. The command
+records the source image as protected rollback metadata, applies only the
+selected stack through the deployment port, and fails closed when the source
+image or stack/service contract does not match. Reconcile remains the command
+for converging the current desired state; reset remains the deliberate fresh
+environment operation.
 
 [[open-the-services]]
 == Open The Services

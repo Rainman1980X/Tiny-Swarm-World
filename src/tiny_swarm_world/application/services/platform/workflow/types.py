@@ -11,6 +11,7 @@ class PlatformWorkflowKind(str, Enum):
     RESET = "reset"
     DESTROY = "destroy"
     VERIFY = "verify"
+    UPDATE = "update"
 
 
 class PlatformWorkflowStatus(str, Enum):

@@ -61,6 +61,7 @@ from tiny_swarm_world.application.services.platform.workflow.workflows import (
     PlatformReconcileWorkflow,
     PlatformResetWorkflow,
     PlatformVerifyWorkflow,
+    ClassicUpdateWorkflow,
 )
 from tiny_swarm_world.application.services.network.socat.socat_manager import SocatManager
 
@@ -95,6 +96,7 @@ __all__ = [
     "PlatformReconcileWorkflow",
     "PlatformResetWorkflow",
     "PlatformVerifyWorkflow",
+    "ClassicUpdateWorkflow",
     "PlatformWorkflowKind",
     "PlatformWorkflowResult",
     "PlatformWorkflowSemantics",
