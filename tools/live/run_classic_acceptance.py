@@ -203,6 +203,52 @@ def main() -> int:
             300,
         ),
         (
+            "classic_e2e",
+            (
+                "env",
+                "TSW_RUN_POST_INSTALL_BROWSER_LIVE=1",
+                "python3",
+                "-m",
+                "unittest",
+                "discover",
+                "-s",
+                "tests/e2e/classic",
+                "-t",
+                ".",
+            ),
+            900,
+        ),
+        (
+            "reconcile",
+            (
+                "./tsw",
+                "--live",
+                "--approve-live",
+                "--json",
+                "--service-profile",
+                "service-access",
+                "platform",
+                "reconcile",
+            ),
+            1800,
+        ),
+        (
+            "reconcile_e2e",
+            (
+                "env",
+                "TSW_RUN_POST_INSTALL_BROWSER_LIVE=1",
+                "python3",
+                "-m",
+                "unittest",
+                "discover",
+                "-s",
+                "tests/e2e/classic",
+                "-t",
+                ".",
+            ),
+            900,
+        ),
+        (
             "update",
             (
                 "./tsw",
@@ -225,7 +271,42 @@ def main() -> int:
             1800,
         ),
         (
-            "classic_e2e",
+            "update_e2e",
+            (
+                "env",
+                "TSW_RUN_POST_INSTALL_BROWSER_LIVE=1",
+                "python3",
+                "-m",
+                "unittest",
+                "discover",
+                "-s",
+                "tests/e2e/classic",
+                "-t",
+                ".",
+            ),
+            900,
+        ),
+        (
+            "recovery",
+            (
+                "./tsw",
+                "--live",
+                "--approve-live",
+                "--json",
+                "--service-profile",
+                "service-access",
+                "platform",
+                "update",
+                "--recover",
+                "--stack",
+                args.update_stack.strip(),
+                "--service",
+                args.update_service.strip(),
+            ),
+            1800,
+        ),
+        (
+            "recovery_e2e",
             (
                 "env",
                 "TSW_RUN_POST_INSTALL_BROWSER_LIVE=1",
@@ -304,7 +385,7 @@ def _run_operation(
 
 
 def _summarize(operation: str, stdout: str, stderr: str) -> dict[str, object]:
-    if operation == "classic_e2e":
+    if operation.endswith("_e2e"):
         match = TEST_COUNT_PATTERN.search(stdout + "\n" + stderr)
         skips = SKIP_PATTERN.search(stdout + "\n" + stderr)
         return {
@@ -447,8 +528,13 @@ def _safe_command_label(operation: str) -> str:
         "diagnostics": "python3 tools/install_debugger.py --live",
         "setup": "./tsw --live --approve-live --json setup run",
         "platform_verify": "./tsw --json platform verify",
+        "reconcile": "./tsw --live --approve-live --json platform reconcile",
         "update": "./tsw --live --approve-live --json platform update --stack <configured> --service <configured>",
         "classic_e2e": "env TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
+        "reconcile_e2e": "env TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
+        "update_e2e": "env TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
+        "recovery": "./tsw --live --approve-live --json platform update --recover --stack <configured> --service <configured>",
+        "recovery_e2e": "env TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
     }.get(operation, operation)
 
 
