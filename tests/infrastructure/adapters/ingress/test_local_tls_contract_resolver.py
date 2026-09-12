@@ -28,6 +28,7 @@ class TestLocalTlsContractResolver(unittest.TestCase):
 
             self.assertEqual(first.mode, TlsAuthorityMode.MANAGED)
             self.assertEqual(first.trust_bundle, state / "ca-bundle.pem")
+            self.assertEqual(first.trust_bundle.read_bytes(), first.ca_certificate.read_bytes())
             self.assertEqual(first.lifecycle_fingerprint, second.lifecycle_fingerprint)
             self.assertEqual(before, {path: path.read_bytes() for path in state.iterdir() if path.is_file()})
             self.assertNotEqual(first.ca_certificate.read_bytes(), first.leaf_certificate.read_bytes())

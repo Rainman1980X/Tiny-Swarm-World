@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import os
 import re
+import shutil
 import stat
 import tempfile
 from collections.abc import Mapping, Sequence
@@ -131,7 +132,7 @@ class LocalTlsContractResolver:
                 "-CA", str(generated["ca_certificate"]), "-CAkey", str(generated["ca_private_key"]),
                 "-CAcreateserial", "-extfile", str(extension), "-out", str(generated["leaf_certificate"]),
             ))
-            generated["trust_bundle"].write_bytes(generated["ca_certificate"].read_bytes())
+            shutil.copyfile(generated["ca_certificate"], generated["trust_bundle"])
             for name, destination in paths.items():
                 generated[name].chmod(0o600 if name.endswith("private_key") else 0o644)
                 generated[name].replace(destination)
