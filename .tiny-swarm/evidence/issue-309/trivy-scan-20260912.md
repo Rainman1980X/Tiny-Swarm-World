@@ -16,7 +16,7 @@ Scanner image digest:
 aquasec/trivy:latest@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969
 ```
 
-Result: **BLOCKED_BY_HIGH_FINDINGS**.
+Result before the Jenkins remediation: **BLOCKED_BY_HIGH_FINDINGS**.
 
 The scan detected `DS-0002` with severity HIGH in:
 
@@ -28,3 +28,7 @@ Each finding states that the Dockerfile does not declare a non-root `USER`.
 No exception was created and no scanner rule was disabled. A remediation must
 preserve the existing Jenkins and Service Access runtime contracts and must be
 rescanned with candidate-matched image identities.
+
+Follow-up: Jenkins now declares `USER jenkins`, matching the official image's
+runtime user contract. The two Service Access findings remain open pending the
+port-preserving non-root design decision and a follow-up scan.
