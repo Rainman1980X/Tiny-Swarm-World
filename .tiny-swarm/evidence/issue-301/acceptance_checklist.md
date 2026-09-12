@@ -11,6 +11,6 @@
   and lifecycle guards.
 - [x] Isolated target and protected environment qualified.
 - [x] Full Fresh → Reconcile → Update → Recovery run succeeded.
-- [ ] Controlled required-scenario failure produced a non-green result.
+- [x] Controlled required-scenario failure produced a non-green result.
 - [x] Successful final-candidate run and artifact link recorded.
-- [ ] Independent completion audit returns PASS.
+- [x] Independent completion audit returns PASS.

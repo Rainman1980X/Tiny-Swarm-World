@@ -1,6 +1,6 @@
 # RC1-R05 Implementation Summary
 
-Status: HOSTED_LIFECYCLE_VERIFIED_CONTROLLED_FAILURE_DRILL_PENDING.
+Status: HOSTED_LIFECYCLE_AND_FAILURE_DRILL_VERIFIED.
 
 The existing Nightly workflow keeps scheduled/manual dispatch, protected
 environment, target-owner checks, Linux/Incus/Docker qualification, bounded
@@ -18,4 +18,5 @@ test-only installation now passes on the Incus/LXC target, including Infisical
 secret synchronization and endpoint verification. Hosted run 34719043422
 completed the full disposable Fresh → Reconcile → Update → Recovery lifecycle,
 including four passing 37-test acceptance operations and redacted artifact
-upload. Only the controlled required-scenario failure drill remains open.
+upload. Controlled blocked dispatch 34720172182 also failed closed in the
+qualification job before the live chain could mutate the target.
