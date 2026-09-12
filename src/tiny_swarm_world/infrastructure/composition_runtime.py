@@ -653,8 +653,15 @@ def _operator_configuration_env_file() -> Path:
     return Path(configured) if configured else DEFAULT_OPERATOR_CONFIGURATION_ENV_FILE
 
 
-def build_compose_file_repository() -> PortComposeFileRepository:
-    return ComposeFileRepositoryYaml(project_paths=default_project_paths())
+def build_compose_file_repository(
+    service_profile: ServiceStackProfile | str = DEFAULT_SETUP_SERVICE_PROFILE,
+    environment: dict[str, str] | None = None,
+) -> PortComposeFileRepository:
+    return ComposeFileRepositoryYaml(
+        project_paths=default_project_paths(),
+        service_profile=service_profile,
+        environment=environment,
+    )
 
 
 def build_network_doctor_service() -> NetworkDoctorService:
@@ -901,6 +908,12 @@ def _http_readiness_base_url(endpoint: str) -> str:
 
 def build_setup_services(*args, **kwargs):
     from .composition_setup import build_setup_services as implementation
+
+    return implementation(*args, **kwargs)
+
+
+def build_classic_update_workflow(*args, **kwargs):
+    from .composition_setup import build_classic_update_workflow as implementation
 
     return implementation(*args, **kwargs)
 

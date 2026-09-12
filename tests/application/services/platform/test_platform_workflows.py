@@ -39,6 +39,7 @@ class TestPlatformWorkflowTaxonomy(unittest.TestCase):
         expected = {
             PlatformWorkflowKind.INIT: (True, False, False),
             PlatformWorkflowKind.RECONCILE: (True, False, False),
+            PlatformWorkflowKind.UPDATE: (True, False, False),
             PlatformWorkflowKind.EXPOSE: (True, False, False),
             PlatformWorkflowKind.REPAIR_LXC_PROXY_DRIFT: (True, False, False),
             PlatformWorkflowKind.RESET: (True, True, True),

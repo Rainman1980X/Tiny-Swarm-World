@@ -834,9 +834,8 @@ reconciliation, broader setup without a preliminary reset, and a deliberate
 fresh reset. Reuse the same service profile and effective configuration.
 
 Do not rerun `./install.sh` merely to repair one service: it always includes a
-fresh reset. The current revision has no supported `./install.sh --update`;
-a canonical product update and its cross-host acceptance remain tracked in
-https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/issues/297[#297].
+fresh reset. Use the canonical `platform update` contract for a reviewed
+single-service image transition and follow it with the acceptance checks.
 
 If a developer intentionally needs to discard the managed local environment,
 use the governed reset path rather than deleting arbitrary Incus resources:

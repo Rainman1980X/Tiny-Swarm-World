@@ -1,0 +1,45 @@
+= ADR: Canonical Classic Update Contract
+
+== Status
+
+Accepted for implementation in RC1-R01. Live qualification remains open.
+
+== Context
+
+`platform reconcile` converges the currently configured desired state and
+`install.sh` performs a deliberate destructive fresh reset. Neither operation
+expresses an operator-selected update transition. The Classic RC1 workflow
+needs one reversible update path that can be previewed, tested and consumed by
+host lifecycle automation.
+
+== Decision
+
+The supported update scenario is a single existing service stack image
+transition. The operator supplies the stack name, source image reference and
+target image reference. The command validates both references and the current
+installation state, emits a preview, records the source reference as recovery
+state, applies the target through the existing deployment port, and verifies
+the target stack. Repeating an already completed transition is a verified
+no-op. Recovery supplies the recorded source reference as the target.
+
+The update command is `platform update`. It is a live mutating operation and
+therefore requires the existing `--live` and `--approve-live` consent path.
+It never performs a reset, removes persistent data, changes credentials or
+touches unrelated stacks. Reconcile remains the supported operation for
+converging desired state without an explicit source/target transition.
+
+== Rejected alternatives
+
+* `install.sh` reset: destructive and unsuitable for preserving state.
+* `platform reconcile`: does not express or audit a source/target update.
+* An ad hoc shell alias: cannot be consumed consistently by the CLI and
+  protected Classic runner.
+* A second orchestration engine: violates the existing application and
+  infrastructure boundaries.
+
+== Consequences
+
+The update contract needs a typed domain plan, an application workflow backed
+by existing deployment ports, protected local recovery metadata and canonical
+runner invocation. Actual host behavior, persistent-data continuity and
+browser/API acceptance require separately authorized live evidence.

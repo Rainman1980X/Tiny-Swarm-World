@@ -24,6 +24,7 @@ from tiny_swarm_world.application.services.platform.workflow.workflows import (
     PlatformReconcileWorkflow,
     PlatformResetWorkflow,
     PlatformVerifyWorkflow,
+    ClassicUpdateWorkflow,
 )
 
 __all__ = [
@@ -38,6 +39,7 @@ __all__ = [
     "PlatformReconcileWorkflow",
     "PlatformResetWorkflow",
     "PlatformVerifyWorkflow",
+    "ClassicUpdateWorkflow",
     "PlatformWorkflowKind",
     "PlatformWorkflowResult",
     "PlatformWorkflowSemantics",

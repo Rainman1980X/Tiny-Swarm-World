@@ -19,6 +19,9 @@ from tiny_swarm_world.application.services.platform.workflow.steps import (
 from tiny_swarm_world.application.services.platform.workflow.verify import (
     PlatformVerifyWorkflow,
 )
+from tiny_swarm_world.application.services.platform.workflow.update import (
+    ClassicUpdateWorkflow,
+)
 
 __all__ = [
     "AsyncWorkflowStep",
@@ -29,5 +32,6 @@ __all__ = [
     "PlatformReconcileWorkflow",
     "PlatformResetWorkflow",
     "PlatformVerifyWorkflow",
+    "ClassicUpdateWorkflow",
     "VerifiableWorkflowStep",
 ]

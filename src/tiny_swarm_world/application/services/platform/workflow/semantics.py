@@ -71,4 +71,11 @@ PLATFORM_WORKFLOW_TAXONOMY = {
         requires_confirmation=False,
         meaning="inspect current state",
     ),
+    PlatformWorkflowKind.UPDATE: PlatformWorkflowSemantics(
+        kind=PlatformWorkflowKind.UPDATE,
+        mutating=True,
+        destructive=False,
+        requires_confirmation=False,
+        meaning="apply one explicit reversible image transition to an existing stack",
+    ),
 }

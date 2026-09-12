@@ -46,6 +46,7 @@ from tiny_swarm_world.infrastructure.composition import (
     NodeProviderSelectionRequest,
     SetupServices,
     build_application_services,
+    build_classic_update_workflow,
     build_artifact_services_for_provider,
     build_compose_file_repository,
     build_deployment_services_for_provider,
@@ -60,6 +61,7 @@ from tiny_swarm_world.infrastructure.composition import (
     run_setup_with_terminal_status,
 )
 from tiny_swarm_world.infrastructure.adapters.preflight import ensure_common_executable_paths
+from tiny_swarm_world.domain.update import ClassicUpdatePlan
 
 WorkflowResult = (
     PlatformWorkflowResult
@@ -95,6 +97,7 @@ class CliWorkflow:
 PLATFORM_WORKFLOW_ORDER = (
     PlatformWorkflowKind.INIT,
     PlatformWorkflowKind.RECONCILE,
+    PlatformWorkflowKind.UPDATE,
     PlatformWorkflowKind.EXPOSE,
     PlatformWorkflowKind.REPAIR_LXC_PROXY_DRIFT,
     PlatformWorkflowKind.VERIFY,
@@ -211,6 +214,34 @@ def parse_args(argv: Sequence[str] | None = None) -> Namespace:
         action="store_true",
         help="Apply the selected 'network repair' target; omitted means dry-run.",
     )
+    parser.add_argument(
+        "--stack",
+        help="Existing Classic stack for 'platform update'.",
+    )
+    parser.add_argument(
+        "--service",
+        help="Service within the selected stack for 'platform update'.",
+    )
+    parser.add_argument(
+        "--from-image",
+        dest="from_image",
+        help="Currently configured image reference for 'platform update'.",
+    )
+    parser.add_argument(
+        "--to-image",
+        dest="to_image",
+        help="Target image reference for 'platform update'.",
+    )
+    parser.add_argument(
+        "--preview",
+        action="store_true",
+        help="Validate and print the update plan without mutating infrastructure.",
+    )
+    parser.add_argument(
+        "--recover",
+        action="store_true",
+        help="Reverse the last recorded update for the selected stack/service.",
+    )
     parser.add_argument("workflow_namespace", nargs="?", help="Workflow namespace.")
     parser.add_argument("workflow_action", nargs="?", help="Workflow action.")
     args = parser.parse_args(argv)
@@ -257,6 +288,32 @@ def _assign_workflow(parser: ArgumentParser, args: Namespace) -> None:
     args.workflow = CLI_WORKFLOWS_BY_KEY.get((args.workflow_namespace, args.workflow_action))
     if args.workflow is None:
         parser.error(f"unsupported workflow command: {args.workflow_namespace} {args.workflow_action}")
+    is_update = args.workflow_namespace == "platform" and args.workflow_action == "update"
+    update_options_present = any(
+        value is not None
+        for value in (args.stack, args.service, args.from_image, args.to_image)
+    ) or args.preview or args.recover
+    if not is_update and update_options_present:
+        parser.error("update options require command: platform update")
+    if is_update:
+        if args.recover:
+            if not args.stack or not args.service:
+                parser.error("platform update --recover requires --stack and --service")
+            if args.from_image or args.to_image:
+                parser.error("platform update --recover cannot use --from-image or --to-image")
+            return
+        missing = [
+            name
+            for name, value in (
+                ("--stack", args.stack),
+                ("--service", args.service),
+                ("--from-image", args.from_image),
+                ("--to-image", args.to_image),
+            )
+            if not value
+        ]
+        if missing:
+            parser.error("platform update requires " + ", ".join(missing))
 
 
 async def main(argv: Sequence[str] | None = None) -> None:
@@ -315,6 +372,11 @@ async def main(argv: Sequence[str] | None = None) -> None:
         service_profile=args.service_profile,
         node_provider_request=node_provider_request,
         allow_wsl_windows_filesystem=args.allow_wsl_windows_filesystem,
+        update_plan=_update_plan_from_args(args),
+        update_preview=bool(args.preview),
+        update_recover=bool(args.recover),
+        update_stack_name=args.stack,
+        update_service_name=args.service,
     )
     _emit_workflow_result(result, args)
     if _workflow_status_value(result) != PlatformWorkflowStatus.COMPLETED.value:
@@ -506,6 +568,8 @@ def _live_consent_for_workflow(
 ) -> LiveConsent | None:
     if not workflow.mutating:
         return None
+    if workflow.platform_kind is PlatformWorkflowKind.UPDATE and args.preview:
+        return None
     live_consent = _live_consent_from_args(args)
     if live_consent.accepted:
         return live_consent
@@ -522,8 +586,37 @@ async def run_cli_workflow(
     service_profile: ServiceStackProfile | str = DEFAULT_SETUP_SERVICE_PROFILE,
     node_provider_request: NodeProviderSelectionRequest | None = None,
     allow_wsl_windows_filesystem: bool = False,
+    update_plan: ClassicUpdatePlan | None = None,
+    update_preview: bool = False,
+    update_recover: bool = False,
+    update_stack_name: str | None = None,
+    update_service_name: str | None = None,
 ) -> WorkflowResult:
     if workflow.platform_kind is not None:
+        if workflow.platform_kind is PlatformWorkflowKind.UPDATE:
+            if update_recover:
+                if update_plan is not None:
+                    raise ValueError("recovery cannot be combined with an update plan")
+                if update_stack_name is None or update_service_name is None:
+                    raise ValueError("platform update recovery requires stack and service")
+            if update_plan is None and not update_recover:
+                raise ValueError("platform update requires an update plan")
+            update_workflow = build_classic_update_workflow(
+                service_profile=service_profile,
+                node_provider_request=node_provider_request,
+            )
+            if update_recover:
+                return await update_workflow.recover(
+                    update_stack_name,
+                    update_service_name,
+                    preview=update_preview,
+                    live_consent=live_consent,
+                )
+            return await update_workflow.run(
+                update_plan,
+                preview=update_preview,
+                live_consent=live_consent,
+            )
         services = build_application_services(
             live_consent=live_consent,
             service_profile=service_profile,
@@ -629,6 +722,21 @@ def _workflow_result_to_dict(result: WorkflowResult) -> dict[str, object]:
     if isinstance(result, ArtifactWorkflowResult | DeploymentWorkflowResult | SetupWorkflowResult):
         return result.to_dict()
     return result.to_dict()
+
+
+def _update_plan_from_args(args: Namespace) -> ClassicUpdatePlan | None:
+    if (
+        args.workflow is None
+        or args.workflow.platform_kind is not PlatformWorkflowKind.UPDATE
+        or args.recover
+    ):
+        return None
+    return ClassicUpdatePlan(
+        stack_name=args.stack,
+        service_name=args.service,
+        source_image=args.from_image,
+        target_image=args.to_image,
+    )
 
 
 def _emit_workflow_result(result: WorkflowResult, args: Namespace) -> None:
