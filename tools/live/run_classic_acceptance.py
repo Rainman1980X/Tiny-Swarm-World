@@ -451,7 +451,7 @@ def _safe_structured_detail(value: object) -> str | None:
 def _safe_phase_results(value: object) -> dict[str, object]:
     if not isinstance(value, list):
         return {"count": 0, "failed": []}
-    failed: list[str] = []
+    failed: list[dict[str, str]] = []
     for item in value:
         if not isinstance(item, dict):
             continue
@@ -459,7 +459,12 @@ def _safe_phase_results(value: object) -> dict[str, object]:
         if status not in {"completed", "passed", "verified", "ok", "success"}:
             name = item.get("name") or item.get("phase") or item.get("target_id")
             if isinstance(name, str):
-                failed.append(name[:120])
+                failure = {"name": name[:120]}
+                for detail_key in ("reason", "message", "safe_message"):
+                    detail = _safe_structured_detail(item.get(detail_key))
+                    if detail:
+                        failure[detail_key] = detail
+                failed.append(failure)
     return {"count": len(value), "failed": failed[:20]}
 
 

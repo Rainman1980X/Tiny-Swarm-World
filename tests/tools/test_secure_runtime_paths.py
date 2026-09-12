@@ -138,7 +138,10 @@ class TestSecureRuntimePaths(unittest.TestCase):
 
         self.assertEqual("failed", summary["result"])
         self.assertEqual("password=<redacted>", summary["message"])
-        self.assertEqual({"count": 1, "failed": ["setup"]}, summary["phase_results"])
+        self.assertEqual(
+            {"count": 1, "failed": [{"name": "setup"}]},
+            summary["phase_results"],
+        )
 
 
 def _mountinfo(root: Path, filesystem_type: str, source: str) -> str:
