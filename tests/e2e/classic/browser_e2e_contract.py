@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import os
-import re
+import secrets
 import time
 import unittest
 from collections.abc import Callable, Mapping, Sequence
@@ -54,6 +54,9 @@ SUITE_STATUSES = ("passed", "failed", "skipped", "missing")
 class BrowserRouteExpectation:
     route_name: str
     dashboard_url: str
+    credential_required: bool = False
+    principal_label: str = ""
+    credential_reference: str = ""
 
 
 @dataclass(frozen=True)
@@ -95,9 +98,14 @@ def browser_route_expectations(
             raise AssertionError("service access link must provide its routed URL")
         if route_name in expectations:
             raise AssertionError(f"duplicate browser route expectation: {route_name}")
+        metadata = raw_link.get("credential")
+        credential = metadata if isinstance(metadata, dict) else {}
         expectations[route_name] = BrowserRouteExpectation(
             route_name=route_name,
             dashboard_url=dashboard_url,
+            credential_required=isinstance(raw_link.get("credential"), dict),
+            principal_label=str(credential.get("username_label", "")),
+            credential_reference=str(credential.get("item_reference", "")),
         )
     return tuple(expectations[name] for name in sorted(expectations))
 
@@ -185,8 +193,9 @@ class BrowserRouteE2EContract:
         options = selenium_webdriver.FirefoxOptions()
         options.add_argument("-headless")
 
-        driver = selenium_webdriver.Firefox(options=options)
+        driver = None
         try:
+            driver = selenium_webdriver.Firefox(options=options)
             driver.set_page_load_timeout(
                 float(os.environ.get("TSW_BROWSER_E2E_TIMEOUT_SECONDS", "45"))
             )
@@ -198,7 +207,7 @@ class BrowserRouteE2EContract:
                 ),
                 "expected browser navigation to reach the routed HTTPS host",
             )
-            if self.route_name in LOGIN_REQUIRED_ROUTES:
+            if expectation.credential_required and self.route_name != "pulsar-admin-api":
                 credential = _approved_credential(self.route_name)
                 if credential is None:
                     _record_route_result(
@@ -212,6 +221,21 @@ class BrowserRouteE2EContract:
                     testcase.skipTest(
                         "approved credential source unavailable for required login flow"
                     )
+                _perform_login_flow(
+                    driver, by, self.route_name,
+                    (credential[0], secrets.token_urlsafe(32)),
+                )
+                testcase.assertTrue(
+                    _wait_for_login_rejection(driver, by),
+                    "one invalid credential attempt did not produce explicit rejection",
+                )
+                driver.quit()
+                driver = None
+                driver = selenium_webdriver.Firefox(options=options)
+                driver.set_page_load_timeout(
+                    float(os.environ.get("TSW_BROWSER_E2E_TIMEOUT_SECONDS", "45"))
+                )
+                driver.get(expectation.dashboard_url)
                 _perform_login_flow(driver, by, self.route_name, credential)
                 body_text, title = _wait_for_post_login_success(
                     driver,
@@ -222,6 +246,15 @@ class BrowserRouteE2EContract:
                     _post_login_success(self.route_name, body_text, title),
                     "expected stable authenticated landing state after login",
                 )
+                testcase.assertFalse(
+                    _visible_password_form(driver, by),
+                    "login form is still visible after credential submission",
+                )
+                if self.route_name in {"jenkins", "nexus", "sonarqube"}:
+                    testcase.assertTrue(
+                        _browser_session_identity(driver, self.route_name, credential[0]),
+                        "browser session did not prove the expected authenticated principal",
+                    )
             _record_route_result(
                 BrowserRouteResult(
                     self.route_name,
@@ -242,7 +275,8 @@ class BrowserRouteE2EContract:
             )
             raise
         finally:
-            driver.quit()
+            if driver is not None:
+                driver.quit()
 
 
 class BrowserRouteE2EContractStaticTest(unittest.TestCase):
@@ -288,7 +322,7 @@ class BrowserRouteE2EContractStaticTest(unittest.TestCase):
             side_effect=[("Sign in", "SonarQube"), ("Projects", "SonarQube")],
         ):
             actual = _wait_for_post_login_success(
-                Mock(),
+                Mock(find_elements=Mock(return_value=[])),
                 Mock(),
                 "sonarqube",
                 attempts=2,
@@ -433,7 +467,51 @@ class BrowserRouteE2EContractStaticTest(unittest.TestCase):
                 "swagger": {"status": "skipped"},
             },
         )
-        self.assertEqual(mixed["result"], "passed")
+        self.assertEqual(mixed["result"], "failed")
+
+    def test_public_landing_page_never_bypasses_credential_submission(self) -> None:
+        for route in ("jenkins", "nexus", "sonarqube"):
+            with self.subTest(route=route):
+                username, password, submit = Mock(), Mock(), Mock()
+                fields: tuple[Mock, ...] = (username, password, submit)
+                if route == "nexus":
+                    fields = (Mock(), *fields)
+                with patch(f"{__name__}._page_text_and_title", return_value=(
+                    "Dashboard Browse repositories Projects Issues Rules", "Public page",
+                )), patch(f"{__name__}._first_present", side_effect=fields):
+                    _perform_login_flow(Mock(), Mock(), route, ("expected-user", "test-value"))
+                username.send_keys.assert_called_once_with("expected-user")
+                password.send_keys.assert_called_once_with("test-value")
+                submit.click.assert_called_once_with()
+
+    def test_failure_evidence_excludes_arbitrary_exception_text(self) -> None:
+        self.assertEqual(
+            _redacted_failure_reason(RuntimeError("password secret value cookie private-data")),
+            "RuntimeError",
+        )
+
+    def test_empty_inventory_is_not_success(self) -> None:
+        self.assertEqual(build_suite_summary((), {})["result"], "failed")
+
+    def test_visible_login_form_prevents_landing_success(self) -> None:
+        driver = Mock(find_elements=Mock(return_value=[Mock(is_displayed=Mock(return_value=True))]))
+        self.assertTrue(_visible_password_form(driver, Mock()))
+
+    def test_session_identity_requires_boolean_confirmation(self) -> None:
+        for result in (False, None, "admin", {"authenticated": True}):
+            with self.subTest(result=result):
+                self.assertFalse(_browser_session_identity(
+                    Mock(execute_async_script=Mock(return_value=result)), "jenkins", "admin",
+                ))
+
+    def test_unchanged_form_or_transport_error_is_not_explicit_rejection(self) -> None:
+        for text in ("Sign in Username Password", "Network connection error", "Dashboard"):
+            with patch(f"{__name__}._page_text_and_title", return_value=(text, "Login")):
+                self.assertFalse(_wait_for_login_rejection(Mock(), Mock(), attempts=1))
+
+    def test_explicit_invalid_credentials_are_rejected_without_retrying_login(self) -> None:
+        with patch(f"{__name__}._page_text_and_title", return_value=("Invalid credentials", "Login")):
+            self.assertTrue(_wait_for_login_rejection(Mock(), Mock(), attempts=1))
 
     def test_live_e2e_evidence_target_is_local_and_ignored(self) -> None:
         _assert_evidence_target(self)
@@ -625,10 +703,10 @@ def build_suite_summary(
             ).to_evidence()
         )
 
-    if status_matrix["failed"] or status_matrix["missing"]:
+    if not expected_by_name or status_matrix["failed"] or status_matrix["missing"]:
         result = "failed"
-    elif status_matrix["skipped"] and not status_matrix["passed"]:
-        result = "skipped"
+    elif status_matrix["skipped"]:
+        result = "failed" if status_matrix["passed"] else "skipped"
     else:
         result = "passed"
     return {
@@ -689,20 +767,8 @@ def _read_route_evidence(
 
 
 def _redacted_failure_reason(exc: Exception) -> str:
-    reason = exc.__class__.__name__
-    message = str(exc).strip().splitlines()[0] if str(exc).strip() else ""
-    if message:
-        reason = f"{reason}: {message[:160]}"
-    redacted = re.sub(
-        r"(?i)(password|secret|token|bearer|basic)[^,\s;)]*",
-        "[redacted]",
-        reason,
-    )
-    redacted = re.sub(r"https?://[^\s]+", "[redacted-url]", redacted)
-    redacted = re.sub(r"\b(?:\d{1,3}\.){3}\d{1,3}\b", "[redacted-ip]", redacted)
-    redacted = re.sub(r"(?i)(?:/[a-z0-9_.-]+){2,}", "[redacted-path]", redacted)
-    redacted = re.sub(r"(?i)[a-z]:\\[^\s]+", "[redacted-path]", redacted)
-    return redacted[:180]
+    """Never persist browser exception messages, which may contain form values."""
+    return exc.__class__.__name__
 
 
 def _approved_credential(route_name: str) -> tuple[str, str] | None:
@@ -718,7 +784,10 @@ def _approved_credential(route_name: str) -> tuple[str, str] | None:
             "admin",
             os.environ.get("TSW_PULSAR_MANAGER_ADMIN_PASSWORD", ""),
         ),
-        "sonarqube": ("admin", os.environ.get("TSW_SONARQUBE_ADMIN_PASSWORD", "")),
+        "sonarqube": (
+            os.environ.get("TSW_SONARQUBE_ADMIN_USERNAME", "admin"),
+            os.environ.get("TSW_SONARQUBE_ADMIN_PASSWORD", ""),
+        ),
     }
     username, password = credentials.get(route_name, ("", ""))
     if username and password:
@@ -728,9 +797,8 @@ def _approved_credential(route_name: str) -> tuple[str, str] | None:
 
 def _perform_login_flow(driver: Any, by: Any, route_name: str, credential: tuple[str, str]) -> None:
     username, password = credential
-    body_text, title = _page_text_and_title(driver, by)
-    if _post_login_success(route_name, body_text, title):
-        return
+    if route_name == "nexus":
+        _click_login_control(_first_present(driver, by, ("a[id*='nx-header-signin']",)))
     username_field = _first_present(
         driver,
         by,
@@ -762,14 +830,25 @@ def _perform_login_flow(driver: Any, by: Any, route_name: str, credential: tuple
     submit = _first_present(
         driver,
         by,
-        (
+        (".x-window a.x-btn",) if route_name == "nexus" else (
             "button[type='submit']",
             "input[type='submit']",
             "button[name='Submit']",
             "button",
         ),
     )
-    submit.click()
+    _click_login_control(submit)
+
+
+def _click_login_control(element: Any) -> None:
+    for attempt in range(40):
+        try:
+            element.click()
+            return
+        except Exception as exc:
+            if type(exc).__name__ != "ElementClickInterceptedException" or attempt == 39:
+                raise
+            time.sleep(0.25)
 
 
 def _page_text_and_title(
@@ -807,11 +886,61 @@ def _wait_for_post_login_success(
             latest = _page_text_and_title(driver, by, attempts=1)
         except AssertionError:
             latest = ("", "")
-        if _post_login_success(route_name, *latest):
+        if _post_login_success(route_name, *latest) and not _visible_password_form(driver, by):
             return latest
         if attempt + 1 < attempts:
             sleep(retry_interval_seconds)
     return latest
+
+
+def _visible_password_form(driver: Any, by: Any) -> bool:
+    return any(field.is_displayed() for field in driver.find_elements(by.CSS_SELECTOR, "input[type='password']"))
+
+
+def _wait_for_login_rejection(
+    driver: Any, by: Any, *, attempts: int = 40,
+    sleep: Callable[[float], None] = time.sleep,
+) -> bool:
+    """A failed transport or a still-visible form alone never proves rejection."""
+    markers = (
+        "invalid credentials", "invalid username or password", "incorrect username or password",
+        "incorrect email or password", "invalid email or password", "authentication failed",
+        "login failed", "sign in failed", "login failure",
+        "unable to login", "wrong email or password", "wrong password",
+        "wrong credentials",
+        "the user name or password not incorrect",
+        "the username or password is incorrect",
+    )
+    for attempt in range(attempts):
+        body, _ = _page_text_and_title(driver, by)
+        if any(marker in body.casefold() for marker in markers):
+            return True
+        if attempt + 1 < attempts:
+            sleep(0.25)
+    return False
+
+
+def _browser_session_identity(driver: Any, route_name: str, principal: str) -> bool:
+    """Inspect same-origin session identity without returning response data."""
+    endpoints = {
+        "jenkins": "/whoAmI/api/json",
+        "nexus": "/service/rest/v1/security/users",
+        "sonarqube": "/api/users/current",
+    }
+    return driver.execute_async_script(
+        """
+        const [endpoint, route, principal, done] = arguments;
+        fetch(endpoint, {credentials: 'same-origin', signal: AbortSignal.timeout(15000)})
+          .then(async response => {
+            if (response.status !== 200) { done(false); return; }
+            const data = await response.json();
+            if (route === 'jenkins') done(data.authenticated === true && data.name === principal);
+            else if (route === 'sonarqube') done(data.isLoggedIn === true && data.login === principal);
+            else done(Array.isArray(data) && data.some(user => user.userId === principal));
+          }).catch(() => done(false));
+        """,
+        endpoints[route_name], route_name, principal,
+    ) is True
 
 
 def _first_present(
@@ -827,7 +956,9 @@ def _first_present(
     for attempt in range(attempts):
         for selector in selectors:
             try:
-                return driver.find_element(by.CSS_SELECTOR, selector)
+                element = driver.find_element(by.CSS_SELECTOR, selector)
+                if element.is_displayed() and element.is_enabled():
+                    return element
             except Exception as exc:
                 last_error = exc
         if attempt + 1 < attempts:

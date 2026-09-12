@@ -1,5 +1,11 @@
 # Acceptance Checklist: #285 / CRED-07
 
+Continuation: [CRED-08 / #295](../../../documentation/evidence/cred08-browser-acceptance.md)
+maps these historical assertions to the stronger current browser/API contract.
+The native host is now available; the unavailable-host statement below records
+the historical #285 disposition, not current target availability. Current
+both-host and post-restart acceptance must use #295's actual candidate evidence.
+
 - [x] WSL2 fresh install reaches a real terminal result: reset/setup exit 0.
 - [x] WSL2 checkout under `/mnt/*` succeeds on the standard internal-test path.
 - [ ] Native Linux fresh install reaches a real terminal result.
