@@ -11,6 +11,7 @@ from tiny_swarm_world.application.ports.update import (
     PortUpdateStateStore,
     PortUpdateRuntimeObserver,
     UpdateObservationError,
+    UpdateObservationChanged,
 )
 from tiny_swarm_world.application.services.deployment.workflows import (
     DeploymentApplyWorkflow,
@@ -211,6 +212,11 @@ class ClassicUpdateWorkflow:
         for attempt in range(self.verification_attempts):
             try:
                 observed = await self._observe(plan)
+            except UpdateObservationChanged:
+                if attempt + 1 == self.verification_attempts:
+                    return self._runtime_failure(plan, "runtime_snapshot_unstable")
+                await asyncio.sleep(self.poll_interval_seconds)
+                continue
             except UpdateObservationError:
                 return self._runtime_failure(plan, "runtime_observation_unavailable")
             if observed.service_id != before.service_id:
@@ -225,6 +231,7 @@ class ClassicUpdateWorkflow:
                     recovery=recovery,
                     deployment_evidence=deployment_result.verification_results,
                     observed_source_image=before.desired_image,
+                    observation_attempts=attempt + 1,
                 )
             if observed.rollout_failed:
                 return self._runtime_failure(
@@ -262,6 +269,7 @@ class ClassicUpdateWorkflow:
         recovery: bool,
         deployment_evidence: tuple[VerificationResult, ...] = (),
         observed_source_image: str | None = None,
+        observation_attempts: int = 1,
     ) -> PlatformWorkflowResult:
         return PlatformWorkflowResult.completed(
             self.semantics,
@@ -273,6 +281,7 @@ class ClassicUpdateWorkflow:
                     message="Selected service and running tasks converged to the requested image.",
                     evidence={
                         **observed.to_evidence(),
+                        "observation_attempts": str(observation_attempts),
                         "phase": "recovery" if recovery else "apply",
                         "from_image": plan.source_image,
                         "to_image": plan.target_image,

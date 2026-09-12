@@ -27,6 +27,7 @@ from tiny_swarm_world.domain.update import (
 from tiny_swarm_world.application.ports.update import (
     PortUpdateRuntimeObserver,
     UpdateObservationError,
+    UpdateObservationChanged,
 )
 
 
@@ -314,6 +315,7 @@ class ClassicUpdateWorkflowTest(unittest.IsolatedAsyncioTestCase):
         for observation in (
             None,
             UpdateObservationError("unavailable"),
+            UpdateObservationChanged("changing_before_apply"),
             ValueError("malformed"),
         ):
             with self.subTest(observation=observation):
@@ -411,6 +413,29 @@ class ClassicUpdateWorkflowTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(PlatformWorkflowStatus.FAILED_TO_VERIFY, result.status)
         self.assertTrue(result.executed)
         store.save.assert_called_once_with(_plan())
+
+    async def test_changing_post_apply_snapshot_is_read_again_without_redeployment(self) -> None:
+        workflow, factory, store, deployment = _workflow()
+        workflow.runtime_observer.observe.side_effect = [
+            _runtime(), UpdateObservationChanged("changing"), _runtime("new:1"),
+        ]
+        result = await workflow.run(_plan(), preview=False, live_consent=_consent())
+        self.assertEqual(PlatformWorkflowStatus.COMPLETED, result.status)
+        self.assertEqual("2", result.verification_results[0].evidence["observation_attempts"])
+        factory.assert_called_once_with(_plan())
+        deployment.run.assert_awaited_once()
+        store.save.assert_called_once_with(_plan())
+
+    async def test_continuously_changing_snapshot_exhausts_existing_bound(self) -> None:
+        workflow, _, _, deployment = _workflow()
+        workflow.runtime_observer.observe.side_effect = [
+            _runtime(), UpdateObservationChanged("changing"), UpdateObservationChanged("changing"),
+        ]
+        result = await workflow.run(_plan(), preview=False, live_consent=_consent())
+        self.assertEqual(PlatformWorkflowStatus.FAILED_TO_VERIFY, result.status)
+        self.assertEqual("runtime_snapshot_unstable", result.verification_results[0].evidence["reason"])
+        self.assertEqual(3, workflow.runtime_observer.observe.await_count)
+        deployment.run.assert_awaited_once()
 
     async def test_unreadable_or_unwritable_state_blocks_before_deployment(
         self,
