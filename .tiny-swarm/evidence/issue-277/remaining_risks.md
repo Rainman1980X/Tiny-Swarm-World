@@ -15,3 +15,6 @@ Independent parent completion review returned PASS; see completion_audit.md.
   checks supersede only the specific criteria they actually exercise.
 - Deterministic values remain INTERNAL/TEST ONLY; enterprise access governance
   remains external. No new credential values or raw runtime artifacts are published.
+- Main Sonar is FAILED (Reliability C/Security E), separately owned by #300/#309.
+  PR checks do not establish main/release success. Three inherited analyzer
+  findings remain unresolved; see test_results.md. None is suppressed here.

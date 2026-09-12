@@ -67,3 +67,27 @@ git diff --check
 
 Results: 47 tests PASS (exit0); whitespace check PASS. A read-only validation
 confirmed all25 requirement rows and every relative evidence link resolve.
+
+## Inherited main Sonar failure — separate RC1 authority
+
+During publication, main's post-#312 Sonar workflow
+[34685392376](https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34685392376)
+was observed FAILED (`EXTERNAL_GATE_FAILED`). The project-status API reports Reliability C and Security E
+(required A), coverage85.8% and duplication0.3%. This failure is not replaced by
+PR #320's successful checks. Existing [#300](https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/issues/300)
+already owns these same main gate conditions, together with security owner #309.
+Main/release qualification remains open.
+
+Read-only Sonar issue inspection found three unresolved inherited findings:
+
+| Rule | Location | Created | Parent audit classification |
+|---|---|---|---|
+| python:S2068 | domain/configuration/internal_test_credentials.py:23 | 2026-09-02 | Explicit EPIC-required deterministic test default; retain security review, no suppression |
+| python:S5863 | tests/domain/configuration/test_internal_test_credentials.py:104 | 2026-09-02 | Two separate resolver calls; independent stateless/format/live evidence also supports determinism; retain quality review |
+| pythonsecurity:S2083 | infrastructure/adapters/ingress/local_tls_contract_resolver.py:131 | 2026-08-29 | TLS managed-path finding; retain ingress/security review; no exploitability assertion |
+
+Architecture review found no new parent credential acceptance gap. These are
+existing unresolved analyzer findings, not newly repaired or dismissed by this
+audit. #300 requires independent final-main qualification; the parent completion
+claim remains scoped to its original credential requirements and the actual
+local/live/PR evidence above. No quality rule or reported status was changed.

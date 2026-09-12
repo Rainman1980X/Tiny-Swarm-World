@@ -82,3 +82,11 @@ Evidence: [requirement_matrix.md](requirement_matrix.md) and its child sources.
 Risks: [remaining_risks.md](remaining_risks.md).
 Decision: independent Requirement, Architecture and Test/Evidence perspectives
 all confirm PASS; the EPIC may close after evidence publication succeeds.
+
+## Publication-time external-gate finding
+
+The inherited main Sonar failure and three unresolved findings are explicitly
+recorded in test_results.md. Architecture and independent QA follow-up reviews reaffirmed parent PASS,
+identifying no additional parent acceptance gap; #300/#309 retain main quality/security disposition. Parent PASS
+must not be interpreted as a passing main Sonar gate or final RC1 qualification.
+No finding was suppressed or marked repaired by this evidence-only change.
