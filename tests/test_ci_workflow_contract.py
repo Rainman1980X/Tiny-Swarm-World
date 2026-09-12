@@ -132,6 +132,8 @@ class CiWorkflowContractTests(unittest.TestCase):
             '"TSW_RUN_POST_INSTALL_BROWSER_LIVE=1"',
             '"update"',
             '"platform"',
+            '"runner"',
+            '"target_owner_reference_present"',
         ):
             with self.subTest(marker=marker):
                 self.assertIn(marker, runner)

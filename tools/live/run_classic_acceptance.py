@@ -470,6 +470,13 @@ def _write_terminal_result(
             "pid1": _safe_pid1(),
             "systemd_directory_present": Path("/run/systemd/system").is_dir(),
         },
+        "runner": {
+            "name": _safe_runner_name(),
+            "label": os.environ.get("CLASSIC_LIVE_RUNNER_LABEL", "tsw-classic"),
+            "target_owner_reference_present": bool(
+                os.environ.get("TSW_CLASSIC_TARGET_OWNER", "").strip()
+            ),
+        },
         "consent_state": "LIVE_APPROVED" if status != "LIVE_CONSENT_MISSING" else status,
         "started_at_utc": started_at,
         "finished_at_utc": finished_at,
@@ -565,6 +572,11 @@ def _safe_pid1() -> str:
         return Path("/proc/1/comm").read_text(encoding="utf-8").strip() or "unknown"
     except OSError:
         return "unavailable"
+
+
+def _safe_runner_name() -> str:
+    value = os.environ.get("RUNNER_NAME", "").strip()
+    return value if re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}", value) else "unknown"
 
 
 def _private(path: Path) -> None:
