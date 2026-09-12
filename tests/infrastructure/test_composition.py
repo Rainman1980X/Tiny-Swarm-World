@@ -1358,6 +1358,52 @@ class TestComposition(unittest.TestCase):
         self.assertEqual(len(services.workflows.apply.steps), 15)
         self.assertEqual(len(services.workflows.verify.checks), 9)
 
+    def test_only_service_access_jenkins_consumes_completed_sync_snapshot(self):
+        from tiny_swarm_world.application.services.deployment.secret_management import SecretManagementBlocker
+
+        for profile in (ServiceStackProfile.DEFAULT, ServiceStackProfile.SERVICE_ACCESS):
+            with self.subTest(profile=profile), patch.object(composition, "ComposeFileRepositoryYaml"):
+                services = composition.build_lxc_deployment_services(
+                    backend=composition.ManagedLxcBackend.INCUS, service_profile=profile)
+                steps = services.workflows.apply.steps
+                consumers = [step for step in steps if isinstance(step, composition.EnsureSwarmStack)
+                             and step.credential_snapshot is not None]
+                if profile is ServiceStackProfile.DEFAULT:
+                    self.assertEqual(consumers, [])
+                    continue
+                self.assertEqual(len(consumers), 1)
+                jenkins = consumers[0]
+                sync = next(step for step in steps if isinstance(step, composition.InfisicalSecretSyncStep))
+                self.assertEqual(jenkins.service_stack.stack_name, "jenkins")
+                self.assertEqual(jenkins.credential_keys, ("TSW_JENKINS_ADMIN_PASSWORD",))
+                self.assertIs(jenkins.credential_snapshot.func.__self__, sync)
+                self.assertLess(steps.index(sync), steps.index(jenkins))
+                self.assertTrue(all(getattr(step, "credential_snapshot", None) is None
+                                    for step in services.workflows.bootstrap.steps))
+                with patch.object(jenkins.swarm_runtime, "deploy_stack") as deploy:
+                    with self.assertRaises(SecretManagementBlocker):
+                        asyncio.run(jenkins.run())
+                deploy.assert_not_called()
+
+    def test_deployment_kernel_guard_is_native_only_and_covers_bootstrap(self):
+        from tiny_swarm_world.domain.host_environment import HostEnvironmentKind
+        from tiny_swarm_world.infrastructure import composition_deployment
+
+        for kind in HostEnvironmentKind:
+            with self.subTest(kind=kind), patch.object(
+                composition_deployment, "HostEnvironmentDetector"
+            ) as detector, patch.object(composition, "ComposeFileRepositoryYaml"):
+                detector.return_value.detect.return_value.environment = kind
+                services = composition.build_lxc_deployment_services(
+                    backend=composition.ManagedLxcBackend.INCUS,
+                )
+                for workflow in (services.workflows.bootstrap, services.workflows.apply):
+                    self.assertEqual(len(workflow.prerequisite_checks),
+                                     0 if kind is HostEnvironmentKind.WSL2 else 1)
+                    if kind not in (HostEnvironmentKind.NATIVE_LINUX, HostEnvironmentKind.WSL2):
+                        self.assertEqual(workflow.prerequisite_checks[0].verify().status,
+                                         VerificationStatus.BLOCKED)
+
     def test_default_provider_artifact_services_use_lxc_clients_when_backend_is_available(
         self,
     ):
@@ -1590,24 +1636,38 @@ class TestComposition(unittest.TestCase):
         )
 
     def test_routing_evidence_failure_stops_apply_before_any_stack_step(self):
-        with patch.object(composition, "ComposeFileRepositoryYaml"):
-            services = composition.build_lxc_deployment_services(
-                backend=composition.ManagedLxcBackend.INCUS,
-            )
-        evidence_step = services.workflows.apply.pre_apply_steps[0]
-        first_stack_step = services.workflows.apply.steps[0]
+        from tiny_swarm_world.domain.host_environment import HostEnvironmentKind
+        from tiny_swarm_world.infrastructure import composition_deployment
 
-        with patch.object(
-            evidence_step,
-            "run",
-            side_effect=OSError("evidence write failed"),
-        ) as write_evidence:
-            with patch.object(first_stack_step, "run") as run_stack:
-                result = asyncio.run(services.workflows.apply.run())
+        for kind in (HostEnvironmentKind.NATIVE_LINUX, HostEnvironmentKind.WSL2):
+            with self.subTest(kind=kind), patch.object(
+                composition_deployment, "HostEnvironmentDetector"
+            ) as detector, patch.object(
+                composition_deployment, "NativeLinuxHostPreparation"
+            ) as host, patch.object(composition, "ComposeFileRepositoryYaml"):
+                detector.return_value.detect.return_value.environment = kind
+                host_result = host.return_value.verify.return_value
+                host_result.succeeded = True
+                host_result.verified = True
+                host_result.evidence = {}
+                services = composition.build_lxc_deployment_services(
+                    backend=composition.ManagedLxcBackend.INCUS,
+                )
+                evidence_step = services.workflows.apply.pre_apply_steps[0]
+                first_stack_step = services.workflows.apply.steps[0]
 
-        self.assertEqual(result.status.value, "failed_to_prepare")
-        write_evidence.assert_called_once_with()
-        run_stack.assert_not_called()
+                with patch.object(
+                    evidence_step,
+                    "run",
+                    side_effect=OSError("evidence write failed"),
+                ) as write_evidence, patch.object(first_stack_step, "run") as run_stack:
+                    result = asyncio.run(services.workflows.apply.run())
+
+                self.assertEqual(result.status.value, "failed_to_prepare")
+                write_evidence.assert_called_once_with()
+                run_stack.assert_not_called()
+                self.assertEqual(host.return_value.verify.call_count,
+                                 1 if kind is HostEnvironmentKind.NATIVE_LINUX else 0)
 
     def test_build_deployment_services_uses_operator_swarm_registry_endpoint_for_local_images(
         self,

@@ -120,10 +120,12 @@ class DeploymentApplyWorkflow:
         pre_apply_checks: Sequence[DeploymentPreApplyCheck] = (),
         blocked_reason: str = DEFAULT_DEPLOYMENT_APPLY_BLOCK_REASON,
         kind: DeploymentWorkflowKind = DeploymentWorkflowKind.APPLY,
+        prerequisite_checks: Sequence[DeploymentPreApplyCheck] = (),
     ):
         self.steps = tuple(steps)
         self.pre_apply_steps = tuple(pre_apply_steps)
         self.pre_apply_checks = tuple(pre_apply_checks)
+        self.prerequisite_checks = tuple(prerequisite_checks)
         self.blocked_reason = blocked_reason
         self.kind = kind
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -138,6 +140,11 @@ class DeploymentApplyWorkflow:
             )
 
         verification_results: list[VerificationResult] = []
+        prerequisite_result = await _run_pre_apply_checks(
+            self.prerequisite_checks, self.kind, verification_results,
+        )
+        if prerequisite_result is not None:
+            return prerequisite_result
         pre_apply_prepare_result = await _run_pre_apply_steps(
             self.pre_apply_steps,
             self.kind,

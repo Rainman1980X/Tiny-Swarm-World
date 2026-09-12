@@ -785,7 +785,7 @@ services:
         )
         self.assertEqual(
             compose_data["services"]["jenkins"]["volumes"],
-            ["jenkins_home:/var/lib/jenkins"],
+            ["jenkins_home:/var/jenkins_home"],
         )
         self.assertEqual(
             compose_data["services"]["jenkins"]["environment"],

@@ -86,11 +86,6 @@ class CredentialResolver:
         if operator_value and not operator_value.strip():
             operator_value = None
         if secure_value:
-            if operator_value and operator_value != secure_value:
-                raise CredentialResolutionError(
-                    f"Conflicting operator and secure values were supplied for {key}; "
-                    "remove one source before continuing."
-                )
             if secure_source is None:
                 raise CredentialResolutionError(
                     f"Secure credential source must be identified for {key}."

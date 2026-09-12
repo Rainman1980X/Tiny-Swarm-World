@@ -12,6 +12,7 @@ from tiny_swarm_world.domain.configuration.internal_test_credentials import INTE
 from tiny_swarm_world.application.services.credential_resolution import (
     CREDENTIAL_SOURCE_MAP_ENVIRONMENT,
     CredentialResolutionService,
+    CredentialResolutionSnapshot,
     decode_source_metadata,
 )
 
@@ -48,15 +49,23 @@ class TestCredentialResolution(unittest.TestCase):
 
         self.assertEqual(CredentialSource.DEFAULT, resolved.source)
 
-    def test_conflicting_vault_and_operator_values_are_rejected(self):
-        with self.assertRaisesRegex(CredentialResolutionError, "Conflicting operator and secure values"):
-            self.resolver.resolve(
-                "TSW_PORTAINER_ADMIN_PASSWORD",
-                operator_value="operator-value",
-                secure_value="vault-value",
-                secure_source=SecureCredentialSource.SELF_HOSTED_INFISICAL,
-                phase=CredentialResolutionPhase.POST_BOOTSTRAP,
-            )
+    def test_distinct_vault_value_wins_over_operator_after_bootstrap(self):
+        resolved = self.resolver.resolve(
+            "TSW_PORTAINER_ADMIN_PASSWORD",
+            operator_value="operator-value",
+            secure_value="vault-value",
+            secure_source=SecureCredentialSource.SELF_HOSTED_INFISICAL,
+            phase=CredentialResolutionPhase.POST_BOOTSTRAP,
+        )
+        self.assertEqual("vault-value", resolved.value)
+        self.assertEqual(CredentialSource.VAULT, resolved.source)
+
+    def test_distinct_sources_do_not_bypass_source_or_bootstrap_guards(self):
+        for source, message in ((None, "must be identified"),
+                                (SecureCredentialSource.SELF_HOSTED_INFISICAL, "before bootstrap")):
+            with self.subTest(source=source), self.assertRaisesRegex(CredentialResolutionError, message):
+                self.resolver.resolve("TSW_JENKINS_ADMIN_PASSWORD", operator_value="operator-value",
+                                      secure_value="vault-value", secure_source=source)
 
     def test_equal_vault_and_operator_values_use_vault_source(self):
         resolved = self.resolver.resolve(
@@ -128,6 +137,72 @@ class TestCredentialResolution(unittest.TestCase):
         second = self.resolver.resolve_many(("TSW_PORTAINER_ADMIN_PASSWORD",))
 
         self.assertEqual(first, second)
+
+    def test_vault_only_post_bootstrap_resolution_is_supported(self):
+        snapshot = CredentialResolutionService(self.resolver).resolve_post_bootstrap(
+            ("TSW_PORTAINER_ADMIN_PASSWORD",),
+            secure_values={"TSW_PORTAINER_ADMIN_PASSWORD": "vault-only-value"},
+            secure_source=SecureCredentialSource.SELF_HOSTED_INFISICAL,
+        )
+
+        self.assertEqual(
+            CredentialSource.VAULT,
+            snapshot.sources["TSW_PORTAINER_ADMIN_PASSWORD"],
+        )
+        self.assertEqual("vault-only-value", snapshot.values["TSW_PORTAINER_ADMIN_PASSWORD"])
+
+    def test_snapshot_comparison_is_value_free_and_detects_source_drift(self):
+        before = CredentialResolutionService(self.resolver).resolve_post_bootstrap(
+            ("TSW_PORTAINER_ADMIN_PASSWORD", "TSW_JENKINS_ADMIN_PASSWORD"),
+            operator_values={"TSW_JENKINS_ADMIN_PASSWORD": "operator-value"},
+        )
+        after = CredentialResolutionService(self.resolver).resolve_post_bootstrap(
+            ("TSW_PORTAINER_ADMIN_PASSWORD", "TSW_JENKINS_ADMIN_PASSWORD"),
+            secure_values={"TSW_JENKINS_ADMIN_PASSWORD": "vault-value"},
+            secure_source=SecureCredentialSource.SELF_HOSTED_INFISICAL,
+        )
+
+        comparison = after.compare_to(before)
+
+        self.assertFalse(comparison.values_equal)
+        self.assertFalse(comparison.sources_equal)
+        self.assertFalse(comparison.stable)
+        self.assertEqual(("TSW_JENKINS_ADMIN_PASSWORD",), comparison.changed_keys)
+        self.assertEqual(("TSW_JENKINS_ADMIN_PASSWORD",), comparison.changed_source_keys)
+        evidence = comparison.evidence()
+        self.assertNotIn("operator-value", repr(evidence))
+        self.assertNotIn("vault-value", repr(evidence))
+        self.assertEqual(
+            ["TSW_JENKINS_ADMIN_PASSWORD"],
+            evidence["changed_keys"],
+        )
+
+    def test_reconcile_and_restart_comparison_stays_stable(self):
+        service = CredentialResolutionService(self.resolver)
+        before = service.resolve_bootstrap(("TSW_PORTAINER_ADMIN_PASSWORD",))
+        after_reconcile = service.resolve_bootstrap(("TSW_PORTAINER_ADMIN_PASSWORD",))
+        after_restart = service.resolve_bootstrap(("TSW_PORTAINER_ADMIN_PASSWORD",))
+
+        self.assertTrue(after_reconcile.compare_to(before).stable)
+        self.assertTrue(after_restart.compare_to(after_reconcile).stable)
+
+    def test_snapshot_comparison_handles_an_intentional_single_key_transition(self):
+        before = CredentialResolutionSnapshot(
+            self.resolver.resolve_many(
+                ("TSW_PORTAINER_ADMIN_PASSWORD", "TSW_JENKINS_ADMIN_PASSWORD"),
+            )
+        )
+        after = CredentialResolutionSnapshot(
+            self.resolver.resolve_many(
+                ("TSW_PORTAINER_ADMIN_PASSWORD", "TSW_JENKINS_ADMIN_PASSWORD"),
+                operator_values={"TSW_JENKINS_ADMIN_PASSWORD": "new-operator-value"},
+            )
+        )
+
+        comparison = after.compare_to(before)
+
+        self.assertEqual(("TSW_JENKINS_ADMIN_PASSWORD",), comparison.changed_keys)
+        self.assertEqual(("TSW_JENKINS_ADMIN_PASSWORD",), comparison.changed_source_keys)
 
 
 if __name__ == "__main__":

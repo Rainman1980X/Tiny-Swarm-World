@@ -7,6 +7,15 @@ calls so legacy facade patch points remain effective.
 
 from __future__ import annotations
 
+from functools import partial
+
+from tiny_swarm_world.application.services.deployment.verify_host_prerequisites import (
+    VerifyHostPrerequisites,
+)
+from tiny_swarm_world.domain.host_environment import HostEnvironmentKind
+from tiny_swarm_world.infrastructure.adapters.host import NativeLinuxHostPreparation
+from tiny_swarm_world.infrastructure.adapters.host.host_environment_detector import HostEnvironmentDetector
+
 from tiny_swarm_world.application.services.deployment.ensure_external_swarm_secret import (
     EnsureExternalSwarmSecret,
 )
@@ -155,6 +164,13 @@ def build_lxc_deployment_services(
     progress: PortWorkflowProgress | None = None,
 ) -> DeploymentServices:
     project_paths = default_project_paths()
+    host_environment = HostEnvironmentDetector().detect().environment
+    prerequisite_checks = () if host_environment is HostEnvironmentKind.WSL2 else (
+        VerifyHostPrerequisites(
+            NativeLinuxHostPreparation()
+            if host_environment is HostEnvironmentKind.NATIVE_LINUX else None
+        ),
+    )
     local_file_storage = LocalFileStorage()
     selected_service_profile = ServiceStackProfile(service_profile)
     service_stack_contracts = service_stack_contracts_for_profile(selected_service_profile)
@@ -200,6 +216,16 @@ def build_lxc_deployment_services(
     )
     stack_environment = _deployment_stack_environment(selected_service_profile)
     secret_manifest_entries = SecretManifestRenderer(local_file_storage).run()
+    infisical_cli_client = None
+    infisical_secret_sync_step = None
+    if selected_service_profile is ServiceStackProfile.SERVICE_ACCESS:
+        infisical_cli_client = InfisicalCliClient(base_url=_self_hosted_infisical_url())
+        infisical_secret_sync_step = InfisicalSecretSyncStep(
+            cli=infisical_cli_client,
+            storage=local_file_storage,
+            manifest_entries=secret_manifest_entries,
+            process_environment=os.environ,
+        )
     portainer_admin_client = LxcPortainerAdminClient(backend=backend)
     portainer_client = LxcPortainerHttpClient(
         backend=backend,
@@ -217,6 +243,13 @@ def build_lxc_deployment_services(
             swarm_runtime=swarm_runtime,
             service_stack=contract,
             stack_environment=stack_environment.get(contract.stack_name),
+            credential_snapshot=(partial(infisical_secret_sync_step.resolved_snapshot,
+                                         ("TSW_JENKINS_ADMIN_PASSWORD",))
+                                 if contract.stack_name == "jenkins" and infisical_secret_sync_step is not None
+                                 else None),
+            credential_keys=(("TSW_JENKINS_ADMIN_PASSWORD",)
+                             if contract.stack_name == "jenkins" and infisical_secret_sync_step is not None
+                             else ()),
         )
         for contract in service_stack_contracts
     }
@@ -268,8 +301,7 @@ def build_lxc_deployment_services(
     )
     infisical_secret_management_steps: tuple[object, ...] = ()
     infisical_seed_steps: tuple[object, ...] = ()
-    if selected_service_profile is ServiceStackProfile.SERVICE_ACCESS:
-        infisical_cli_client = InfisicalCliClient(base_url=_self_hosted_infisical_url())
+    if infisical_secret_sync_step is not None and infisical_cli_client is not None:
         infisical_bootstrap_steps = _infisical_bootstrap_steps(
             selected_service_profile,
             cli=infisical_cli_client,
@@ -278,12 +310,6 @@ def build_lxc_deployment_services(
         secret_discovery_step = SecretDiscoveryStep(
             storage=local_file_storage,
             manifest_entries=secret_manifest_entries,
-        )
-        infisical_secret_sync_step = InfisicalSecretSyncStep(
-            cli=infisical_cli_client,
-            storage=local_file_storage,
-            manifest_entries=secret_manifest_entries,
-            process_environment=os.environ,
         )
         secret_consumption_step = SecretConsumptionVerifier(
             manifest_entries=secret_manifest_entries,
@@ -360,6 +386,7 @@ def build_lxc_deployment_services(
             bootstrap=DeploymentApplyWorkflow(
                 bootstrap_steps,
                 kind=DeploymentWorkflowKind.BOOTSTRAP,
+                prerequisite_checks=prerequisite_checks,
             ),
             apply=DeploymentApplyWorkflow(
                 cast(
@@ -375,6 +402,7 @@ def build_lxc_deployment_services(
                 ),
                 pre_apply_steps=tuple(pre_apply_steps),
                 pre_apply_checks=pre_apply_checks,
+                prerequisite_checks=prerequisite_checks,
             ),
             verify=DeploymentVerifyWorkflow(
                 readiness_checks,
