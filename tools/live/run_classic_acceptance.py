@@ -42,6 +42,15 @@ EVIDENCE_ROOT = (
 )
 TEST_COUNT_PATTERN = re.compile(r"Ran (\d+) tests? in ([0-9.]+)s")
 SKIP_PATTERN = re.compile(r"skipped=(\d+)")
+CLASSIC_E2E_COMMAND = (
+    "env",
+    "PYTHONPATH=src",
+    "TSW_RUN_POST_INSTALL_BROWSER_LIVE=1",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.e2e.classic.test_post_install_browser_live",
+)
 
 
 @dataclass(frozen=True)
@@ -62,6 +71,11 @@ def main() -> int:
     parser.add_argument(
         "--credential-rotation-reference",
         help="Non-secret reference proving the previously exposed credential was rotated or revoked.",
+    )
+    parser.add_argument(
+        "--test-only",
+        action="store_true",
+        help="Run the disposable test profile; credential rotation is not applicable.",
     )
     parser.add_argument("--update-stack", default=os.environ.get("TSW_CLASSIC_UPDATE_STACK"))
     parser.add_argument("--update-service", default=os.environ.get("TSW_CLASSIC_UPDATE_SERVICE"))
@@ -91,6 +105,7 @@ def main() -> int:
             secret_storage=None,
             evidence_storage=evidence_storage,
             credential_rotation_reference=None,
+            test_only=args.test_only,
         )
 
     if not env_file.is_file():
@@ -105,9 +120,12 @@ def main() -> int:
             secret_storage=None,
             evidence_storage=evidence_storage,
             credential_rotation_reference=None,
+            test_only=args.test_only,
         )
 
-    if not _valid_rotation_reference(args.credential_rotation_reference):
+    if not _rotation_reference_valid_for_profile(
+        args.test_only, args.credential_rotation_reference
+    ):
         return _write_terminal_result(
             evidence_dir,
             run_id=run_id,
@@ -119,6 +137,7 @@ def main() -> int:
             secret_storage=None,
             evidence_storage=evidence_storage,
             credential_rotation_reference=None,
+            test_only=args.test_only,
         )
 
     source_filesystem = assess_evidence_directory(
@@ -144,6 +163,7 @@ def main() -> int:
             secret_storage=secret_storage,
             evidence_storage=evidence_storage,
             credential_rotation_reference=args.credential_rotation_reference,
+            test_only=args.test_only,
         )
 
     update_values = (
@@ -164,6 +184,7 @@ def main() -> int:
             secret_storage=secret_storage,
             evidence_storage=evidence_storage,
             credential_rotation_reference=args.credential_rotation_reference,
+            test_only=args.test_only,
         )
 
     environment = os.environ.copy()
@@ -177,7 +198,8 @@ def main() -> int:
         (
             "setup",
             (
-                "./tsw",
+                "bash",
+                "tsw",
                 "--live",
                 "--approve-live",
                 "--json",
@@ -192,7 +214,8 @@ def main() -> int:
         (
             "platform_verify",
             (
-                "./tsw",
+                "bash",
+                "tsw",
                 "--json",
                 "--service-profile",
                 "service-access",
@@ -204,24 +227,14 @@ def main() -> int:
         ),
         (
             "classic_e2e",
-            (
-                "env",
-                "TSW_RUN_POST_INSTALL_BROWSER_LIVE=1",
-                "python3",
-                "-m",
-                "unittest",
-                "discover",
-                "-s",
-                "tests/e2e/classic",
-                "-t",
-                ".",
-            ),
+            CLASSIC_E2E_COMMAND,
             900,
         ),
         (
             "reconcile",
             (
-                "./tsw",
+                "bash",
+                "tsw",
                 "--live",
                 "--approve-live",
                 "--json",
@@ -234,24 +247,14 @@ def main() -> int:
         ),
         (
             "reconcile_e2e",
-            (
-                "env",
-                "TSW_RUN_POST_INSTALL_BROWSER_LIVE=1",
-                "python3",
-                "-m",
-                "unittest",
-                "discover",
-                "-s",
-                "tests/e2e/classic",
-                "-t",
-                ".",
-            ),
+            CLASSIC_E2E_COMMAND,
             900,
         ),
         (
             "update",
             (
-                "./tsw",
+                "bash",
+                "tsw",
                 "--live",
                 "--approve-live",
                 "--json",
@@ -272,24 +275,14 @@ def main() -> int:
         ),
         (
             "update_e2e",
-            (
-                "env",
-                "TSW_RUN_POST_INSTALL_BROWSER_LIVE=1",
-                "python3",
-                "-m",
-                "unittest",
-                "discover",
-                "-s",
-                "tests/e2e/classic",
-                "-t",
-                ".",
-            ),
+            CLASSIC_E2E_COMMAND,
             900,
         ),
         (
             "recovery",
             (
-                "./tsw",
+                "bash",
+                "tsw",
                 "--live",
                 "--approve-live",
                 "--json",
@@ -307,18 +300,7 @@ def main() -> int:
         ),
         (
             "recovery_e2e",
-            (
-                "env",
-                "TSW_RUN_POST_INSTALL_BROWSER_LIVE=1",
-                "python3",
-                "-m",
-                "unittest",
-                "discover",
-                "-s",
-                "tests/e2e/classic",
-                "-t",
-                ".",
-            ),
+            CLASSIC_E2E_COMMAND,
             900,
         ),
     )
@@ -342,6 +324,7 @@ def main() -> int:
         secret_storage=secret_storage,
         evidence_storage=evidence_storage,
         credential_rotation_reference=args.credential_rotation_reference,
+        test_only=args.test_only,
     )
 
 
@@ -396,9 +379,8 @@ def _summarize(operation: str, stdout: str, stderr: str) -> dict[str, object]:
             "runtime_seconds": float(match.group(2)) if match else None,
             "skipped": int(skips.group(1)) if skips else 0,
         }
-    try:
-        payload = json.loads(stdout)
-    except json.JSONDecodeError:
+    payload = _find_structured_payload(stdout, stderr)
+    if payload is None:
         return {"result": "completed_without_structured_summary" if not stderr else "failed"}
     if not isinstance(payload, dict):
         return {"result": "completed_without_structured_summary"}
@@ -409,12 +391,64 @@ def _summarize(operation: str, stdout: str, stderr: str) -> dict[str, object]:
     return {
         "result": _structured_result(payload),
         "status": payload.get("status"),
+        "message": _safe_structured_detail(payload.get("message")),
+        "reason": _safe_structured_detail(payload.get("reason")),
+        "phase_results": _safe_phase_results(payload.get("phase_results")),
         "verification": outcome_dict.get("verification"),
         "mutation": outcome_dict.get("mutation", {}).get("result")
         if isinstance(outcome_dict.get("mutation"), dict)
         else None,
         "result_count": result_count,
     }
+
+
+def _safe_structured_detail(value: object) -> str | None:
+    if not isinstance(value, str):
+        return None
+    detail = re.sub(
+        r"(?i)(password|token|secret|credential|authorization|bearer)\s*[:=]\s*\S+",
+        r"\1=<redacted>",
+        value,
+    )
+    return detail[:240]
+
+
+def _safe_phase_results(value: object) -> dict[str, object]:
+    if not isinstance(value, list):
+        return {"count": 0, "failed": []}
+    failed: list[dict[str, str]] = []
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        status = str(item.get("status", "")).casefold()
+        if status not in {"completed", "passed", "verified", "ok", "success"}:
+            name = item.get("name") or item.get("phase") or item.get("target_id")
+            if isinstance(name, str):
+                failure = {"name": name[:120]}
+                for detail_key in ("reason", "message", "safe_message"):
+                    detail = _safe_structured_detail(item.get(detail_key))
+                    if detail:
+                        failure[detail_key] = detail
+                failed.append(failure)
+    return {"count": len(value), "failed": failed[:20]}
+
+
+def _find_structured_payload(
+    stdout: str, stderr: str
+) -> dict[str, object] | list[object] | None:
+    candidates: list[tuple[int, dict[str, object] | list[object]]] = []
+    decoder = json.JSONDecoder()
+    for stream in (stdout, stderr):
+        for match in re.finditer(r"(?m)^[\[{]", stream):
+            try:
+                payload, _ = decoder.raw_decode(stream[match.start() :])
+            except json.JSONDecodeError:
+                continue
+            if isinstance(payload, (dict, list)):
+                candidates.append((len(stream[match.start() :]), payload))
+    if not candidates:
+        return None
+    return max(candidates, key=lambda candidate: candidate[0])[1]
 
 
 def _structured_result(payload: dict[str, object]) -> str:
@@ -457,18 +491,27 @@ def _write_terminal_result(
     secret_storage: RuntimePathAssessment | None,
     evidence_storage: RuntimePathAssessment,
     credential_rotation_reference: str | None,
+    test_only: bool = False,
 ) -> int:
     finished_at = _utc_now()
     payload = {
         "run_id": run_id,
         "repository_commit": _git_commit(),
         "scenario": "classic_live_chain",
+        "execution_profile": "disposable_test" if test_only else "protected_live",
         "host_class": _host_class(),
         "host": {
             "class": _host_class(),
             "kernel_release": platform.release(),
             "pid1": _safe_pid1(),
             "systemd_directory_present": Path("/run/systemd/system").is_dir(),
+        },
+        "runner": {
+            "name": _safe_runner_name(),
+            "label": os.environ.get("CLASSIC_LIVE_RUNNER_LABEL", "tsw-classic"),
+            "target_owner_reference_present": bool(
+                os.environ.get("TSW_CLASSIC_TARGET_OWNER", "").strip()
+            ),
         },
         "consent_state": "LIVE_APPROVED" if status != "LIVE_CONSENT_MISSING" else status,
         "started_at_utc": started_at,
@@ -483,8 +526,10 @@ def _write_terminal_result(
         ),
         "evidence_storage": evidence_storage.to_safe_dict(),
         "credential_rotation": {
-            "status": "recorded" if credential_rotation_reference else "not_recorded",
-            "reference_present": bool(credential_rotation_reference),
+            "status": _rotation_evidence_status(test_only, credential_rotation_reference),
+            "reference_present": (
+                bool(credential_rotation_reference) if not test_only else False
+            ),
             "reference_value": "not_recorded",
         },
         "operations": [
@@ -526,20 +571,30 @@ def _resolve_env_file(value: Path | None) -> Path:
 def _safe_command_label(operation: str) -> str:
     return {
         "diagnostics": "python3 tools/install_debugger.py --live",
-        "setup": "./tsw --live --approve-live --json setup run",
-        "platform_verify": "./tsw --json platform verify",
-        "reconcile": "./tsw --live --approve-live --json platform reconcile",
-        "update": "./tsw --live --approve-live --json platform update --stack <configured> --service <configured>",
-        "classic_e2e": "env TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
-        "reconcile_e2e": "env TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
-        "update_e2e": "env TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
-        "recovery": "./tsw --live --approve-live --json platform update --recover --stack <configured> --service <configured>",
-        "recovery_e2e": "env TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
+        "setup": "bash tsw --live --approve-live --json setup run",
+        "platform_verify": "bash tsw --json platform verify",
+        "reconcile": "bash tsw --live --approve-live --json platform reconcile",
+        "update": "bash tsw --live --approve-live --json platform update --stack <configured> --service <configured>",
+        "classic_e2e": "env PYTHONPATH=src TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest tests.e2e.classic.test_post_install_browser_live",
+        "reconcile_e2e": "env PYTHONPATH=src TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest tests.e2e.classic.test_post_install_browser_live",
+        "update_e2e": "env PYTHONPATH=src TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest tests.e2e.classic.test_post_install_browser_live",
+        "recovery": "bash tsw --live --approve-live --json platform update --recover --stack <configured> --service <configured>",
+        "recovery_e2e": "env PYTHONPATH=src TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest tests.e2e.classic.test_post_install_browser_live",
     }.get(operation, operation)
 
 
 def _valid_rotation_reference(value: str | None) -> bool:
     return bool(value and re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:-]{1,127}", value))
+
+
+def _rotation_reference_valid_for_profile(test_only: bool, value: str | None) -> bool:
+    return test_only or _valid_rotation_reference(value)
+
+
+def _rotation_evidence_status(test_only: bool, value: str | None) -> str:
+    if test_only:
+        return "not_applicable_test_only"
+    return "recorded" if value else "not_recorded"
 
 
 def _git_commit() -> str:
@@ -565,6 +620,11 @@ def _safe_pid1() -> str:
         return Path("/proc/1/comm").read_text(encoding="utf-8").strip() or "unknown"
     except OSError:
         return "unavailable"
+
+
+def _safe_runner_name() -> str:
+    value = os.environ.get("RUNNER_NAME", "").strip()
+    return value if re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}", value) else "unknown"
 
 
 def _private(path: Path) -> None:

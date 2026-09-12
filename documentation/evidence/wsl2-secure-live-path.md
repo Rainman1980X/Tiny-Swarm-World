@@ -44,7 +44,7 @@ not native, not user-owned, not `0600`, or is in a directory that is not
 `0700`. No command output or environment value is persisted by the live
 runner.
 
-## Authorized run contract
+## Authorized protected run contract
 
 Before any mutation, the operator must rotate or revoke the credential exposed
 by the earlier failed attempt. Supply only a non-secret ticket or change
@@ -71,10 +71,25 @@ permit the already-qualified `/mnt/*` source tree. It does not bypass secret
 storage qualification. Blocked, skipped, partial or degraded operations never
 produce `LIVE_VERIFIED`.
 
-The protected CI workflow expects repository or environment variables for the
-native env-file path, native evidence-root path, target-owner reference, and
-credential-rotation reference. Its qualification step rejects missing values
-before checking the live runner and uploads only the configured evidence root.
+The disposable test workflow uses the same Linux runner, consent, ownership,
+secure-file and lifecycle guards with `--test-only`. In that profile credential
+rotation is not applicable, so no rotation-reference variable is read. An
+unmarked protected/live invocation still requires a valid rotation reference.
+The qualified self-hosted workflow sets `TSW_LIVE_RUNNER_VERIFIED=1` after
+selecting the explicit `self-hosted`, `linux`, `tsw-classic` runner. This marker
+allows that qualified Linux/WSL CI process to pass host classification while
+generic CI remains sandbox-only; container and cgroup markers still take
+precedence.
+The workflow variables therefore provide the runner-local env-file path, the
+native evidence-root path, the target-owner reference, and the selected update
+stack, service, source image and target image. The workflow uploads only the
+configured evidence root.
+
+The env-file path points to a runner-local file containing test credentials and
+configuration. Keep that file outside Git, owned by the runner user, in a
+0700 directory with mode 0600 on the file. The other variables are non-secret
+execution metadata; they make the target and controlled update explicit rather
+than relying on defaults.
 
 ## Evidence and completion
 
