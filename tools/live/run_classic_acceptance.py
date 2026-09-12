@@ -189,7 +189,8 @@ def main() -> int:
         (
             "setup",
             (
-                "./tsw",
+                "bash",
+                "tsw",
                 "--live",
                 "--approve-live",
                 "--json",
@@ -204,7 +205,8 @@ def main() -> int:
         (
             "platform_verify",
             (
-                "./tsw",
+                "bash",
+                "tsw",
                 "--json",
                 "--service-profile",
                 "service-access",
@@ -233,7 +235,8 @@ def main() -> int:
         (
             "reconcile",
             (
-                "./tsw",
+                "bash",
+                "tsw",
                 "--live",
                 "--approve-live",
                 "--json",
@@ -263,7 +266,8 @@ def main() -> int:
         (
             "update",
             (
-                "./tsw",
+                "bash",
+                "tsw",
                 "--live",
                 "--approve-live",
                 "--json",
@@ -301,7 +305,8 @@ def main() -> int:
         (
             "recovery",
             (
-                "./tsw",
+                "bash",
+                "tsw",
                 "--live",
                 "--approve-live",
                 "--json",
@@ -550,14 +555,14 @@ def _resolve_env_file(value: Path | None) -> Path:
 def _safe_command_label(operation: str) -> str:
     return {
         "diagnostics": "python3 tools/install_debugger.py --live",
-        "setup": "./tsw --live --approve-live --json setup run",
-        "platform_verify": "./tsw --json platform verify",
-        "reconcile": "./tsw --live --approve-live --json platform reconcile",
-        "update": "./tsw --live --approve-live --json platform update --stack <configured> --service <configured>",
+        "setup": "bash tsw --live --approve-live --json setup run",
+        "platform_verify": "bash tsw --json platform verify",
+        "reconcile": "bash tsw --live --approve-live --json platform reconcile",
+        "update": "bash tsw --live --approve-live --json platform update --stack <configured> --service <configured>",
         "classic_e2e": "env TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
         "reconcile_e2e": "env TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
         "update_e2e": "env TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
-        "recovery": "./tsw --live --approve-live --json platform update --recover --stack <configured> --service <configured>",
+        "recovery": "bash tsw --live --approve-live --json platform update --recover --stack <configured> --service <configured>",
         "recovery_e2e": "env TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest discover",
     }.get(operation, operation)
 
