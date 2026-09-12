@@ -17,6 +17,8 @@ Test/evidence reviewer: the finding is reproducible with the recorded scanner
 digest. Any remediation requires Dockerfile build/start verification, route
 and readiness regression tests, and a candidate-matched rescan.
 
-Decision: **REQUIRES_REFINEMENT** for the Service Access remediation choice;
-release security evidence remains blocked until the choice is made and
-verified.
+Decision: preserve the existing internal ports and declare `USER nginx` in
+both Service Access images. An isolated image run confirmed that the existing
+`/tmp/nginx.pid` and ownership setup permits the non-root process to start on
+the current ports. Release security evidence remains blocked until the
+candidate images are rebuilt and rescanned.

@@ -30,5 +30,13 @@ preserve the existing Jenkins and Service Access runtime contracts and must be
 rescanned with candidate-matched image identities.
 
 Follow-up: Jenkins now declares `USER jenkins`, matching the official image's
-runtime user contract. The two Service Access findings remain open pending the
-port-preserving non-root design decision and a follow-up scan.
+runtime user contract. Both Service Access images now declare `USER nginx`.
+An isolated image run preserved their existing internal ports. The follow-up
+scan reported 0 HIGH/CRITICAL findings for all three Dockerfiles. The scan is
+source/config evidence; candidate-built image vulnerability evidence remains
+required separately.
+
+Local image smoke identities:
+
+- `tsw-service-access-dashboard-rootless-test`: `sha256:f86ce3a9b61db2ec750669e9002537da9b591534f07839e61a780fb8ba2b2573`
+- `tsw-service-access-nginx-rootless-test`: `sha256:23dd00ec844b57765eea0036d50c63d720c0fa022bfe67a0a620d71e83317f1a`
