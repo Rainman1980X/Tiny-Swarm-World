@@ -1,0 +1,61 @@
+= RC1 Central Module Maintenance Triage
+
+Date: 2026-09-12
+
+The review uses responsibility boundaries, ports and regression ownership
+alongside line counts. File size alone is not a release defect.
+
+[cols="1,2,2,2"]
+|===
+| Module | Concrete observation | RC1 disposition | Follow-up
+
+| infrastructure/adapters/clients/lxc_node_provider.py
+| LXC lifecycle, provider safety, resource resolution and evidence mapping
+  share one adapter around the PortNodeLifecycle ports.
+| Acceptable current infrastructure boundary; the adapter owns technology
+  details and existing tests cover lifecycle outcomes.
+| Post-RC1 extract resource qualification behind a focused adapter.
+
+| infrastructure/composition_runtime.py
+| Runtime compatibility symbols, default construction and workflow helper
+  composition are co-located to preserve legacy patch points.
+| Acceptable compatibility surface for RC1; import and composition tests are
+  the release guard.
+| Post-RC1 split compatibility facade from construction registry.
+
+| installer.py
+| CLI options, fresh-reset sequencing, evidence files and subprocess
+  lifecycle are coordinated in one legacy-compatible entry point.
+| Acceptable current installer boundary; destructive reset remains explicit
+  and tests cover stop-before-setup behavior.
+| Post-RC1 separate command parsing from lifecycle/evidence orchestration.
+
+| application/services/platform/preflight_service.py
+| A broad preflight service coordinates host, configuration, ports, resources,
+  filesystem and secret checks through many optional ports.
+| Acceptable orchestration boundary; it depends on ports and remains
+  fail-closed.
+| Post-RC1 group checks into named preflight collaborators without changing
+  result taxonomy.
+
+| __main__.py
+| Entry-point dispatch, serialization and operator summaries have grown with
+  guarded workflow contracts.
+| Acceptable current CLI compatibility surface; parser and entry-point tests
+  protect stable behavior.
+| Post-RC1 extract workflow argument groups and result rendering.
+|===
+
+== Bounded follow-up
+
+Create one post-RC1 issue titled *Extract LXC resource qualification adapter*.
+Affected files are
+infrastructure/adapters/clients/lxc_node_provider.py and the existing
+infrastructure/adapters/clients/lxc/resource package. Preserve
+PortNodeLifecycle, ProviderSelection and VerificationResult contracts.
+Regression coverage must include supported/unsupported resource resolution,
+capacity rejection, provider lifecycle success, provider failure propagation
+and redacted evidence. The expected benefit is smaller provider changes with
+the same safety and evidence behavior.
+
+No observation in this review is promoted to an RC1 release blocker.
