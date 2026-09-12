@@ -91,6 +91,8 @@ deployment port. Success requires the service and all active tasks to converge
 to the target image in a stable rollout. Missing observations or failed, mixed,
 paused or otherwise unconverged rollouts do not count as success. An already
 converged target is a verified no-op without deployment or metadata replacement.
+Image updates do not bootstrap or synchronize global secrets, or reconfigure
+administrative access for unrelated services.
 
 Use `platform update --recover --stack jenkins --service jenkins --preview`
 to preview recovery, then replace `--preview` with `--live --approve-live` to

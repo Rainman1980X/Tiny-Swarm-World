@@ -98,3 +98,32 @@ contract tests pass locally. Required hosted checks must pass on the new head.
 The existing real three-role review remains historical; further review uses
 an explicit requirement/architecture/QA fallback because all callable agents
 reported their usage limit.
+
+### Observed update scope defect
+
+The native update initially applied the selected Jenkins image and then failed
+in `deployment:infisical-sync` because unrelated TLS secret references were
+absent. The failed operation is retained; supplying the references allowed the
+nominal cross-host update/recovery proofs to complete, but did not resolve the
+scope defect. Composition now excludes global Infisical bootstrap/sync/seed
+from image updates and only wires administrative access for selected stacks.
+The new composition regression first failed on the Infisical client constructor,
+then exposed an additional unrelated SonarQube step. Both causes are fixed;
+all 104 composition tests pass under Python 3.12.14.
+
+Requirement/architecture/QA fallback review: this preserves the documented
+selected-stack boundary, leaves full setup wiring covered by existing tests,
+and requires a native retest with the original protected environment lacking
+those references. No secret defaults, credentials or test exceptions were added.
+This is an explicit single-thread role review, not a new independent-agent
+approval. The earlier independent update/recovery reviews remain historical.
+
+Hosted run 34724253777 on `d59f42cf` passed all 14 operations, including four
+authenticated phases (each 25 live tests plus seven API checks, zero skips).
+It reused an existing target and therefore does not establish fresh-install
+acceptance. The later scope fix requires current-head CI and live verification.
+
+The complete local gate after this scope repair passed under Python 3.12.14:
+2,062 tests, 18 explicit live/optional skips; lint, verification policy,
+three import contracts, 18 architecture tests and 674 typechecked files passed.
+Retained log: `tsw-rc1-r01-scope-quality.log`. This is local verification only.
