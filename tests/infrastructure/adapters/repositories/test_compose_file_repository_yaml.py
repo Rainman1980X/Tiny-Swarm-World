@@ -1546,6 +1546,17 @@ services:
                 if service_name == "service-access-nginx":
                     self.assertNotIn("generate-self-signed-cert.sh", dockerfile)
 
+        jenkins_dockerfile = (
+            repository_root
+            / "infra"
+            / "config"
+            / "compose"
+            / "jenkins"
+            / "image"
+            / "Dockerfile"
+        ).read_text(encoding="utf-8")
+        self.assertIn("USER jenkins", jenkins_dockerfile)
+
     def test_service_access_image_publisher_packages_dashboard_and_nginx_assets(self):
         publisher = _CapturingImagePublisher()
         expected_archives = {
