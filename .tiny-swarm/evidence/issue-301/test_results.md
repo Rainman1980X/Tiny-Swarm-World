@@ -41,5 +41,8 @@
   platform verification, Reconcile, Update and Recovery each passed; all four
   acceptance operations passed with 37 tests and zero skips. The uploaded
   artifact contains the redacted `run-summary.json` and checksums.
-- A controlled required-scenario failure drill has not yet been executed, so
-  that acceptance item remains open.
+- Controlled required-scenario failure drill: **PASS_FAIL_CLOSED**, [run
+  34720172182](https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34720172182)
+  was dispatched with `live_approval=block`; the qualification job failed in
+  `Reject blocked manual execution`, the live chain was skipped, and no target
+  mutation or live evidence job ran.

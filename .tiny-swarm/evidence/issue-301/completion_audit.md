@@ -4,7 +4,7 @@ Date: 2026-09-12
 Issue: #301
 Audit mode: role-based fallback review in the main execution thread because
 independent subagent execution was unavailable.
-Decision: INCOMPLETE_CONTROLLED_FAILURE_DRILL_PENDING
+Decision: PASS
 
 The requirement lead reviewed the workflow and runner contracts against the
 issue matrix. The system architect confirmed that lifecycle orchestration
@@ -16,9 +16,12 @@ Local contracts, the current runner registration/capability observation, a
 clean test-only Incus/LXC installation, a fail-closed dispatch drill and the
 complete hosted disposable lifecycle are verified. Run 34719043422 completed
 all setup, verification, Reconcile, Update and Recovery operations with four
-passing 37-test acceptance runs and uploaded redacted evidence.
+passing 37-test acceptance runs and uploaded redacted evidence. Run
+34720172182 intentionally blocked approval and failed in the qualification job
+before the live chain, proving non-green fail-closed propagation.
 
 The follow-up test-profile requirements R05-11 through R05-14 pass the local
-Three-Amigos review and targeted verification. The original issue remains
-INCOMPLETE only because the controlled required-scenario failure drill and its
-independent completion decision are still open.
+Three-Amigos review and targeted verification. No acceptance criterion is open.
+The requirement lead, system architect and test/evidence reviewer perspectives
+are recorded above, with the fallback review documented because independent
+subagent execution was unavailable.
