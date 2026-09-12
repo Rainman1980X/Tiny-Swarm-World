@@ -1,13 +1,16 @@
 # RC1-R04 Test Results
 
-- TLS, credential and related regression tests: **70 passed**.
-- Ruff lint: **PASS**.
-- git diff --check: **PASS**.
-- Local dependency audit: **PASS**, no known vulnerabilities.
-- Local SBOM generation: **PASS**, CycloneDX output generated in ignored
-  local evidence storage.
-- Local container-config scan: **BLOCKED**, trivy is unavailable.
-- Hosted SonarCloud replacement analysis: pending after PR publication.
+- Focused TLS suite: 15 tests passed, including reuse, permission, symlink,
+  trust-drift and CA/bundle byte equality checks.
+- Ruff lint and git diff --check: passed.
+- Baseline main quality run 34720675824: 2,004 tests, 19 skipped; passed.
+- Baseline compatibility run 34720675775: Python 3.12 and 3.13 passed.
+- Baseline Sonar run 34720818090: EXTERNAL_GATE_FAILED, new security rating E.
+- Repair full quality: PASS on Python 3.12.14, including both architecture gates,
+  lint, mypy (668 source files) and 2,004 tests (18 skipped). Executed at
+  `320f11f8722cb26fa289326178cae8a6486df1b5`; product, test, tool, workflow,
+  configuration and dependency trees match this repair branch exactly.
+- Repair hosted checks and exact-candidate scan: pending.
 
-The local security checks do not substitute for the candidate-specific
-SonarCloud quality gate.
+Historical evidence is preserved by Git history. Local tests do not qualify
+live, browser or external acceptance.
