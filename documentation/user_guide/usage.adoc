@@ -73,7 +73,8 @@ link:{user-guide-prefix}installation.adoc#verify-installed-runtime[Verify the ru
 Platform readiness or a login page alone is not authenticated acceptance.
 
 The supported update is a single existing stack service image transition. A
-preview validates the source image and selected service without mutation:
+preview validates image references and configured stack/service membership
+without mutation or runtime observation; it does not qualify the running image:
 
 [source,bash]
 ----
@@ -84,10 +85,24 @@ PYTHONPATH=src python3 -m tiny_swarm_world platform update \
 ----
 
 Apply the reviewed transition with `--live --approve-live`. The command
-records the source image as protected rollback metadata, applies only the
-selected stack through the deployment port, and fails closed when the source
-image or stack/service contract does not match. Reconcile remains the command
-for converging the current desired state; reset remains the deliberate fresh
+qualifies the observed source image, records the original transition as
+protected recovery metadata, and applies the selected stack through the
+deployment port. Success requires the service and all active tasks to converge
+to the target image in a stable rollout. Missing observations or failed, mixed,
+paused or otherwise unconverged rollouts do not count as success. An already
+converged target is a verified no-op without deployment or metadata replacement.
+
+Use `platform update --recover --stack jenkins --service jenkins --preview`
+to preview recovery, then replace `--preview` with `--live --approve-live` to
+apply it. Recovery retains the original transition across failures and retries;
+repeating completed recovery is a verified no-op. This metadata is not a backup
+of persistent service data and does not restore that data.
+
+Update and recovery do not rewrite configured desired state, which can differ
+from the observed running image. Explicitly align effective image configuration
+with the image you intend to keep before a later deployment. `platform reconcile`
+is a separate explicit platform-state operation; it currently ensures provider
+nodes and does not redeploy stack images. Reset remains the deliberate fresh
 environment operation.
 
 [[open-the-services]]

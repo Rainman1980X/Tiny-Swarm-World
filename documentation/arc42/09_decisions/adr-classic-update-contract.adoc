@@ -43,3 +43,19 @@ The update contract needs a typed domain plan, an application workflow backed
 by existing deployment ports, protected local recovery metadata and canonical
 runner invocation. Actual host behavior, persistent-data continuity and
 browser/API acceptance require separately authorized live evidence.
+
+Preview validates image references and configured stack/service membership
+without observing runtime. Apply qualifies the observed source through a
+read-only application port backed by the existing Incus manager route. Success
+requires service and active-task image/state convergence and a stable rollout;
+unavailable observations, failed, mixed or paused rollouts cannot establish
+success. An already converged target is a verified no-op without deployment
+or replacement of recovery metadata.
+
+Recovery metadata preserves the original source/target plan across failures
+and recovery retries; it is not a backup of service data. Recovery continues
+to target the original source image. Update and recovery use per-invocation
+image overrides, leaving configured desired state unchanged. Operators must
+explicitly reconcile any difference in effective image configuration before a
+later deployment. `platform reconcile` remains a separate platform-state
+operation; its current implementation ensures provider nodes, not stack images.

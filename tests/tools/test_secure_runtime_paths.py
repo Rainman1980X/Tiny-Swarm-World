@@ -21,7 +21,7 @@ class TestSecureRuntimePaths(unittest.TestCase):
             run_classic_acceptance.CLASSIC_E2E_COMMAND[:3],
         )
         self.assertEqual(
-            "tests.e2e.classic.test_post_install_browser_live",
+            "tests.e2e.classic.test_post_install_browser_live.PostInstallBrowserLiveTest",
             run_classic_acceptance.CLASSIC_E2E_COMMAND[-1],
         )
 

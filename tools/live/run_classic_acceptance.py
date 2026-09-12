@@ -40,8 +40,18 @@ EVIDENCE_ROOT = (
         else Path.home() / ".local" / "state"
     ) / "tiny-swarm-world" / "evidence" / "live-greenpath"
 )
-TEST_COUNT_PATTERN = re.compile(r"Ran (\d+) tests? in ([0-9.]+)s")
+TEST_COUNT_PATTERN = re.compile(r"^Ran (\d+) tests? in ([0-9.]+)s$", re.MULTILINE)
 SKIP_PATTERN = re.compile(r"skipped=(\d+)")
+EXPECTED_READINESS_TESTS = 8
+READINESS_MODULE = "tests.e2e.classic.test_post_install_browser_live"
+SAFE_FAILURE_TYPES = frozenset({
+    "AssertionError", "TimeoutError", "ConnectionError", "SSLError",
+    "ReadinessDeadlineExceeded", "RuntimeError", "ValueError", "OtherError",
+})
+NON_SUCCESS_STATUSES = frozenset({
+    "failed", "blocked", "degraded", "partial", "skipped", "refused",
+    "failed_to_verify", "failed_to_apply", "failed_to_prepare", "not_run", "unknown",
+})
 CLASSIC_E2E_COMMAND = (
     "env",
     "PYTHONPATH=src",
@@ -49,7 +59,7 @@ CLASSIC_E2E_COMMAND = (
     "python3",
     "-m",
     "unittest",
-    "tests.e2e.classic.test_post_install_browser_live",
+    f"{READINESS_MODULE}.PostInstallBrowserLiveTest",
 )
 
 
@@ -191,7 +201,13 @@ def main() -> int:
     # Keep application-generated preflight evidence inside the runner's
     # already-qualified evidence root, including when the root was selected by
     # the default WSL-native state path rather than an environment override.
-    environment["TSW_LIVE_EVIDENCE_ROOT"] = args.evidence_root.resolve().as_posix()
+    environment["TSW_INSTALL_ENV_FILE"] = env_file.as_posix()
+    environment["TSW_LIVE_INSTALLATION_ENV"] = env_file.as_posix()
+    authenticated_command = (
+        "env", "PYTHONPATH=src", "python3", "-m",
+        "tests.e2e.classic.run_authenticated_acceptance_live",
+        "--approve-live", "--phase", "baseline", "--env-file", env_file.as_posix(),
+    )
     operations: list[CommandResult] = []
     commands = (
         ("diagnostics", ("python3", "tools/install_debugger.py", "--live"), 120),
@@ -230,6 +246,7 @@ def main() -> int:
             CLASSIC_E2E_COMMAND,
             900,
         ),
+        ("classic_authenticated", authenticated_command, 900),
         (
             "reconcile",
             (
@@ -250,6 +267,7 @@ def main() -> int:
             CLASSIC_E2E_COMMAND,
             900,
         ),
+        ("reconcile_authenticated", authenticated_command, 900),
         (
             "update",
             (
@@ -278,6 +296,7 @@ def main() -> int:
             CLASSIC_E2E_COMMAND,
             900,
         ),
+        ("update_authenticated", authenticated_command, 900),
         (
             "recovery",
             (
@@ -303,11 +322,17 @@ def main() -> int:
             CLASSIC_E2E_COMMAND,
             900,
         ),
+        ("recovery_authenticated", authenticated_command, 900),
     )
 
     status = "LIVE_VERIFIED"
     for operation, command, timeout in commands:
-        result = _run_operation(operation, command, timeout, env_file, environment)
+        operation_root = evidence_dir / operation
+        ensure_secure_directory(operation_root)
+        operation_environment = {
+            **environment, "TSW_LIVE_EVIDENCE_ROOT": operation_root.resolve().as_posix(),
+        }
+        result = _run_operation(operation, command, timeout, env_file, operation_environment)
         operations.append(result)
         if not _operation_succeeded(result):
             status = "LIVE_PREREQUISITE_MISSING" if operation == "diagnostics" else "LIVE_FAILED_AFTER_MUTATION"
@@ -337,10 +362,20 @@ def _run_operation(
 ) -> CommandResult:
     started_at = _utc_now()
     started = monotonic()
-    shell_command = f"set -a; . {shlex.quote(env_file.as_posix())}; set +a; exec {shlex.join(command)}"
+    # Operator configuration cannot redirect an operation into a shared/stale
+    # evidence directory or select a different credential file after qualification.
+    pinned_environment = (
+        f"TSW_LIVE_EVIDENCE_ROOT={environment['TSW_LIVE_EVIDENCE_ROOT']}",
+        f"TSW_INSTALL_ENV_FILE={env_file.as_posix()}",
+        f"TSW_LIVE_INSTALLATION_ENV={env_file.as_posix()}",
+    )
+    shell_command = (
+        f"set -ae; . {shlex.quote(env_file.as_posix())}; set +a; "
+        f"exec {shlex.join(('env', *pinned_environment, *command))}"
+    )
     try:
         completed = subprocess.run(
-            ["bash", "-lc", shell_command],
+            ["bash", "-c", shell_command],
             cwd=REPOSITORY_ROOT,
             env=environment,
             capture_output=True,
@@ -368,16 +403,29 @@ def _run_operation(
 
 
 def _summarize(operation: str, stdout: str, stderr: str) -> dict[str, object]:
+    if operation.endswith("_authenticated"):
+        return _summarize_authenticated(stdout)
     if operation.endswith("_e2e"):
-        match = TEST_COUNT_PATTERN.search(stdout + "\n" + stderr)
-        skips = SKIP_PATTERN.search(stdout + "\n" + stderr)
+        output = stdout + "\n" + stderr
+        matches = list(TEST_COUNT_PATTERN.finditer(output))
+        match = matches[0] if len(matches) == 1 else None
+        skips = SKIP_PATTERN.search(output)
+        passed = (
+            match is not None
+            and int(match.group(1)) == EXPECTED_READINESS_TESTS
+            and output.strip().endswith("\nOK")
+            and "FAILED" not in output and not skips
+        )
         return {
-            "result": "passed"
-            if "OK" in stdout + stderr and "FAILED" not in stdout + stderr and not skips
-            else "failed",
+            "result": "passed" if passed else "failed",
+            "reason": None if passed else "readiness_count_or_result_failed",
             "tests": int(match.group(1)) if match else None,
+            "expected_tests": EXPECTED_READINESS_TESTS,
             "runtime_seconds": float(match.group(2)) if match else None,
             "skipped": int(skips.group(1)) if skips else 0,
+            "failure_types": sorted(set(re.findall(
+                r"^([A-Za-z]+(?:Error|Exception|Exceeded)):", output, re.MULTILINE,
+            )) & SAFE_FAILURE_TYPES)[:20],
         }
     payload = _find_structured_payload(stdout, stderr)
     if payload is None:
@@ -386,7 +434,7 @@ def _summarize(operation: str, stdout: str, stderr: str) -> dict[str, object]:
         return {"result": "completed_without_structured_summary"}
     outcome = payload.get("outcome")
     outcome_dict = outcome if isinstance(outcome, dict) else {}
-    verification_results = outcome_dict.get("verification_results")
+    verification_results = payload.get("verification_results", outcome_dict.get("verification_results"))
     result_count = len(verification_results) if isinstance(verification_results, list) else 0
     return {
         "result": _structured_result(payload),
@@ -399,6 +447,49 @@ def _summarize(operation: str, stdout: str, stderr: str) -> dict[str, object]:
         if isinstance(outcome_dict.get("mutation"), dict)
         else None,
         "result_count": result_count,
+        "verification_results": _safe_failed_checks(verification_results, "target_id"),
+    }
+
+
+def _summarize_authenticated(stdout: str) -> dict[str, object]:
+    """Accept only the helper's terminal schema; never persist arbitrary JSON."""
+    invalid: dict[str, object] = {"result": "failed", "reason": "authenticated_summary_invalid"}
+    lines = stdout.strip().splitlines()
+    if not lines or len(lines[-1]) > 16_384:
+        return invalid
+    try:
+        payload = json.loads(lines[-1])
+    except (ValueError, RecursionError):
+        return invalid
+    if not isinstance(payload, dict):
+        return invalid
+    summary = payload.get("acceptance_summary")
+    if not isinstance(summary, dict) or summary.get("schema") != "classic_authenticated_acceptance_v1":
+        return invalid
+    count_names = (
+        "readiness_before_tests", "readiness_after_tests", "expected_browser_tests",
+        "browser_tests", "expected_api_checks", "api_checks", "live_tests",
+        "failures", "errors", "skipped",
+    )
+    if any(type(summary.get(key)) is not int or not 0 <= summary[key] <= 10_000 for key in count_names):
+        return invalid
+    counts = {key: summary[key] for key in count_names}
+    passed = (
+        payload.get("status") == "LIVE_VERIFIED" and summary.get("passed") is True
+        and counts["readiness_before_tests"] == counts["readiness_after_tests"] == EXPECTED_READINESS_TESTS
+        and counts["browser_tests"] == counts["expected_browser_tests"] > 0
+        and counts["api_checks"] == counts["expected_api_checks"] > 0
+        and counts["live_tests"] == 2 * EXPECTED_READINESS_TESTS + counts["browser_tests"]
+        and counts["failures"] == counts["errors"] == counts["skipped"] == 0
+    )
+    failure_types = summary.get("failure_types", [])
+    return {
+        "result": "passed" if passed else "failed",
+        "reason": None if passed else "authenticated_checks_failed",
+        **counts,
+        "failure_types": sorted({
+            item for item in failure_types if isinstance(item, str) and item in SAFE_FAILURE_TYPES
+        })[:20] if isinstance(failure_types, list) else [],
     }
 
 
@@ -416,7 +507,7 @@ def _safe_structured_detail(value: object) -> str | None:
 def _safe_phase_results(value: object) -> dict[str, object]:
     if not isinstance(value, list):
         return {"count": 0, "failed": []}
-    failed: list[dict[str, str]] = []
+    failed: list[dict[str, object]] = []
     for item in value:
         if not isinstance(item, dict):
             continue
@@ -424,40 +515,69 @@ def _safe_phase_results(value: object) -> dict[str, object]:
         if status not in {"completed", "passed", "verified", "ok", "success"}:
             name = item.get("name") or item.get("phase") or item.get("target_id")
             if isinstance(name, str):
-                failure = {"name": name[:120]}
+                failure: dict[str, object] = {"name": name[:120]}
                 for detail_key in ("reason", "message", "safe_message"):
                     detail = _safe_structured_detail(item.get(detail_key))
                     if detail:
                         failure[detail_key] = detail
+                result = item.get("result")
+                if isinstance(result, dict):
+                    for field, identifier in (("checks", "check_id"), ("verification_results", "target_id")):
+                        checks = _safe_failed_checks(result.get(field), identifier)
+                        if checks:
+                            failure[field] = checks
                 failed.append(failure)
     return {"count": len(value), "failed": failed[:20]}
+
+
+def _safe_failed_checks(value: object, identifier: str) -> list[dict[str, str]]:
+    """Retain bounded check identifiers/statuses, never messages or evidence values."""
+    if not isinstance(value, list):
+        return []
+    checks = []
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        status = str(item.get("status", "")).casefold()
+        name = item.get(identifier)
+        if status not in NON_SUCCESS_STATUSES:
+            continue
+        check = {"status": status}
+        if isinstance(name, str) and re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_:.-]{0,95}", name):
+            check[identifier] = name
+        checks.append(check)
+        if len(checks) == 20:
+            break
+    return checks
 
 
 def _find_structured_payload(
     stdout: str, stderr: str
 ) -> dict[str, object] | list[object] | None:
-    candidates: list[tuple[int, dict[str, object] | list[object]]] = []
     decoder = json.JSONDecoder()
     for stream in (stdout, stderr):
+        candidates: list[dict[str, object] | list[object]] = []
         for match in re.finditer(r"(?m)^[\[{]", stream):
             try:
                 payload, _ = decoder.raw_decode(stream[match.start() :])
             except json.JSONDecodeError:
                 continue
             if isinstance(payload, (dict, list)):
-                candidates.append((len(stream[match.start() :]), payload))
-    if not candidates:
-        return None
-    return max(candidates, key=lambda candidate: candidate[0])[1]
+                candidates.append(payload)
+        if candidates:
+            return candidates[-1]
+    return None
 
 
 def _structured_result(payload: dict[str, object]) -> str:
     status = str(payload.get("status", "")).casefold()
     outcome = payload.get("outcome")
+    if status in NON_SUCCESS_STATUSES:
+        return status
     if isinstance(outcome, dict):
         nested_status = str(outcome.get("status", "")).casefold()
         status = nested_status or status
-    if status in {"failed", "blocked", "degraded", "partial", "skipped", "refused"}:
+    if status in NON_SUCCESS_STATUSES:
         return status
     return "passed" if status in {"completed", "passed", "verified", "ok"} else "completed"
 
@@ -466,15 +586,8 @@ def _operation_succeeded(result: CommandResult) -> bool:
     if result.exit_code != 0:
         return False
     if result.operation == "diagnostics":
-        return result.summary.get("result") not in {
-            "failed",
-            "blocked",
-            "degraded",
-            "partial",
-            "skipped",
-            "refused",
-            "timed_out",
-            "execution_error",
+        return result.summary.get("result") in {
+            "passed", "completed", "completed_without_structured_summary",
         }
     return result.summary.get("result") == "passed"
 
@@ -540,6 +653,7 @@ def _write_terminal_result(
                 "duration_seconds": operation.duration_seconds,
                 "exit_code": operation.exit_code,
                 "command": _safe_command_label(operation.operation),
+                "evidence_directory": operation.operation,
                 "summary": operation.summary,
             }
             for operation in operations
@@ -569,17 +683,20 @@ def _resolve_env_file(value: Path | None) -> Path:
 
 
 def _safe_command_label(operation: str) -> str:
+    if operation.endswith("_authenticated"):
+        return (
+            "env PYTHONPATH=src python3 -m tests.e2e.classic.run_authenticated_acceptance_live "
+            "--approve-live --phase baseline --env-file <protected>"
+        )
+    if operation.endswith("_e2e"):
+        return shlex.join(CLASSIC_E2E_COMMAND)
     return {
         "diagnostics": "python3 tools/install_debugger.py --live",
         "setup": "bash tsw --live --approve-live --json setup run",
         "platform_verify": "bash tsw --json platform verify",
         "reconcile": "bash tsw --live --approve-live --json platform reconcile",
         "update": "bash tsw --live --approve-live --json platform update --stack <configured> --service <configured>",
-        "classic_e2e": "env PYTHONPATH=src TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest tests.e2e.classic.test_post_install_browser_live",
-        "reconcile_e2e": "env PYTHONPATH=src TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest tests.e2e.classic.test_post_install_browser_live",
-        "update_e2e": "env PYTHONPATH=src TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest tests.e2e.classic.test_post_install_browser_live",
         "recovery": "bash tsw --live --approve-live --json platform update --recover --stack <configured> --service <configured>",
-        "recovery_e2e": "env PYTHONPATH=src TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest tests.e2e.classic.test_post_install_browser_live",
     }.get(operation, operation)
 
 

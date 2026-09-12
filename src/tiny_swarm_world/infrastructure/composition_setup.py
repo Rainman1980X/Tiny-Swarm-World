@@ -15,6 +15,13 @@ from tiny_swarm_world.application.services.platform.workflow.update import (
 )
 from tiny_swarm_world.domain.update import image_override_environment_name
 from tiny_swarm_world.infrastructure.adapters.update import JsonUpdateStateStore
+from tiny_swarm_world.infrastructure.adapters.update.lxc_runtime_observer import (
+    LxcUpdateRuntimeObserver,
+)
+from tiny_swarm_world.infrastructure.adapters.clients.lxc.command.manager_shell_gateway import (
+    LxcManagerShellGateway,
+)
+from tiny_swarm_world.infrastructure.logging.logger_factory import LoggerFactory
 
 from .composition_runtime import (
     AGGREGATE_INSTANCE,
@@ -285,6 +292,18 @@ def build_classic_update_workflow(
     compose_repository = facade.build_compose_file_repository(
         service_profile=service_profile,
     )
+    provider_request = node_provider_request or _runtime._default_node_provider_request()
+    backend = _runtime._lxc_backend_for_provider_request(provider_request)
+    observer = (
+        LxcUpdateRuntimeObserver(LxcManagerShellGateway(
+            backend=backend,
+            manager_node="swarm-manager",
+            timeout_seconds=10,
+            logger=LoggerFactory.get_logger("classic_update_observer"),
+            process_runner=facade.build_process_runner(),
+        ))
+        if backend is not None else None
+    )
 
     def deployment_workflow_for(plan):
         image_environment = image_override_environment_name(
@@ -311,6 +330,7 @@ def build_classic_update_workflow(
         compose_repository=compose_repository,
         deployment_workflow_factory=deployment_workflow_for,
         state_store=JsonUpdateStateStore(state_root),
+        runtime_observer=observer,
     )
 
 def build_application_services(
