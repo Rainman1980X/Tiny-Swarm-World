@@ -1,15 +1,12 @@
 # RC1-R05 Remaining Risks
 
-- Repository live variables, target ownership, update image references and the
-  protected environment still need to be configured for a complete hosted
-  observation. Credential rotation is intentionally not applicable to the
-  disposable test profile.
-- The hosted runner currently reaches qualification but its setup preflight
-  fails before lifecycle mutation; the runner/Incus target state needs repair
-  or a further diagnostic run before hosted acceptance.
-- The local test installation passed, but the full Fresh → Reconcile → Update
-  → Recovery lifecycle can only be accepted after a protected isolated target
-  run reaches every required phase.
+- Credential rotation is intentionally not applicable to the disposable test
+  profile; a protected live profile still requires a non-secret rotation
+  reference.
+- A controlled required-scenario failure drill is still required before the
+  issue can receive a PASS completion audit.
+- The latest successful run used the candidate before the final target-owner
+  evidence passthrough refinement; the passthrough is covered by the workflow
+  contract test and should be observed on the next available hosted dispatch.
 - Queued, cancelled, skipped or unavailable runs remain non-success.
-- Retained diagnostics and artifact upload still need to be checked on the
-  protected runner's real failure and successful final-candidate runs.
+- The successful run's redacted artifact upload and checksums were verified.

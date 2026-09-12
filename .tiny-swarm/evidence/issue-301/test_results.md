@@ -1,6 +1,7 @@
 # RC1-R05 Test Results
 
 - Runner and CI workflow contract tests: **passed**.
+- Full quality gate: **passed**, 2,004 tests, 18 expected skips.
 - Disposable test-profile rotation bypass and redacted evidence-status tests:
   **passed**.
 - Python syntax compilation for the runner: **passed**.
@@ -14,7 +15,7 @@
   34692542906](https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34692542906)
   reached the runner and stopped before mutation because all required
   repository live variables were empty.
-- Disposable test-profile dispatches: **FAIL_PRECHECK**, [run
+- Earlier disposable test-profile dispatches: **FAIL_PRECHECK**, [run
   34717383985](https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34717383985)
   reached the runner, accepted the secure env file and test-only profile, then
   stopped in setup preflight. Redacted evidence records
@@ -30,8 +31,15 @@
   `53836bb4ae3f07e4c5693dfbebbc58ac59f031e1`, Incus/LXC provider, exit code 0.
   The run passed all setup phases, Infisical synchronization and endpoint
   verification; redacted evidence is recorded in `test-install-20260912.md`.
-- No hosted full Fresh → Reconcile → Update → Recovery lifecycle or
-  controlled failure drill was completed.
 - The disposable workflow no longer reads
   `TSW_CLASSIC_CREDENTIAL_ROTATION_REFERENCE`; the remaining GitHub variables
   and runner-local 0600 env file are still prerequisites.
+- Final hosted lifecycle: **PASS**, [run
+  34719043422](https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34719043422)
+  finished `LIVE_VERIFIED` on commit
+  `9d0082ebcb86cf18e81be76aeec00c613c7ceebd`. Setup completed all 18 phases;
+  platform verification, Reconcile, Update and Recovery each passed; all four
+  acceptance operations passed with 37 tests and zero skips. The uploaded
+  artifact contains the redacted `run-summary.json` and checksums.
+- A controlled required-scenario failure drill has not yet been executed, so
+  that acceptance item remains open.

@@ -9,8 +9,8 @@
 - [x] Disposable test profile does not require credential-rotation metadata.
 - [x] Test workflow documents the remaining variables and keeps secure-file
   and lifecycle guards.
-- [ ] Isolated target and protected environment qualified.
-- [ ] Full Fresh → Reconcile → Update → Recovery run succeeded.
+- [x] Isolated target and protected environment qualified.
+- [x] Full Fresh → Reconcile → Update → Recovery run succeeded.
 - [ ] Controlled required-scenario failure produced a non-green result.
-- [ ] Successful final-candidate run and artifact link recorded.
+- [x] Successful final-candidate run and artifact link recorded.
 - [ ] Independent completion audit returns PASS.

@@ -1,6 +1,6 @@
 # RC1-R05 Implementation Summary
 
-Status: TEST_INSTALL_PASSED_HOSTED_PREFLIGHT_FAILED.
+Status: HOSTED_LIFECYCLE_VERIFIED_CONTROLLED_FAILURE_DRILL_PENDING.
 
 The existing Nightly workflow keeps scheduled/manual dispatch, protected
 environment, target-owner checks, Linux/Incus/Docker qualification, bounded
@@ -15,6 +15,7 @@ lifecycle chain is consumed without duplicating installer logic in YAML.
 The repository now has an online Linux/x64 runner with the workflow's
 `tsw-classic` label and verified Incus/Docker capabilities. A clean local
 test-only installation now passes on the Incus/LXC target, including Infisical
-secret synchronization and endpoint verification. The protected environment
-variables, hosted final-candidate run and controlled failure drill remain
-unverified.
+secret synchronization and endpoint verification. Hosted run 34719043422
+completed the full disposable Fresh → Reconcile → Update → Recovery lifecycle,
+including four passing 37-test acceptance operations and redacted artifact
+upload. Only the controlled required-scenario failure drill remains open.
