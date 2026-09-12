@@ -15,6 +15,16 @@ from tools.live.secure_runtime_paths import (
 
 
 class TestSecureRuntimePaths(unittest.TestCase):
+    def test_classic_e2e_command_exposes_source_package_to_python(self) -> None:
+        self.assertEqual(
+            ("env", "PYTHONPATH=src", "TSW_RUN_POST_INSTALL_BROWSER_LIVE=1"),
+            run_classic_acceptance.CLASSIC_E2E_COMMAND[:3],
+        )
+        self.assertEqual(
+            "tests.e2e.classic.test_post_install_browser_live",
+            run_classic_acceptance.CLASSIC_E2E_COMMAND[-1],
+        )
+
     def test_drvfs_path_is_rejected_even_when_stat_reports_0600(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -107,6 +117,41 @@ class TestSecureRuntimePaths(unittest.TestCase):
         self.assertFalse(run_classic_acceptance._operation_succeeded(result))
         self.assertFalse(run_classic_acceptance._valid_rotation_reference("raw secret"))
         self.assertTrue(run_classic_acceptance._valid_rotation_reference("ticket-271-20260829"))
+
+    def test_disposable_test_profile_does_not_require_rotation_reference(self) -> None:
+        self.assertTrue(run_classic_acceptance._rotation_reference_valid_for_profile(True, None))
+        self.assertFalse(run_classic_acceptance._rotation_reference_valid_for_profile(False, None))
+        self.assertEqual(
+            "not_applicable_test_only",
+            run_classic_acceptance._rotation_evidence_status(True, "ignored-reference"),
+        )
+        self.assertEqual(
+            "recorded",
+            run_classic_acceptance._rotation_evidence_status(False, "ticket-271-20260829"),
+        )
+
+    def test_structured_summary_accepts_runner_status_lines_before_json(self) -> None:
+        payload = run_classic_acceptance._find_structured_payload(
+            "setup phase started\n{\n  \"status\": \"completed\"\n}\n",
+            "",
+        )
+
+        self.assertEqual({"status": "completed"}, payload)
+
+    def test_structured_summary_keeps_diagnostics_redacted_and_bounded(self) -> None:
+        summary = run_classic_acceptance._summarize(
+            "setup",
+            "{\"status\": \"failed\", \"message\": \"password=secret-value\", "
+            "\"phase_results\": [{\"name\": \"setup\", \"status\": \"failed\"}]}\n",
+            "",
+        )
+
+        self.assertEqual("failed", summary["result"])
+        self.assertEqual("password=<redacted>", summary["message"])
+        self.assertEqual(
+            {"count": 1, "failed": [{"name": "setup"}]},
+            summary["phase_results"],
+        )
 
 
 def _mountinfo(root: Path, filesystem_type: str, source: str) -> str:

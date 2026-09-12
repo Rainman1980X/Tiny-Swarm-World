@@ -57,11 +57,12 @@ class ClassicUpdateWorkflow:
         *,
         preview: bool,
         live_consent: LiveConsent | None,
+        _validate_source_image: bool = True,
     ) -> PlatformWorkflowResult:
         current = self._current_service(plan)
         if isinstance(current, PlatformWorkflowResult):
             return current
-        if current.image_ref != plan.source_image:
+        if _validate_source_image and current.image_ref != plan.source_image:
             return self._blocked(
                 plan,
                 "source image does not match the currently configured image; no mutation was started",
@@ -176,6 +177,7 @@ class ClassicUpdateWorkflow:
             state.plan.rollback_plan,
             preview=preview,
             live_consent=live_consent,
+            _validate_source_image=False,
         )
 
     def _current_service(

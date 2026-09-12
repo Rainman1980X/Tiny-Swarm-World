@@ -121,6 +121,34 @@ class TestHostEnvironmentDetector(unittest.TestCase):
         self.assertEqual(HostEnvironmentKind.SANDBOX_UNVERIFIED, report.environment)
         self.assertEqual(report.evidence["sandbox_signal"], "ci_marker")
 
+    def test_verified_live_runner_marker_allows_linux_ci_host(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            _write(root, "proc/sys/kernel/osrelease", "6.8.0-generic\n")
+
+            report = _detector(
+                root,
+                {"CI": "true", "GITHUB_ACTIONS": "true", "TSW_LIVE_RUNNER_VERIFIED": "1"},
+            ).detect()
+
+        self.assertEqual(HostEnvironmentKind.NATIVE_LINUX, report.environment)
+        self.assertTrue(report.allows_live_setup)
+        self.assertEqual(report.evidence["sandbox_signal"], "absent")
+
+    def test_container_marker_cannot_be_overridden_by_verified_live_runner(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            _write(root, "proc/sys/kernel/osrelease", "6.8.0-generic\n")
+            _write(root, ".dockerenv", "")
+
+            report = _detector(
+                root,
+                {"CI": "true", "TSW_LIVE_RUNNER_VERIFIED": "true"},
+            ).detect()
+
+        self.assertEqual(HostEnvironmentKind.SANDBOX_UNVERIFIED, report.environment)
+        self.assertEqual(report.evidence["sandbox_signal"], "container_marker")
+
     def test_values_are_single_line_and_bounded(self):
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
