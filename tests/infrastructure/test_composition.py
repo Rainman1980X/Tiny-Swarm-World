@@ -68,6 +68,34 @@ def _required_infisical_bootstrap_env() -> dict[str, str]:
 
 
 class TestComposition(unittest.TestCase):
+    def test_update_builder_wires_observer_without_running_commands_for_preview(self):
+        from tiny_swarm_world.domain.deployment import ComposeServiceDefinition
+        from tiny_swarm_world.domain.update import ClassicUpdatePlan
+        from tiny_swarm_world.infrastructure.adapters.update.lxc_runtime_observer import LxcUpdateRuntimeObserver
+
+        runner = Mock()
+        repository = Mock()
+        repository.get_services_of.return_value = (
+            ComposeServiceDefinition(name="jenkins", image_ref="old:1"),
+        )
+        request = composition.NodeProviderSelectionRequest(
+            requested_provider=composition.NodeProviderKind.LXC_NATIVE,
+            preferred_backend=composition.ManagedLxcBackend.INCUS,
+        )
+        with patch.object(composition, "build_process_runner", return_value=runner), patch.object(
+            composition, "build_compose_file_repository", return_value=repository,
+        ), patch.object(composition, "build_deployment_services_for_provider") as deployment_builder:
+            workflow = composition.build_classic_update_workflow(node_provider_request=request)
+            result = asyncio.run(workflow.run(
+                ClassicUpdatePlan("jenkins", "jenkins", "old:1", "new:1"), preview=True, live_consent=None,
+            ))
+        self.assertIsInstance(workflow.runtime_observer, LxcUpdateRuntimeObserver)
+        self.assertIs(workflow.runtime_observer.gateway.process_runner, runner)
+        self.assertEqual(PlatformWorkflowStatus.COMPLETED, result.status)
+        self.assertFalse(result.executed)
+        runner.run_text.assert_not_called()
+        deployment_builder.assert_not_called()
+
     def setUp(self):
         self._infisical_env_patcher = patch.dict(
             os.environ,
