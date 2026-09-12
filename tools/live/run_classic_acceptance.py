@@ -426,12 +426,41 @@ def _summarize(operation: str, stdout: str, stderr: str) -> dict[str, object]:
     return {
         "result": _structured_result(payload),
         "status": payload.get("status"),
+        "message": _safe_structured_detail(payload.get("message")),
+        "reason": _safe_structured_detail(payload.get("reason")),
+        "phase_results": _safe_phase_results(payload.get("phase_results")),
         "verification": outcome_dict.get("verification"),
         "mutation": outcome_dict.get("mutation", {}).get("result")
         if isinstance(outcome_dict.get("mutation"), dict)
         else None,
         "result_count": result_count,
     }
+
+
+def _safe_structured_detail(value: object) -> str | None:
+    if not isinstance(value, str):
+        return None
+    detail = re.sub(
+        r"(?i)(password|token|secret|credential|authorization|bearer)\s*[:=]\s*\S+",
+        r"\1=<redacted>",
+        value,
+    )
+    return detail[:240]
+
+
+def _safe_phase_results(value: object) -> dict[str, object]:
+    if not isinstance(value, list):
+        return {"count": 0, "failed": []}
+    failed: list[str] = []
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        status = str(item.get("status", "")).casefold()
+        if status not in {"completed", "passed", "verified", "ok", "success"}:
+            name = item.get("name") or item.get("phase") or item.get("target_id")
+            if isinstance(name, str):
+                failed.append(name[:120])
+    return {"count": len(value), "failed": failed[:20]}
 
 
 def _find_structured_payload(

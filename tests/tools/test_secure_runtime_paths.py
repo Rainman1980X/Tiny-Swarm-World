@@ -128,6 +128,18 @@ class TestSecureRuntimePaths(unittest.TestCase):
 
         self.assertEqual({"status": "completed"}, payload)
 
+    def test_structured_summary_keeps_diagnostics_redacted_and_bounded(self) -> None:
+        summary = run_classic_acceptance._summarize(
+            "setup",
+            "{\"status\": \"failed\", \"message\": \"password=secret-value\", "
+            "\"phase_results\": [{\"name\": \"setup\", \"status\": \"failed\"}]}\n",
+            "",
+        )
+
+        self.assertEqual("failed", summary["result"])
+        self.assertEqual("password=<redacted>", summary["message"])
+        self.assertEqual({"count": 1, "failed": ["setup"]}, summary["phase_results"])
+
 
 def _mountinfo(root: Path, filesystem_type: str, source: str) -> str:
     return (
