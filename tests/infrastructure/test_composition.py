@@ -1358,6 +1358,33 @@ class TestComposition(unittest.TestCase):
         self.assertEqual(len(services.workflows.apply.steps), 15)
         self.assertEqual(len(services.workflows.verify.checks), 9)
 
+    def test_only_service_access_jenkins_consumes_completed_sync_snapshot(self):
+        from tiny_swarm_world.application.services.deployment.secret_management import SecretManagementBlocker
+
+        for profile in (ServiceStackProfile.DEFAULT, ServiceStackProfile.SERVICE_ACCESS):
+            with self.subTest(profile=profile), patch.object(composition, "ComposeFileRepositoryYaml"):
+                services = composition.build_lxc_deployment_services(
+                    backend=composition.ManagedLxcBackend.INCUS, service_profile=profile)
+                steps = services.workflows.apply.steps
+                consumers = [step for step in steps if isinstance(step, composition.EnsureSwarmStack)
+                             and step.credential_snapshot is not None]
+                if profile is ServiceStackProfile.DEFAULT:
+                    self.assertEqual(consumers, [])
+                    continue
+                self.assertEqual(len(consumers), 1)
+                jenkins = consumers[0]
+                sync = next(step for step in steps if isinstance(step, composition.InfisicalSecretSyncStep))
+                self.assertEqual(jenkins.service_stack.stack_name, "jenkins")
+                self.assertEqual(jenkins.credential_keys, ("TSW_JENKINS_ADMIN_PASSWORD",))
+                self.assertIs(jenkins.credential_snapshot.func.__self__, sync)
+                self.assertLess(steps.index(sync), steps.index(jenkins))
+                self.assertTrue(all(getattr(step, "credential_snapshot", None) is None
+                                    for step in services.workflows.bootstrap.steps))
+                with patch.object(jenkins.swarm_runtime, "deploy_stack") as deploy:
+                    with self.assertRaises(SecretManagementBlocker):
+                        asyncio.run(jenkins.run())
+                deploy.assert_not_called()
+
     def test_deployment_kernel_guard_is_native_only_and_covers_bootstrap(self):
         from tiny_swarm_world.domain.host_environment import HostEnvironmentKind
         from tiny_swarm_world.infrastructure import composition_deployment

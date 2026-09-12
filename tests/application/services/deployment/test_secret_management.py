@@ -365,8 +365,31 @@ class TestSecretManagement(unittest.TestCase):
             process_environment={"TSW_INTERNAL_TEST_PASSWORD": "operator-value"},
         )
 
-        with self.assertRaisesRegex(SecretManagementBlocker, "Conflicting operator and secure values"):
+        sync.run()
+
+        snapshot = sync.resolved_snapshot(("TSW_INTERNAL_TEST_PASSWORD",))
+        self.assertEqual(snapshot.values["TSW_INTERNAL_TEST_PASSWORD"], "vault-value")
+        self.assertEqual(snapshot.source_metadata(), '{"TSW_INTERNAL_TEST_PASSWORD":"vault"}')
+        self.assertEqual(cli.values["TSW_INTERNAL_TEST_PASSWORD"], "vault-value")
+
+    def test_snapshot_requires_complete_sync_and_does_not_survive_failed_rerun(self):
+        key = "TSW_INTERNAL_TEST_PASSWORD"
+        environment = {key: "operator-value"}
+        sync = InfisicalSecretSyncStep(cli=_FakeInfisicalCli(), storage=_STORAGE,
+                                      manifest_entries=(_entry(key),), process_environment=environment)
+        with self.assertRaisesRegex(SecretManagementBlocker, "snapshot is unavailable"):
+            sync.resolved_snapshot((key,))
+        sync.run()
+        self.assertEqual(sync.resolved_snapshot((key,)).values[key], "operator-value")
+        with self.assertRaisesRegex(SecretManagementBlocker, "snapshot is unavailable"):
+            sync.resolved_snapshot(("TSW_MISSING_PASSWORD",))
+        sync.use_case.store = InfisicalSecretStore(_FailingReadInfisicalCli())
+        with self.assertRaises(SecretManagementBlocker):
             sync.run()
+        self.assertEqual(sync.results, [])
+        self.assertEqual(sync.credential_sources, {})
+        with self.assertRaisesRegex(SecretManagementBlocker, "snapshot is unavailable"):
+            sync.resolved_snapshot((key,))
 
     def test_internal_test_honors_default_source_metadata_over_transport_value(self):
         cli = _FakeInfisicalCli()

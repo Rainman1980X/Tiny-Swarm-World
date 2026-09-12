@@ -266,11 +266,18 @@ class InfisicalSecretSyncStep:
         self.credential_sources: dict[str, CredentialSource] = {}
 
     def run(self) -> None:
+        self.results = []
+        self.checked_secret_keys = ()
+        self.synchronized_secret_keys = ()
+        self.credential_sources = {}
         self.use_case.run()
         self.results = self.use_case.results
         self.checked_secret_keys = self.use_case.checked_secret_keys
         self.synchronized_secret_keys = self.use_case.synchronized_secret_keys
         self.credential_sources = dict(self.use_case.credential_sources)
+
+    def resolved_snapshot(self, keys: tuple[str, ...]) -> CredentialResolutionSnapshot:
+        return self.use_case.resolved_snapshot(keys)
 
     def verify(self) -> VerificationResult:
         return self.use_case.verify()
@@ -301,8 +308,22 @@ class SecretSyncUseCase:
         self.checked_secret_keys: tuple[str, ...] = ()
         self.synchronized_secret_keys: tuple[str, ...] = ()
         self.credential_sources: dict[str, CredentialSource] = {}
+        self._resolved_snapshot: CredentialResolutionSnapshot | None = None
+
+    def resolved_snapshot(self, keys: tuple[str, ...]) -> CredentialResolutionSnapshot:
+        """Expose only requested values after an entirely successful synchronization."""
+        snapshot = self._resolved_snapshot
+        if snapshot is None or any(key not in snapshot.resolutions for key in keys):
+            raise SecretManagementBlocker("credential_snapshot_unavailable",
+                                          "Required synchronized credential snapshot is unavailable.")
+        return CredentialResolutionSnapshot({key: snapshot.resolutions[key] for key in keys})
 
     def run(self) -> None:
+        self._resolved_snapshot = None
+        self.results = []
+        self.checked_secret_keys = ()
+        self.synchronized_secret_keys = ()
+        self.credential_sources = {}
         try:
             self.store.ensure_scope(self.project, self.environment)
         except Exception as exc:
@@ -314,6 +335,7 @@ class SecretSyncUseCase:
 
     def _run_internal_test(self) -> None:
         checked = []
+        resolutions: dict[str, ResolvedCredential] = {}
         for entry in self.manifest_entries:
             snapshot = self._resolve_internal_test_entry(entry)
             resolution = snapshot.resolutions[entry.key]
@@ -334,6 +356,7 @@ class SecretSyncUseCase:
                 )
             else:
                 self._sync_entry(entry, value, source=resolution.source)
+            resolutions[entry.key] = resolution
             checked.append(entry.key)
         self.checked_secret_keys = tuple(checked)
         self.synchronized_secret_keys = tuple(
@@ -341,6 +364,8 @@ class SecretSyncUseCase:
             for result in self.results
             if result["sync_status"] in {"created", "updated", "kept_existing"}
         )
+
+        self._resolved_snapshot = CredentialResolutionSnapshot(resolutions)
 
     def _resolve_internal_test_entry(self, entry: SecretManifestEntry) -> CredentialResolutionSnapshot:
         operator_value = self.process_environment.get(entry.key, "")

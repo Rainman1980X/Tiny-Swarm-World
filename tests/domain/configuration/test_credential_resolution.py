@@ -49,15 +49,23 @@ class TestCredentialResolution(unittest.TestCase):
 
         self.assertEqual(CredentialSource.DEFAULT, resolved.source)
 
-    def test_conflicting_vault_and_operator_values_are_rejected(self):
-        with self.assertRaisesRegex(CredentialResolutionError, "Conflicting operator and secure values"):
-            self.resolver.resolve(
-                "TSW_PORTAINER_ADMIN_PASSWORD",
-                operator_value="operator-value",
-                secure_value="vault-value",
-                secure_source=SecureCredentialSource.SELF_HOSTED_INFISICAL,
-                phase=CredentialResolutionPhase.POST_BOOTSTRAP,
-            )
+    def test_distinct_vault_value_wins_over_operator_after_bootstrap(self):
+        resolved = self.resolver.resolve(
+            "TSW_PORTAINER_ADMIN_PASSWORD",
+            operator_value="operator-value",
+            secure_value="vault-value",
+            secure_source=SecureCredentialSource.SELF_HOSTED_INFISICAL,
+            phase=CredentialResolutionPhase.POST_BOOTSTRAP,
+        )
+        self.assertEqual("vault-value", resolved.value)
+        self.assertEqual(CredentialSource.VAULT, resolved.source)
+
+    def test_distinct_sources_do_not_bypass_source_or_bootstrap_guards(self):
+        for source, message in ((None, "must be identified"),
+                                (SecureCredentialSource.SELF_HOSTED_INFISICAL, "before bootstrap")):
+            with self.subTest(source=source), self.assertRaisesRegex(CredentialResolutionError, message):
+                self.resolver.resolve("TSW_JENKINS_ADMIN_PASSWORD", operator_value="operator-value",
+                                      secure_value="vault-value", secure_source=source)
 
     def test_equal_vault_and_operator_values_use_vault_source(self):
         resolved = self.resolver.resolve(

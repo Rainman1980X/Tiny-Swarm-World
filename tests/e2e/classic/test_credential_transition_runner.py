@@ -1,15 +1,28 @@
 """Safety checks for the explicitly opt-in credential transition runner."""
 import copy
+import json
 import unittest
 from typing import Any
 
 from tests.e2e.classic.run_credential_transition_live import (
     comparable,
+    deployment_source,
     require_persistent_jenkins_home,
 )
 
 
 class CredentialTransitionRunnerTest(unittest.TestCase):
+    def test_source_evidence_requires_verified_unique_jenkins_result(self) -> None:
+        entry = {"target_id": "deployment:jenkins-stack", "status": "verified",
+                 "evidence": {"resolved_sources": "vault"}}
+        self.assertEqual(deployment_source(json.dumps({"verification_results": [entry]}).encode()), "vault")
+        for entries in ([{**entry, "status": "failed"}], [entry, entry],
+                        [{**entry, "target_id": "deployment:other-stack"}],
+                        [{**entry, "evidence": {"resolved_sources": "untrusted-value"}}]):
+            with self.subTest(entries=entries):
+                self.assertIsNone(deployment_source(json.dumps({"verification_results": entries}).encode()))
+        self.assertIsNone(deployment_source(b"not-json"))
+
     def test_unmigrated_jenkins_home_is_rejected(self) -> None:
         snapshot: dict[str, Any] = {"jenkins_jenkins": {"TaskTemplate": {"ContainerSpec": {"Mounts": [
             {"Type": "volume", "Source": "jenkins_jenkins_home", "Target": "/var/lib/jenkins"},

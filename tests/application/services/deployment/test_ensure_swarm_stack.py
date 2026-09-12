@@ -1,4 +1,7 @@
 import unittest
+from unittest.mock import Mock
+
+from tiny_swarm_world.application.services.credential_resolution import CredentialResolutionService, CredentialResolutionSnapshot
 from tests.support.sonar_safe_literals import sensitive_assignment
 
 from tiny_swarm_world.application.ports.clients.port_swarm_stack_runtime import (
@@ -42,6 +45,71 @@ class TestEnsureSwarmStack(unittest.IsolatedAsyncioTestCase):
             runtime.deployed_stacks,
             [(stack_definition, {"TSW_VAULTWARDEN_ADMIN_TOKEN_SECRET": "operator_defined"})],
         )
+
+    async def test_deferred_snapshot_changes_only_allowlisted_key_and_records_actual_source(self):
+        key = "TSW_JENKINS_ADMIN_PASSWORD"
+        snapshot = CredentialResolutionService().resolve_post_bootstrap(
+            (key,), secure_values={key: "vault-value"}, operator_values={key: "operator-value"})
+        provider = Mock(return_value=snapshot)
+        runtime = _FakeSwarmRuntime(stack_exists=True)
+        environment = {key: "operator-value", "UNRELATED": "unchanged"}
+        service = EnsureSwarmStack(
+            _FakeComposeRepository(StackDefinition(name="jenkins", compose_content="services: {}")),
+            runtime, ServiceStackContract("jenkins", ("jenkins",)), environment,
+            credential_snapshot=provider, credential_keys=(key,),
+        )
+        provider.assert_not_called()
+        await service.run()
+        provider.assert_called_once_with()
+        self.assertEqual(runtime.deployed_stacks[0][1], {key: "vault-value", "UNRELATED": "unchanged"})
+        self.assertEqual(environment[key], "operator-value")
+        self.assertEqual(service.stack_environment[key], "operator-value")
+        self.assertEqual(service.consumed_credentials.values[key], "vault-value")
+        verified = await service.verify()
+        self.assertEqual(verified.evidence["resolved_sources"], "vault")
+        self.assertNotIn("vault-value", repr(verified.evidence))
+
+    async def test_failed_rerun_clears_consumed_snapshot(self):
+        key = "TSW_JENKINS_ADMIN_PASSWORD"
+        snapshot = CredentialResolutionService().resolve_post_bootstrap((key,), secure_values={key: "vault-value"})
+        for failure in ("provider", "runtime"):
+            with self.subTest(failure=failure):
+                runtime = _FakeSwarmRuntime(stack_exists=True)
+                provider = Mock(return_value=snapshot)
+                service = EnsureSwarmStack(
+                    _FakeComposeRepository(StackDefinition(name="jenkins", compose_content="services: {}")),
+                    runtime, ServiceStackContract("jenkins", ("jenkins",)),
+                    credential_snapshot=provider, credential_keys=(key,),
+                )
+                await service.run()
+                self.assertEqual(service.consumed_credentials.values[key], "vault-value")
+                if failure == "provider":
+                    provider.side_effect = RuntimeError("snapshot unavailable")
+                else:
+                    runtime.deploy_stack = Mock(side_effect=RuntimeError("deployment failed"))
+                with self.assertRaises(RuntimeError):
+                    await service.run()
+                with self.assertRaisesRegex(ValueError, "No credential snapshot"):
+                    _ = service.consumed_credentials
+                self.assertFalse(service._applied)
+
+    async def test_missing_or_unrelated_snapshot_blocks_deployment(self):
+        key = "TSW_JENKINS_ADMIN_PASSWORD"
+        from tiny_swarm_world.domain.configuration.credential_resolution import ResolvedCredential, CredentialSource
+
+        for snapshot in (CredentialResolutionSnapshot({}),
+                         CredentialResolutionSnapshot({key: ResolvedCredential(key, " ", CredentialSource.VAULT)}),
+                         CredentialResolutionService().resolve_bootstrap(("TSW_PORTAINER_ADMIN_PASSWORD",))):
+            with self.subTest(keys=tuple(snapshot.resolutions)):
+                runtime = _FakeSwarmRuntime(stack_exists=True)
+                service = EnsureSwarmStack(
+                    _FakeComposeRepository(StackDefinition(name="jenkins", compose_content="services: {}")),
+                    runtime, ServiceStackContract("jenkins", ("jenkins",)),
+                    credential_snapshot=lambda: snapshot, credential_keys=(key,),
+                )
+                with self.assertRaisesRegex(ValueError, "credential snapshot"):
+                    await service.run()
+                self.assertEqual(runtime.deployed_stacks, [])
 
     async def test_verify_confirms_stack_registration_and_expected_services(self):
         repository = _FakeComposeRepository(StackDefinition(name="pulsar", compose_content="services: {}"))

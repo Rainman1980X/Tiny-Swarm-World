@@ -6,13 +6,9 @@ do not implement a second precedence rule.
 
 ## Canonical precedence
 
-Before source selection, the current resolver rejects distinct nonempty
-operator and secure-provider values with `CredentialResolutionError`. It does
-not silently choose a winner for that conflicting-input case. Matching inputs
-and inputs with only one applicable source proceed to source selection.
-
-For a credential that supports all listed sources in the applicable lifecycle
-phase and passes that conflict check, the resolver applies this order:
+For a credential that supports these sources in the applicable lifecycle phase,
+valid distinct values follow one deterministic precedence order. A lower-priority
+operator value does not invalidate an applicable secure value:
 
 1. an applicable secure provider value (`vault`);
 2. an explicit operator value (`operator`), from the process environment or an
@@ -66,9 +62,10 @@ values.
 ## Reruns and synchronization
 
 Reruns are idempotent. Bootstrap inputs are reused from the same operator or
-catalog source; post-bootstrap Infisical values are kept when present. A
-credential rotation is an explicit future operation and is not inferred from a
-normal install rerun.
+catalog source; post-bootstrap Infisical values are kept when present. A general
+credential rotation API is not provided. The Jenkins consumer described below
+reapplies an explicitly changed selected value during deployment; unchanged
+inputs do not generate a new value.
 
 ## Before/after drift evidence
 
@@ -81,19 +78,44 @@ transition is acceptable only when its intended service key is the sole
 changed key and unrelated state remains healthy; live authentication and
 cleanup evidence are still required to qualify the target.
 
-## Live transition qualification boundary
+## Post-bootstrap Jenkins consumption
 
-The opt-in runner at `tests/e2e/classic/run_credential_transition_live.py` checks
-an existing Jenkins startup-environment override with a matching Infisical
-value, rejection of the old Basic credential, observed cookie-session behavior
-across the resulting task replacement, reconcile, a controlled restart, and
-restoration. It does not implement a general rotation API or password-only
-session invalidation guarantee. Run it only against an explicitly authorized,
-healthy target with its protected environment and rollback material.
+In the `service-access` profile, Infisical readiness and complete synchronization
+precede Jenkins deployment. Synchronization retains an in-memory resolution
+snapshot only after every manifest entry succeeds. A failed initial sync or
+failed rerun makes that snapshot unavailable.
 
-Post-bootstrap vault-only selection does not rebuild an already running
-bootstrap consumer. Authenticating with an existing vault value is a bounded
-read/use check, not proof that an independently changed vault value propagated
-to a service. Issue #296's conflicting-source-winner requirement is unresolved
-against the current fail-closed conflict implementation; negative tests must
-not be reported as completion of that requirement.
+Immediately before Jenkins deployment, the application reads that completed
+snapshot once and overlays only `TSW_JENKINS_ADMIN_PASSWORD` into a copy of the
+Jenkins stack environment. It does not alter process environment, bootstrap
+inputs or other stack consumers. Missing, blank or unexpected selected keys
+block deployment. The recorded consumed snapshot is published only after the
+runtime deployment command succeeds, and is cleared before each attempt.
+
+The Jenkins deployment verification exposes the actual consumed source label
+as `resolved_sources`; it does not expose the value or a fingerprint. Live
+qualification must additionally compare the protected runtime value and perform
+real authentication. Secret-reference consumption checks alone do not prove
+that a selected value reached a running service.
+
+This implements the existing CRED-03 post-readiness consumer contract for the
+Jenkins startup password. It does not claim independent Vault-driven rotation
+for databases, Infisical's own bootstrap material, or every service.
+
+## Live transition qualification
+
+The opt-in runner `tests/e2e/classic/run_credential_transition_live.py` supports
+`--scenario matching-override`, `--scenario vault-only`, and
+`--scenario conflicting-sources`. Each requires `--approve-live` and a protected
+`--env-file` on an authorized healthy target with its named Jenkins home already
+migrated. A Vault-only case uses catalog bootstrap fallback with no explicit
+operator candidate for the tested key; only Vault is deliberately changed. The
+conflicting case uses different nonempty operator and Vault values. Both must
+prove that Vault is actually consumed and authenticates while non-effective
+inputs are rejected.
+
+The runner also checks canonical readiness, baseline, redeployment, reconcile,
+controlled task replacement, unrelated service/Vault equality and restoration.
+Cookie behavior is scoped to credential update plus task replacement; it is not
+a password-only revocation guarantee. Historical failed runs and their cleanup
+remain evidence and are not retroactively relabeled.
