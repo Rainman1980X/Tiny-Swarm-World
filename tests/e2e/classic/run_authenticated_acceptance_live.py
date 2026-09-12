@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import subprocess
 import time
+from typing import Any
 import unittest
 from urllib.parse import urlsplit
 
@@ -21,18 +22,100 @@ from tests.e2e.classic.browser_e2e_contract import (
 from tools.live.secure_runtime_paths import (
     assess_secret_file, ensure_secure_directory, host_classification,
 )
+from tools.live.run_classic_acceptance import EXPECTED_READINESS_TESTS, SAFE_FAILURE_TYPES
+
+
+class _TypedFailureResult(unittest.TextTestResult):
+    """Keep exception categories, never exception messages or tracebacks."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.failure_types: set[str] = set()
+
+    def _record_type(self, err) -> None:
+        name = err[0].__name__
+        self.failure_types.add(name if name in SAFE_FAILURE_TYPES else "OtherError")
+
+    def addError(self, test, err) -> None:
+        self._record_type(err)
+        super().addError(test, err)
+
+    def addFailure(self, test, err) -> None:
+        self._record_type(err)
+        super().addFailure(test, err)
+
+    def addSubTest(self, test, subtest, err) -> None:
+        if err is not None:
+            self._record_type(err)
+        super().addSubTest(test, subtest, err)
 
 
 def run_suite(suite: unittest.TestSuite) -> dict[str, object]:
     started = time.monotonic()
-    result = unittest.TextTestRunner(stream=io.StringIO()).run(suite)
+    result = unittest.TextTestRunner(stream=io.StringIO(), resultclass=_TypedFailureResult).run(suite)
+    assert isinstance(result, _TypedFailureResult)
     return {
         "tests": result.testsRun,
         "failures": [test.id() for test, _ in result.failures],
         "errors": [test.id() for test, _ in result.errors],
         "skipped": [test.id() for test, _ in result.skipped],
+        "failure_types": sorted(result.failure_types),
         "passed": result.testsRun > 0 and result.wasSuccessful() and not result.skipped,
         "duration_seconds": round(time.monotonic() - started, 3),
+    }
+
+
+def _suite_passed(result: dict[str, Any], expected_tests: int) -> bool:
+    return (
+        expected_tests > 0 and type(result.get("tests")) is int
+        and result["tests"] == expected_tests and result.get("passed") is True
+        and all(result.get(key) == [] for key in ("failures", "errors", "skipped"))
+    )
+
+
+def _acceptance_summary(report: dict[str, Any]) -> dict[str, Any]:
+    """Count actual observations against the effective model's required inventory."""
+    before = report.get("readiness_before", {})
+    after = report.get("readiness_after", {})
+    inventory = report.get("inventory", [])
+    entries = report.get("routes", [])
+    expected_routes = [item["route"] for item in inventory]
+    expected_api = {item["route"] for item in inventory if item["api_authentication_required"]}
+    observed_routes = [item["route"] for item in entries]
+    suites = [before, after, *(item["browser"] for item in entries)]
+
+    def tests(result):
+        value = result.get("tests")
+        return value if type(value) is int and value >= 0 else 0
+
+    api_checks = sum(
+        item["route"] in expected_api
+        and item.get("api", {}).get("authenticated_access_verified") is True
+        and item.get("api", {}).get("invalid_rejected") is True
+        for item in entries
+    )
+    passed = (
+        report.get("dirty_checkout") is False
+        and _suite_passed(before, EXPECTED_READINESS_TESTS)
+        and _suite_passed(after, EXPECTED_READINESS_TESTS)
+        and bool(expected_routes) and bool(expected_api)
+        and len(set(expected_routes)) == len(expected_routes)
+        and observed_routes == expected_routes
+        and all(_suite_passed(item["browser"], 1) for item in entries)
+        and api_checks == len(expected_api)
+    )
+    return {
+        "schema": "classic_authenticated_acceptance_v1",
+        "readiness_before_tests": tests(before), "readiness_after_tests": tests(after),
+        "expected_browser_tests": len(expected_routes),
+        "browser_tests": sum(tests(item["browser"]) for item in entries),
+        "expected_api_checks": len(expected_api), "api_checks": api_checks,
+        "live_tests": sum(tests(item) for item in suites),
+        **{key: sum(len(item.get(key, [])) for item in suites)
+           for key in ("failures", "errors", "skipped")},
+        "failure_types": sorted({name for item in suites for name in item.get("failure_types", [])
+                                 if name in SAFE_FAILURE_TYPES}),
+        "passed": passed,
     }
 
 
@@ -86,7 +169,7 @@ def main() -> int:
             "tests.e2e.classic.test_post_install_browser_live.PostInstallBrowserLiveTest",
         ))
         report["readiness_before"] = readiness
-        if not readiness["passed"]:
+        if not _suite_passed(readiness, EXPECTED_READINESS_TESTS):
             raise RuntimeError("readiness_failed")
         config = LivePostInstallConfig.from_environment()
         expectations = browser_route_expectations()
@@ -115,7 +198,7 @@ def main() -> int:
             ]))
             entry: dict[str, object] = {"route": route, "browser": result}
             entries.append(entry)
-            all_passed = all_passed and bool(result["passed"])
+            all_passed = all_passed and _suite_passed(result, 1)
             if expectation.credential_required:
                 credential = (
                     ("admin", config.pulsar_admin_token or "") if route == "pulsar-admin-api"
@@ -133,21 +216,26 @@ def main() -> int:
             "tests.e2e.classic.test_post_install_browser_live.PostInstallBrowserLiveTest",
         ))
         report["readiness_after"] = after
-        all_passed = all_passed and bool(after["passed"])
+        all_passed = all_passed and _suite_passed(after, EXPECTED_READINESS_TESTS)
     except Exception as exc:
         all_passed = False
         report["failure_type"] = type(exc).__name__
     finished = datetime.now(UTC)
+    summary = _acceptance_summary(report)
+    all_passed = all_passed and summary["passed"]
+    summary["passed"] = all_passed
     report.update(
         finished_at_utc=finished.isoformat(),
         duration_seconds=round((finished - started_at).total_seconds(), 3),
         exit_code=0 if all_passed else 1,
         status="LIVE_VERIFIED" if all_passed else "LIVE_PARTIAL",
+        acceptance_summary=summary,
     )
     path = run / "result.json"
     path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     path.chmod(0o600)
-    print(json.dumps({"status": report["status"], "report": str(path)}), flush=True)
+    print(json.dumps({"status": report["status"], "report": str(path),
+                      "acceptance_summary": summary}), flush=True)
     return 0 if all_passed else 1
 
 
