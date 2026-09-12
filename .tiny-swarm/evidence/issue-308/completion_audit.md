@@ -11,6 +11,6 @@ The architecture reviewer checked that operator procedures use current
 workflow boundaries. The tester/evidence reviewer checked source-level tests,
 links and the explicit rendering/live blockers.
 
-The local documentation corrections are acceptable. Completion remains open
-until the guides render in a usable Linux toolchain and a qualified target
-walkthrough produces evidence for the actual first-user journey.
+The local documentation corrections and Linux container rendering are
+acceptable. Completion remains open until a qualified target walkthrough
+produces evidence for the actual first-user journey.

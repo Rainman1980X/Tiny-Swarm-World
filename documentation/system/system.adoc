@@ -1,3 +1,7 @@
+= Tiny Swarm World System Operations
+:doctype: book
+:toc:
+
 include::lxc-native-setup.adoc[]
 
 include::network.adoc[]
