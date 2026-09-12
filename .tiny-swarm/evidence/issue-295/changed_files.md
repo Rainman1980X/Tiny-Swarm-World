@@ -8,3 +8,6 @@
 - documentation/evidence/cred08-browser-acceptance.md: inventory, commands and historical mapping.
 - .tiny-swarm/evidence/issue-295/: requirement and execution/audit evidence.
 - .tiny-swarm/evidence/issue-285/acceptance_checklist.md: continuation reference.
+
+Final publication adds live_results_20260912.json and completion review evidence
+under the issue directory. Changes after d254b769 are evidence/documentation only.

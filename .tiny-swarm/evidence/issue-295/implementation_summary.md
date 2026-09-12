@@ -1,6 +1,7 @@
 # CRED-08 implementation
 
-Status: INCOMPLETE pending final-candidate both-host execution and independent audit.
+Status: DONE for #295; independent completion audit PASS.
+Tested code remains d254b769; final publication adds evidence only.
 
 Reuse canonical Classic effective-model routes and credential inputs. Login tests
 now submit credentials, reject one invalid attempt, create a fresh Firefox
@@ -22,3 +23,7 @@ form/rejection semantics, Sonar isLoggedIn validation, Nexus protected-operation
 wording, source qualification and missing runner regressions. No production
 architecture change. API worker used isolated /tmp/tsw-c08-auth; root consolidated
 two explicit files, retained integration and runtime ownership.
+
+Final live candidate: `d254b76980a344a67295d8395e61002bf0730b0c`.
+Both hosts pass baseline and fresh post-restart acceptance; see
+[live results](live_results_20260912.json) and [test results](test_results.md).

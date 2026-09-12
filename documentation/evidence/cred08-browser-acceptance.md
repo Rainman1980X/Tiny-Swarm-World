@@ -1,7 +1,11 @@
 # CRED-08 browser and authenticated acceptance
 
 Issue [#295](https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/issues/295).
-Status: INCOMPLETE until both-host final-candidate and post-restart evidence is recorded.
+Both-host baseline and post-restart acceptance: LIVE_VERIFIED at
+`d254b76980a344a67295d8395e61002bf0730b0c`; independent completion audit PASS
+([review](../../.tiny-swarm/evidence/issue-295/completion_audit.md)).
+See [executed results](../../.tiny-swarm/evidence/issue-295/test_results.md) and
+[per-route/task evidence](../../.tiny-swarm/evidence/issue-295/live_results_20260912.json).
 
 Membership comes from the active effective access model's `service_access_links`;
 credential metadata determines authentication applicability. Unknown credential
