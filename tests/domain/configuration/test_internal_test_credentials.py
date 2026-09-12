@@ -101,7 +101,9 @@ class TestInternalTestCredentialCatalog(unittest.TestCase):
         self.assertEqual({"sub": "admin"}, json.loads(decoded_payload))
 
     def test_resolution_is_deterministic_and_unknown_keys_fail_closed(self) -> None:
-        self.assertEqual(internal_test_credentials(), internal_test_credentials())
+        first = internal_test_credentials()
+        second = internal_test_credentials()
+        self.assertEqual(first, second)
         self.assertEqual(
             internal_test_credentials()["TSW_PULSAR_ADMIN_TOKEN"],
             internal_test_credential("TSW_PULSAR_ADMIN_TOKEN"),

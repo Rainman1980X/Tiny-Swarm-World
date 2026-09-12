@@ -100,7 +100,10 @@ class LocalTlsContractResolver:
     def _generate_managed(self, paths: dict[str, Path]) -> None:
         with tempfile.TemporaryDirectory(dir=self._state_root, prefix=".tls-") as temporary:
             root = Path(temporary)
-            generated = {name: root / path.name for name, path in paths.items()}
+            generated = {
+                name: root / filename
+                for name, filename in _MANAGED_FILENAMES.items()
+            }
             extension = root / "leaf.ext"
             extension.write_text(
                 "basicConstraints=critical,CA:FALSE\n"
