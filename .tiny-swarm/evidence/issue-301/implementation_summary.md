@@ -1,6 +1,6 @@
 # RC1-R05 Implementation Summary
 
-Status: TEST_INSTALL_PASSED_PROTECTED_LIVE_PENDING.
+Status: TEST_INSTALL_PASSED_HOSTED_PREFLIGHT_FAILED.
 
 The existing Nightly workflow keeps scheduled/manual dispatch, protected
 environment, target-owner checks, Linux/Incus/Docker qualification, bounded

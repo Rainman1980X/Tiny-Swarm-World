@@ -4,6 +4,9 @@
   protected environment still need to be configured for a complete hosted
   observation. Credential rotation is intentionally not applicable to the
   disposable test profile.
+- The hosted runner currently reaches qualification but its setup preflight
+  fails before lifecycle mutation; the runner/Incus target state needs repair
+  or a further diagnostic run before hosted acceptance.
 - The local test installation passed, but the full Fresh → Reconcile → Update
   → Recovery lifecycle can only be accepted after a protected isolated target
   run reaches every required phase.
