@@ -10,7 +10,7 @@ Status: `READY_FOR_WORKFLOW_EXECUTION`
 
 ## Purpose
 
-Produce WSL2 and native-Linux update, recovery and post-update acceptance evidence for the canonical Classic update path.
+Repair the reproduced update/acceptance defects, then produce WSL2 update, recovery and post-update acceptance evidence. RC1-E02 independently verifies native Linux using the same candidate and assertions.
 
 ## Prerequisites
 
@@ -23,7 +23,7 @@ Produce WSL2 and native-Linux update, recovery and post-update acceptance eviden
 ## Scope
 
 - Requirement mapping: R01-07, R01-08, R01-09, R01-10, R01-11, R01-12
-- Affected files: tools/live/run_classic_acceptance.py, tests/e2e/classic/, .tiny-swarm/evidence/issue-297/, documentation/release/rc1-candidate-evidence.md
+- Affected files: src/tiny_swarm_world/application/ports/update/, src/tiny_swarm_world/application/services/platform/workflow/update.py, src/tiny_swarm_world/domain/update/, src/tiny_swarm_world/infrastructure/adapters/update/, src/tiny_swarm_world/infrastructure/composition_setup.py, tests/application/services/platform/test_classic_update_workflow.py, tests/infrastructure/adapters/update/, tests/domain/update/, tests/test_classic_update_cli.py, tests/test_classic_live_runner.py, tools/live/run_classic_acceptance.py, tests/e2e/classic/, .tiny-swarm/evidence/issue-297/, documentation/release/rc1-candidate-evidence.md
 - Affected modules: canonical update workflow, Classic acceptance runner, WSL2 and native-Linux lifecycle
 - Affected contracts: live consent, update preview/apply/recover, redacted evidence, post-update acceptance
 - Dependencies: RC1-E00
@@ -40,9 +40,9 @@ Produce WSL2 and native-Linux update, recovery and post-update acceptance eviden
 ```yaml
 slice_id: RC1-E01
 profile: FULL_PATH
-owner: issue-297
+owner: senior-python-automation-developer
 secondary_reviewers: [senior-requirement-engineer, senior-system-architect, senior-python-automation-developer, senior-tester]
-affected_files: [tools/live/run_classic_acceptance.py, tests/e2e/classic/, .tiny-swarm/evidence/issue-297/, documentation/release/rc1-candidate-evidence.md]
+affected_files: [src/tiny_swarm_world/application/ports/update/, src/tiny_swarm_world/application/services/platform/workflow/update.py, src/tiny_swarm_world/domain/update/, src/tiny_swarm_world/infrastructure/adapters/update/, src/tiny_swarm_world/infrastructure/composition_setup.py, tests/application/services/platform/test_classic_update_workflow.py, tests/infrastructure/adapters/update/, tests/domain/update/, tests/test_classic_update_cli.py, tests/test_classic_live_runner.py, tools/live/run_classic_acceptance.py, tests/e2e/classic/, .tiny-swarm/evidence/issue-297/, documentation/release/rc1-candidate-evidence.md]
 affected_modules: [canonical update workflow, Classic acceptance runner, WSL2 and native-Linux lifecycle]
 affected_contracts: [live consent, update preview/apply/recover, redacted evidence, post-update acceptance]
 dependencies: [RC1-E00]
@@ -71,7 +71,7 @@ stop_conditions: [missing qualified target, missing live consent, unsafe reset s
 
 ## Python Automation Assessment
 
-The workflow primarily consumes existing Python automation and evidence contracts. Product code may change only when a verified live defect requires a focused repair with regression coverage. The canonical commands are inspected before execution; no shell behavior is duplicated in workflow YAML.
+The workflow primarily consumes existing Python automation and evidence contracts. Product code may change for an observed live defect, failing external analysis or reproduced acceptance-contract defect, with focused regression coverage and independent review. The canonical commands are inspected before execution; no shell behavior is duplicated in workflow YAML.
 
 ## Frontend Assessment
 

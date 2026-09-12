@@ -40,7 +40,7 @@ Capture immutable candidate image identities and verify live admin, socket, netw
 ```yaml
 slice_id: RC1-E07
 profile: FULL_PATH
-owner: issue-309
+owner: senior-security-sandbox-engineer
 secondary_reviewers: [senior-requirement-engineer, senior-system-architect, senior-python-automation-developer, senior-tester]
 affected_files: [documentation/security/, infra/config/compose/, .tiny-swarm/evidence/issue-309/, .tiny-swarm/evidence/issue-300/]
 affected_modules: [image provenance, admin/socket/network boundaries, security evidence]
@@ -71,7 +71,7 @@ stop_conditions: [mutable tag has no digest, admin/socket boundary is not observ
 
 ## Python Automation Assessment
 
-The workflow primarily consumes existing Python automation and evidence contracts. Product code may change only when a verified live defect requires a focused repair with regression coverage. The canonical commands are inspected before execution; no shell behavior is duplicated in workflow YAML.
+The workflow primarily consumes existing Python automation and evidence contracts. Product code may change for an observed live defect, failing external analysis or reproduced acceptance-contract defect, with focused regression coverage and independent review. The canonical commands are inspected before execution; no shell behavior is duplicated in workflow YAML.
 
 ## Frontend Assessment
 

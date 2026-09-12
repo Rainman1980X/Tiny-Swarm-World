@@ -40,7 +40,7 @@ Obtain an independent architecture/test review of the maintenance triage and ack
 ```yaml
 slice_id: RC1-E08
 profile: FULL_PATH
-owner: issue-310
+owner: senior-system-architect
 secondary_reviewers: [senior-requirement-engineer, senior-system-architect, senior-python-automation-developer, senior-tester]
 affected_files: [documentation/arc42/05_analysis/rc1-maintenance-triage.adoc, .tiny-swarm/evidence/issue-310/, .tiny-swarm/evidence/issue-302/]
 affected_modules: [central-module responsibility review, architecture/test review, R06 residual-risk handoff]
@@ -71,7 +71,7 @@ stop_conditions: [review is performed only by the implementer without fallback r
 
 ## Python Automation Assessment
 
-The workflow primarily consumes existing Python automation and evidence contracts. Product code may change only when a verified live defect requires a focused repair with regression coverage. The canonical commands are inspected before execution; no shell behavior is duplicated in workflow YAML.
+The workflow primarily consumes existing Python automation and evidence contracts. Product code may change for an observed live defect, failing external analysis or reproduced acceptance-contract defect, with focused regression coverage and independent review. The canonical commands are inspected before execution; no shell behavior is duplicated in workflow YAML.
 
 ## Frontend Assessment
 

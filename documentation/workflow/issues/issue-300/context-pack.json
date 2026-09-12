@@ -52,5 +52,7 @@
     ".agents/skills/three-amigos-requirement-gatekeeper/SKILL.md": "76659e618cb706e8990cdf44441aeaed219465044175826adca5357ae8acc5b4",
     ".agents/orchestrator/routing-rules.md": "3accea3112bc207eda96e02b3fe4831b79669f7c8f6a5668f577fca7d0fed050",
     "documentation/arc42/11_risks_and_debt.adoc": "d29026dfcb3a2fe235686aeffddf388fa111bac9352f33d96d0b7621c12c6fbb"
-  }
+  },
+  "execution_selected": true,
+  "owner": "senior-python-automation-developer"
 }

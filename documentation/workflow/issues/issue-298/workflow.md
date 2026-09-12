@@ -1,4 +1,4 @@
-# Workflow Slice RC1-E00: Native-Linux baseline applicability
+# Workflow Slice RC1-E00: Execution qualification and candidate baseline
 
 Workflow id: `rc1-evidence-completion-20260912`
 Issue: #298
@@ -10,7 +10,7 @@ Status: `READY_FOR_WORKFLOW_EXECUTION`
 
 ## Purpose
 
-Reconcile the historical native-Linux baseline with the final candidate and decide whether the R01 native-Linux run is required for current RC1 acceptance.
+Qualify both targets, resolve the execution graph and repair scopes, record consent and independent reviews, and freeze a candidate only after product repairs. Reconcile historical R02 evidence without replacing the required native E02 run.
 
 ## Prerequisites
 
@@ -23,7 +23,7 @@ Reconcile the historical native-Linux baseline with the final candidate and deci
 ## Scope
 
 - Requirement mapping: R02 historical baseline and applicability consumed by R01/R06
-- Affected files: .tiny-swarm/evidence/issue-298/, .tiny-swarm/evidence/issue-297/, documentation/release/rc1-decision.md
+- Affected files: documentation/workflow/, .codex/evidence/rc1-evidence-execution-20260913.md, .tiny-swarm/evidence/issue-298/, .tiny-swarm/evidence/issue-297/
 - Affected modules: native-Linux target qualification, RC1 candidate evidence matrix
 - Affected contracts: historical versus candidate-specific evidence, native-Linux applicability
 - Dependencies: none
@@ -40,9 +40,9 @@ Reconcile the historical native-Linux baseline with the final candidate and deci
 ```yaml
 slice_id: RC1-E00
 profile: FULL_PATH
-owner: issue-298
+owner: senior-workflow-architect
 secondary_reviewers: [senior-requirement-engineer, senior-system-architect, senior-python-automation-developer, senior-tester]
-affected_files: [.tiny-swarm/evidence/issue-298/, .tiny-swarm/evidence/issue-297/, documentation/release/rc1-decision.md]
+affected_files: [documentation/workflow/, .codex/evidence/rc1-evidence-execution-20260913.md, .tiny-swarm/evidence/issue-298/, .tiny-swarm/evidence/issue-297/]
 affected_modules: [native-Linux target qualification, RC1 candidate evidence matrix]
 affected_contracts: [historical versus candidate-specific evidence, native-Linux applicability]
 dependencies: []
@@ -71,7 +71,7 @@ stop_conditions: [native target identity cannot be established, historical evide
 
 ## Python Automation Assessment
 
-The workflow primarily consumes existing Python automation and evidence contracts. Product code may change only when a verified live defect requires a focused repair with regression coverage. The canonical commands are inspected before execution; no shell behavior is duplicated in workflow YAML.
+The workflow primarily consumes existing Python automation and evidence contracts. Product code may change for an observed live defect, failing external analysis or reproduced acceptance-contract defect, with focused regression coverage and independent review. The canonical commands are inspected before execution; no shell behavior is duplicated in workflow YAML.
 
 ## Frontend Assessment
 

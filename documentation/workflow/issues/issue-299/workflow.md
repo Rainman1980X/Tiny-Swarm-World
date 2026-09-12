@@ -40,7 +40,7 @@ Exercise WSL2 partial failure, managed service recovery, restart resilience and 
 ```yaml
 slice_id: RC1-E03
 profile: FULL_PATH
-owner: issue-299
+owner: senior-devops
 secondary_reviewers: [senior-requirement-engineer, senior-system-architect, senior-python-automation-developer, senior-tester]
 affected_files: [tools/live/run_classic_acceptance.py, .tiny-swarm/evidence/issue-299/, documentation/evidence/]
 affected_modules: [WSL2 lifecycle, failure/recovery orchestration, authenticated acceptance]
@@ -71,7 +71,7 @@ stop_conditions: [restart ownership is unclear, partial state has no cleanup pat
 
 ## Python Automation Assessment
 
-The workflow primarily consumes existing Python automation and evidence contracts. Product code may change only when a verified live defect requires a focused repair with regression coverage. The canonical commands are inspected before execution; no shell behavior is duplicated in workflow YAML.
+The workflow primarily consumes existing Python automation and evidence contracts. Product code may change for an observed live defect, failing external analysis or reproduced acceptance-contract defect, with focused regression coverage and independent review. The canonical commands are inspected before execution; no shell behavior is duplicated in workflow YAML.
 
 ## Frontend Assessment
 

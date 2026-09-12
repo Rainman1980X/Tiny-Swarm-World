@@ -40,7 +40,7 @@ Execute the documented first-user journey on a qualified target and record host-
 ```yaml
 slice_id: RC1-E06
 profile: FULL_PATH
-owner: issue-308
+owner: senior-documentation-engineer
 secondary_reviewers: [senior-requirement-engineer, senior-system-architect, senior-python-automation-developer, senior-tester]
 affected_files: [README.md, documentation/manuals/, documentation/evidence/, .tiny-swarm/evidence/issue-308/]
 affected_modules: [operator documentation, first-user journey, browser/API acceptance]
@@ -71,7 +71,7 @@ stop_conditions: [documented command differs from executable behavior, target is
 
 ## Python Automation Assessment
 
-The workflow primarily consumes existing Python automation and evidence contracts. Product code may change only when a verified live defect requires a focused repair with regression coverage. The canonical commands are inspected before execution; no shell behavior is duplicated in workflow YAML.
+The workflow primarily consumes existing Python automation and evidence contracts. Product code may change for an observed live defect, failing external analysis or reproduced acceptance-contract defect, with focused regression coverage and independent review. The canonical commands are inspected before execution; no shell behavior is duplicated in workflow YAML.
 
 ## Frontend Assessment
 

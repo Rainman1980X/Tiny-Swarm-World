@@ -40,7 +40,7 @@ Reconcile and reference the already verified protected-runner lifecycle and cont
 ```yaml
 slice_id: RC1-E05
 profile: FULL_PATH
-owner: issue-301
+owner: senior-tester
 secondary_reviewers: [senior-requirement-engineer, senior-system-architect, senior-python-automation-developer, senior-tester]
 affected_files: [.tiny-swarm/evidence/issue-301/, documentation/release/rc1-decision.md]
 affected_modules: [protected Classic runner evidence, RC1 release evidence]
@@ -71,7 +71,7 @@ stop_conditions: [run SHA/scope cannot be confirmed, artifact is not redacted, b
 
 ## Python Automation Assessment
 
-The workflow primarily consumes existing Python automation and evidence contracts. Product code may change only when a verified live defect requires a focused repair with regression coverage. The canonical commands are inspected before execution; no shell behavior is duplicated in workflow YAML.
+The workflow primarily consumes existing Python automation and evidence contracts. Product code may change for an observed live defect, failing external analysis or reproduced acceptance-contract defect, with focused regression coverage and independent review. The canonical commands are inspected before execution; no shell behavior is duplicated in workflow YAML.
 
 ## Frontend Assessment
 

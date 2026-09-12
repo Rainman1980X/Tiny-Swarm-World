@@ -40,7 +40,7 @@ Freeze the final integrated candidate, reconcile every RC1 evidence row and publ
 ```yaml
 slice_id: RC1-E09
 profile: FULL_PATH
-owner: issue-302
+owner: issue-completion-auditor
 secondary_reviewers: [senior-requirement-engineer, senior-system-architect, senior-python-automation-developer, senior-tester]
 affected_files: [documentation/release/rc1-decision.md, documentation/release/rc1-candidate-evidence.md, .tiny-swarm/evidence/issue-302/]
 affected_modules: [release evidence matrix, candidate provenance, issue completion audit]
@@ -71,7 +71,7 @@ stop_conditions: [any required row is open, candidate SHA is not frozen, live/ex
 
 ## Python Automation Assessment
 
-The workflow primarily consumes existing Python automation and evidence contracts. Product code may change only when a verified live defect requires a focused repair with regression coverage. The canonical commands are inspected before execution; no shell behavior is duplicated in workflow YAML.
+The workflow primarily consumes existing Python automation and evidence contracts. Product code may change for an observed live defect, failing external analysis or reproduced acceptance-contract defect, with focused regression coverage and independent review. The canonical commands are inspected before execution; no shell behavior is duplicated in workflow YAML.
 
 ## Frontend Assessment
 

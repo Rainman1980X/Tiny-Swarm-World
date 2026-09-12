@@ -22,8 +22,8 @@ Observe a candidate-specific SonarCloud quality gate and execute the required co
 
 ## Scope
 
-- Requirement mapping: R04-04, R04-05, R04-08, R08-02, R08-05
-- Affected files: .github/workflows/sonar_external_gate.yml, documentation/release/rc1-candidate-evidence.md, .tiny-swarm/evidence/issue-300/, .tiny-swarm/evidence/issue-309/
+- Requirement mapping: R04-01, R04-02, R04-03, R04-04, R04-05, R04-08, R08-02, R08-05
+- Affected files: src/tiny_swarm_world/infrastructure/adapters/ingress/local_tls_contract_resolver.py, tests/infrastructure/adapters/ingress/test_local_tls_contract_resolver.py, .github/workflows/sonar_external_gate.yml, documentation/release/rc1-candidate-evidence.md, .tiny-swarm/evidence/issue-300/, .tiny-swarm/evidence/issue-309/
 - Affected modules: SonarCloud external gate, container image/configuration scan, candidate provenance
 - Affected contracts: external gate state, scan result and tool version, SHA/digest provenance
 - Dependencies: RC1-E00
@@ -40,9 +40,9 @@ Observe a candidate-specific SonarCloud quality gate and execute the required co
 ```yaml
 slice_id: RC1-E04
 profile: FULL_PATH
-owner: issue-300
+owner: senior-python-automation-developer
 secondary_reviewers: [senior-requirement-engineer, senior-system-architect, senior-python-automation-developer, senior-tester]
-affected_files: [.github/workflows/sonar_external_gate.yml, documentation/release/rc1-candidate-evidence.md, .tiny-swarm/evidence/issue-300/, .tiny-swarm/evidence/issue-309/]
+affected_files: [src/tiny_swarm_world/infrastructure/adapters/ingress/local_tls_contract_resolver.py, tests/infrastructure/adapters/ingress/test_local_tls_contract_resolver.py, .github/workflows/sonar_external_gate.yml, documentation/release/rc1-candidate-evidence.md, .tiny-swarm/evidence/issue-300/, .tiny-swarm/evidence/issue-309/]
 affected_modules: [SonarCloud external gate, container image/configuration scan, candidate provenance]
 affected_contracts: [external gate state, scan result and tool version, SHA/digest provenance]
 dependencies: [RC1-E00]
@@ -71,7 +71,7 @@ stop_conditions: [Sonar result is unavailable, candidate SHA is not exact, scan 
 
 ## Python Automation Assessment
 
-The workflow primarily consumes existing Python automation and evidence contracts. Product code may change only when a verified live defect requires a focused repair with regression coverage. The canonical commands are inspected before execution; no shell behavior is duplicated in workflow YAML.
+The workflow primarily consumes existing Python automation and evidence contracts. Product code may change for an observed live defect, failing external analysis or reproduced acceptance-contract defect, with focused regression coverage and independent review. The canonical commands are inspected before execution; no shell behavior is duplicated in workflow YAML.
 
 ## Frontend Assessment
 
@@ -142,7 +142,7 @@ Run S3/S3D preflight, promote this indexed workflow to the active workflow path 
 
 ## Requirement-to-verification mapping
 
-The implementation must update the issue matrix so every mapped requirement has implementation evidence and at least one relevant test, static check, live result or external result. The following mapping is the minimum required scope: `R04-04, R04-05, R04-08, R08-02, R08-05`.
+The implementation must update the issue matrix so every mapped requirement has implementation evidence and at least one relevant test, static check, live result or external result. The following mapping is the minimum required scope: `R04-01, R04-02, R04-03, R04-04, R04-05, R04-08, R08-02, R08-05`.
 
 ## Documentation and evidence outputs
 

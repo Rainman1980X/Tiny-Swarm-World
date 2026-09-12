@@ -4,9 +4,9 @@ Workflow id: `rc1-evidence-completion-20260912`
 Authoring branch: `feature/workflow-rc1-evidence-20260912`
 Planned execution branch: `feature/rc1-evidence-execution-20260912`
 Execution profile: `FULL_PATH`
-Status: `READY_FOR_WORKFLOW_EXECUTION`
+Status: `EXECUTION_IN_PROGRESS`
 
-This indexed follow-up workflow creates the missing RC1 evidence for R01–R09. The existing Issue-252 workflow at `documentation/workflow/workflow.md` is preserved as the historical parent workflow and is not overwritten.
+This indexed follow-up workflow creates the missing RC1 evidence for R01–R09. This index is explicitly selected for execution by `.codex/evidence/rc1-evidence-execution-20260913.md`. The existing Issue-252 workflow is retained as historical context.
 
 ## Requirement clarification gate
 
@@ -51,7 +51,7 @@ Canonical Python update and lifecycle runner, managed Incus/LXC provider, Docker
 - Missing, queued, skipped, cancelled, blocked or unavailable checks are non-success states.
 - The native Linux VM remains stopped unless the assigned slice explicitly requires it and an approved target is selected.
 - No live mutation occurs during authoring; execution requires explicit operator consent and qualified targets.
-- Existing Issue-252 workflow assets are retained; this indexed workflow is not silently promoted to active execution.
+- Existing Issue-252 assets are retained; execution explicitly selects this index and its issue-local metadata.
 
 ### Assumptions
 
@@ -112,7 +112,7 @@ RC1-E00 candidate freeze and Three Amigos
 |---|---:|---|---|---|
 | RC1-E00 | #298 / all | Candidate freeze, applicability, Three-Amigos decision and target qualification | none | serial prerequisite |
 | RC1-E01 | #297 | WSL2 update and post-update acceptance | E00 | serialized live |
-| RC1-E02 | #297 | Native-Linux update and post-update acceptance | E00 | serialized live |
+| RC1-E02 | #297 | Native-Linux update and post-update acceptance | E00,E01 | serialized live |
 | RC1-E03 | #299 | WSL2 restart, partial failure, recovery and authenticated acceptance | E01 | serialized live |
 | RC1-E04 | #300 | Candidate SonarCloud and container scan evidence | E00 | serialized external/security |
 | RC1-E05 | #301 | Existing protected runner evidence reconciliation | E00 | read-only evidence |
@@ -151,7 +151,7 @@ No frontend React role is applicable.
 
 ## Python Automation Assessment
 
-The workflow primarily consumes existing Python automation and evidence contracts. Product code may change only when a verified live defect requires a focused repair with regression coverage. The canonical commands are inspected before execution; no shell behavior is duplicated in workflow YAML.
+The workflow primarily consumes existing Python automation and evidence contracts. Product code may change for an observed live defect, failing external analysis or reproduced acceptance-contract defect, with focused regression coverage and independent review. The canonical commands are inspected before execution; no shell behavior is duplicated in workflow YAML.
 
 ## Frontend Assessment
 
@@ -257,3 +257,7 @@ Workflow authoring is published only from `feature/workflow-rc1-evidence-2026091
 - [RC1-R09 — Independent maintenance triage review](issues/issue-310/workflow.md): `RC1-E08`, dependencies `RC1-E00`.
 
 Excluded issues: none. RC1-R02 is included as a historical-baseline applicability slice because R01 and R06 must distinguish historical from candidate-specific native-Linux evidence.
+
+## Execution qualification
+
+See `.codex/evidence/rc1-evidence-execution-20260913.md`. E00 records the product baseline and repair scopes. Final candidate freeze follows those repairs; no failing baseline is accepted. E02 metadata is in `issues/issue-297/workflow-native.md`. Evidence-only commits after a freeze must identify their product-tree equivalence; final external checks still bind the integrated revision.
