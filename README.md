@@ -150,11 +150,12 @@ and redact diagnostics before sharing them.
 | `platform reconcile --live` | Reconcile managed platform state with explicit consent; it is not a complete application update. |
 | `setup run --live` | Run the broader setup workflow without the installer's preliminary reset; it still changes infrastructure. |
 | `./install.sh` | Reset the managed environment, then perform fresh setup. |
-| Product update | A canonical update workflow and cross-host RC1 acceptance remain tracked in [#297](https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/issues/297). |
+| Product update | Preview and apply one supported stack/service image transition with the documented `platform update` contract. |
 
-There is no supported `./install.sh --update` command in this revision.
-Pulling new source code and running reconcile does not establish a supported
-upgrade of a running installation.
+Use `platform update --stack ... --service ... --from-image ... --to-image ... --preview`
+before an explicitly consented live apply. Use `platform update --recover
+--stack ... --service ...` for the last recorded rollback transition. Pulling
+new source code and running reconcile does not establish a supported upgrade.
 
 See [Daily operation](documentation/user_guide/usage.adoc#daily-operation) for
 commands, configuration continuity and recovery choices. The

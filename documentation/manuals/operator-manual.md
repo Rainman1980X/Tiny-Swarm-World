@@ -41,5 +41,7 @@ Static preflight and local tests do not prove live service access. A usable
 installation also needs successful platform verification and actual service
 logins. RC1 qualification is tracked in
 [#294](https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/issues/294).
-The supported update workflow remains pending; do not treat reset or reconcile
-as a product upgrade.
+Do not treat reset or reconcile as a product upgrade. For one reviewed image transition, use the
+`platform update` preview/apply contract in the
+[Usage guide](../user_guide/usage.adoc#daily-operation), or use its
+`--recover` form for the last recorded rollback state.
