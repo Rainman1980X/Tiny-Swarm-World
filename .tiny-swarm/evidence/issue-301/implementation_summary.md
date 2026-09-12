@@ -9,5 +9,7 @@ safe runner name, the declared label and whether the target-owner reference
 was present. The R03 lifecycle chain is consumed without duplicating
 installer logic in YAML.
 
-The real protected runner, isolated target, successful final-candidate run and
+The repository now has an online Linux/x64 runner with the workflow's
+`tsw-classic` label and verified Incus/Docker capabilities. The protected
+environment variables, isolated target, successful final-candidate run and
 controlled failure drill remain unverified.
