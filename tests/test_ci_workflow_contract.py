@@ -94,6 +94,7 @@ class CiWorkflowContractTests(unittest.TestCase):
         self.assertIn("live_approval:", workflow)
         self.assertIn("options: [approve, block]", workflow)
         self.assertIn("runs-on: [self-hosted, linux, tsw-classic]", workflow)
+        self.assertIn('TSW_LIVE_RUNNER_VERIFIED: "1"', workflow)
         self.assertIn("environment:", workflow)
         self.assertIn("tiny-swarm-world-classic-live", workflow)
         self.assertIn("needs: qualify-runner", workflow)
