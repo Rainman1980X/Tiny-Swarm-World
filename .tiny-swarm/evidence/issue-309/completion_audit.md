@@ -12,7 +12,7 @@ boundaries against current compose contracts. The tester/evidence reviewer
 checked tool versions, local scan results and explicit unavailable-tool
 handling.
 
-The static inventory and dependency/SBOM evidence are acceptable locally.
-Trivy execution is now evidenced, but its three HIGH DS-0002 findings remain
-unresolved. Resolved image identity capture and candidate live boundary
-evidence also remain required before completion.
+The static inventory, dependency/SBOM evidence and remediated Trivy scan are
+acceptable locally. The isolated image smoke check preserved the existing
+Service Access ports. Candidate image identity capture and candidate live
+boundary evidence remain required before completion.

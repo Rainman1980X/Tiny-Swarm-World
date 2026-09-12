@@ -1541,6 +1541,7 @@ services:
                 self.assertIn(base_image_line, dockerfile)
                 self.assertIn(copy_line, dockerfile)
                 self.assertIn("pid /tmp/nginx.pid", dockerfile)
+                self.assertIn("USER nginx", dockerfile)
                 self.assertNotIn("apk add", dockerfile)
                 self.assertNotIn("setcap", dockerfile)
                 if service_name == "service-access-nginx":
