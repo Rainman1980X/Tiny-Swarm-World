@@ -12,5 +12,9 @@
   34692542906](https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34692542906)
   reached the runner and stopped before mutation because all required
   repository live variables were empty.
-- No owned target qualification, protected-environment dispatch, full
-  lifecycle run or failure drill was executed.
+- Clean local test-only installation: **PASS**, candidate SHA
+  `53836bb4ae3f07e4c5693dfbebbc58ac59f031e1`, Incus/LXC provider, exit code 0.
+  The run passed all setup phases, Infisical synchronization and endpoint
+  verification; redacted evidence is recorded in `test-install-20260912.md`.
+- No protected-environment dispatch, full Fresh → Reconcile → Update →
+  Recovery lifecycle or controlled failure drill was executed.
