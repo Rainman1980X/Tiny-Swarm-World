@@ -497,6 +497,29 @@ class BrowserRouteE2EContractStaticTest(unittest.TestCase):
         driver = Mock(find_elements=Mock(return_value=[Mock(is_displayed=Mock(return_value=True))]))
         self.assertTrue(_visible_password_form(driver, Mock()))
 
+    def test_replaced_password_field_is_requeried_without_resubmitting_login(self) -> None:
+        class StaleElementReferenceException(Exception):
+            pass
+        for visible in (False, True):
+            with self.subTest(visible=visible):
+                stale = Mock(is_displayed=Mock(side_effect=StaleElementReferenceException()))
+                fields = [Mock(is_displayed=Mock(return_value=True))] if visible else []
+                driver = Mock(find_elements=Mock(side_effect=[[stale], fields]))
+                self.assertEqual(visible, _visible_password_form(driver, Mock(), sleep=lambda _: None))
+                self.assertEqual(driver.find_elements.call_count, 2)
+        driver = Mock(find_elements=Mock(side_effect=RuntimeError("fixture")))
+        with self.assertRaises(RuntimeError):
+            _visible_password_form(driver, Mock(), sleep=lambda _: None)
+        driver.find_elements.assert_called_once()
+
+    def test_unstable_password_form_fails_closed_at_deadline(self) -> None:
+        class StaleElementReferenceException(Exception):
+            pass
+        driver = Mock(find_elements=Mock(side_effect=StaleElementReferenceException()))
+        with self.assertRaises(AssertionError):
+            _visible_password_form(driver, Mock(), attempts=2, sleep=lambda _: None)
+        self.assertEqual(driver.find_elements.call_count, 2)
+
     def test_session_identity_requires_boolean_confirmation(self) -> None:
         for result in (False, None, "admin", {"authenticated": True}):
             with self.subTest(result=result):
@@ -893,8 +916,19 @@ def _wait_for_post_login_success(
     return latest
 
 
-def _visible_password_form(driver: Any, by: Any) -> bool:
-    return any(field.is_displayed() for field in driver.find_elements(by.CSS_SELECTOR, "input[type='password']"))
+def _visible_password_form(
+    driver: Any, by: Any, *, attempts: int = 40,
+    sleep: Callable[[float], None] = time.sleep,
+) -> bool:
+    for attempt in range(attempts):
+        try:
+            return any(field.is_displayed() for field in driver.find_elements(by.CSS_SELECTOR, "input[type='password']"))
+        except Exception as exc:
+            if type(exc).__name__ != "StaleElementReferenceException":
+                raise
+            if attempt + 1 < attempts:
+                sleep(0.25)
+    raise AssertionError("password form did not stabilize within the bounded observation")
 
 
 def _wait_for_login_rejection(
