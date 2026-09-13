@@ -1,0 +1,26 @@
+{
+  "phase": "fresh-post-recovery",
+  "timestamp": "2026-09-13T00:13:46.072481+00:00",
+  "candidate": "bedb0c9f1d5f2fdfddf6f14624242a18fce55f25",
+  "script_sha256": "737f232b19c4d941ab7c7682147a02b7675aa04ec18a85e683973ae96c524ef8",
+  "fixture": "tsw-rc1-continuity-20260913",
+  "original_build": 1,
+  "artifact_sha256": "ab8559f89c39c3bce463d214dd92efbf79d8bd129ed1f1fddd33a50bef5aecab",
+  "preserved": {
+    "service_ids": true,
+    "node_ids": true,
+    "cluster_id": true,
+    "home": true,
+    "storage_node": true,
+    "private_home_configuration": true,
+    "private_job_inventory": true,
+    "fixture_configuration": true,
+    "fixture_artifact": true
+  },
+  "changed_service_configurations": [],
+  "desired_image": "127.0.0.1:13500/jenkins:0.2.0",
+  "running_image_id": "sha256:468ac52db3f4da845eabe25fc941ac1c84988a3eb950e036d0c20ae863164545",
+  "task_id": "phe6ui0krcly",
+  "container_id": "faa4382d863c",
+  "passed": true
+}

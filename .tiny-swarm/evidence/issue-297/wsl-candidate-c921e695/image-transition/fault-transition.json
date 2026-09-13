@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-09-13T00:16:59.147818+00:00",
+  "mode": "fault",
+  "source_image": "127.0.0.1:13500/jenkins:0.2.0",
+  "source_pinned": "127.0.0.1:13500/jenkins@sha256:00e1f4319a21ffaf06de8bfb51682929164fa104851c5fcb09d8764d15085a17",
+  "source_id": "sha256:468ac52db3f4da845eabe25fc941ac1c84988a3eb950e036d0c20ae863164545",
+  "target_image": "127.0.0.1:13500/jenkins:rc1-controlled-fault-20260913",
+  "target_id": "sha256:bca8a889dc6856fdbfbef9ab84a566d15d666024fcde599d91a6d0659788bd98",
+  "target_digests": [
+    "127.0.0.1:13500/jenkins@sha256:fbddda5240a50dc98b70f19b297afecf390433be9ef2c9a6d6b559de93a78874"
+  ],
+  "build_exit_code": 0,
+  "push_exit_code": 0,
+  "distinct_content": true,
+  "scope": "intentional entrypoint failure; original image and volume retained for canonical recovery"
+}

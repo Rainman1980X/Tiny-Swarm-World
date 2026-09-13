@@ -1,0 +1,7 @@
+{
+  "scopefix-repeat-update_same_task_id": true,
+  "scopefix-repeat-update_same_container_id": true,
+  "scopefix-repeat-recovery_same_task_id": true,
+  "scopefix-repeat-recovery_same_container_id": true,
+  "original_plan_unchanged": true
+}

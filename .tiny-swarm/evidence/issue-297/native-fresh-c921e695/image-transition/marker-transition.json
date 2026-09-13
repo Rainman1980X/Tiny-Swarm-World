@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-09-13T00:06:24.376899+00:00",
+  "mode": "marker",
+  "source_image": "127.0.0.1:13500/jenkins:0.2.0",
+  "source_pinned": "127.0.0.1:13500/jenkins@sha256:2614ba8772e809a51eedc957f10445249f3259e6189449dc6d0b16d1a4887ecb",
+  "source_id": "sha256:9dcfd7c5f3b33436b85e4eae38dc5b4ae7aea51b4478effc165e0e1449278ef3",
+  "target_image": "127.0.0.1:13500/jenkins:rc1-proof-b-20260913",
+  "target_id": "sha256:33810bc7d2ee4bf57e55d5c34abf4f2c0d8a9ca8f98b25f214e1e9509e518697",
+  "target_digests": [
+    "127.0.0.1:13500/jenkins@sha256:1276b4b81b2a9ffe5145574a4d92a4e3593492682d21359cba2be7343c5675e6"
+  ],
+  "build_exit_code": 0,
+  "push_exit_code": 0,
+  "distinct_content": true,
+  "scope": "controlled marker change without Jenkins binary/data-format change"
+}

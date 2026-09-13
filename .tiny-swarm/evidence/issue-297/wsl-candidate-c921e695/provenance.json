@@ -1,0 +1,14 @@
+{
+  "candidate_sha": "c921e69533450fba86d908e2990c106bef87769a",
+  "host": "wsl2",
+  "owner": "tsw-rc1-isolated-20260913",
+  "profile": "service-access",
+  "hosted_executed_sha": "8eb5db338aed9965a49ed6879198fd1053b97dcc",
+  "hosted_run": 34725969899,
+  "hosted_exact_whole_tree_matches_candidate": true,
+  "additional_executed_sha": "c921e69533450fba86d908e2990c106bef87769a",
+  "continuity_probe_executed_sha": "bedb0c9f1d5f2fdfddf6f14624242a18fce55f25",
+  "probe_source_and_product_equivalent": true,
+  "consent": "existing explicit full disposable-test approval",
+  "scope": "update, repeat, failed rollout, recovery and authenticated acceptance; host restart separately owned by issue-299"
+}

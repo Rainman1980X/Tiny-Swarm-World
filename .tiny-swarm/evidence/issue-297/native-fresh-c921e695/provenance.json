@@ -1,0 +1,8 @@
+{
+  "candidate_sha": "c921e69533450fba86d908e2990c106bef87769a",
+  "host": "native_linux",
+  "owner": "tsw-rc1-native-fresh-20260913",
+  "profile": "service-access",
+  "runner": "native-manual",
+  "scope": "fresh full canonical lifecycle with authenticated acceptance after every phase; reboot is separate issue-298 evidence"
+}
