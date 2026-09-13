@@ -1,0 +1,225 @@
+{
+  "candidate_sha": "c921e69533450fba86d908e2990c106bef87769a",
+  "executed_scan_sha": "8eb5db338aed9965a49ed6879198fd1053b97dcc",
+  "whole_git_tree": "a14e635dd22cb02fc063a319d73383f676572bca",
+  "whole_tree_equivalence_verified": true,
+  "runs": [
+    {
+      "databaseId": 34725658814,
+      "headSha": "8eb5db338aed9965a49ed6879198fd1053b97dcc",
+      "name": "Python Quality Gate",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34725658814",
+      "jobs": [
+        {
+          "name": "Locked Python quality gate",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34725658814/job/103639203359"
+        }
+      ]
+    },
+    {
+      "databaseId": 34725658760,
+      "headSha": "8eb5db338aed9965a49ed6879198fd1053b97dcc",
+      "name": "Python Compatibility",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34725658760",
+      "jobs": [
+        {
+          "name": "Conda Python 3.13",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34725658760/job/103639203297"
+        },
+        {
+          "name": "Conda Python 3.12",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34725658760/job/103639203362"
+        }
+      ]
+    },
+    {
+      "databaseId": 34725802800,
+      "headSha": "2183006e674be67e77ac134b9a8668710632b1a9",
+      "name": "SonarCloud Trusted External Gate",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34725802800",
+      "jobs": [
+        {
+          "name": "SonarCloud external analysis",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34725802800/job/103639577432"
+        },
+        {
+          "name": "Require SonarCloud pull-request metadata",
+          "status": "completed",
+          "conclusion": "skipped",
+          "url": "https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34725802800/job/103639577953"
+        },
+        {
+          "name": "Require successful Python quality gate",
+          "status": "completed",
+          "conclusion": "skipped",
+          "url": "https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34725802800/job/103639578026"
+        },
+        {
+          "name": "Reject untrusted SonarCloud request",
+          "status": "completed",
+          "conclusion": "skipped",
+          "url": "https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34725802800/job/103639578076"
+        }
+      ]
+    },
+    {
+      "databaseId": 34726339297,
+      "headSha": "c921e69533450fba86d908e2990c106bef87769a",
+      "name": "Python Quality Gate",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34726339297",
+      "jobs": [
+        {
+          "name": "Locked Python quality gate",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34726339297/job/103640995379"
+        }
+      ]
+    },
+    {
+      "databaseId": 34726339319,
+      "headSha": "c921e69533450fba86d908e2990c106bef87769a",
+      "name": "Python Compatibility",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34726339319",
+      "jobs": [
+        {
+          "name": "Conda Python 3.12",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34726339319/job/103640995383"
+        },
+        {
+          "name": "Conda Python 3.13",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34726339319/job/103640995570"
+        }
+      ]
+    },
+    {
+      "databaseId": 34726472444,
+      "headSha": "c921e69533450fba86d908e2990c106bef87769a",
+      "name": "SonarCloud Trusted External Gate",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34726472444",
+      "jobs": [
+        {
+          "name": "SonarCloud external analysis",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34726472444/job/103641349912"
+        },
+        {
+          "name": "Require SonarCloud pull-request metadata",
+          "status": "completed",
+          "conclusion": "skipped",
+          "url": "https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34726472444/job/103641350301"
+        },
+        {
+          "name": "Require successful Python quality gate",
+          "status": "completed",
+          "conclusion": "skipped",
+          "url": "https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34726472444/job/103641350510"
+        },
+        {
+          "name": "Reject untrusted SonarCloud request",
+          "status": "completed",
+          "conclusion": "skipped",
+          "url": "https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34726472444/job/103641350523"
+        }
+      ]
+    }
+  ],
+  "sonar": [
+    {
+      "run_id": 34725802800,
+      "actual_checkout_sha": "8eb5db338aed9965a49ed6879198fd1053b97dcc",
+      "scm_revision": "8eb5db338aed9965a49ed6879198fd1053b97dcc",
+      "status": "EXTERNAL_GATE_VERIFIED",
+      "original_log_sha256": "17b2c957679404935e2bb151ae0d341a3f8c71acc673448971922d2c9f46bae5",
+      "allowlisted_log_lines": [
+        "2026-09-12T23:35:17.2512173Z HEAD is now at 8eb5db33 Merge remote-tracking branch 'origin/main' into fix/rc1-r01-pr-20260913",
+        "2026-09-12T23:35:58.1362003Z 23:35:58.135 INFO  SCM revision ID '8eb5db338aed9965a49ed6879198fd1053b97dcc'",
+        "2026-09-12T23:36:12.4582645Z 23:36:12.457 INFO  QUALITY GATE STATUS: PASSED - View details on https://sonarcloud.io/dashboard?id=MatthiasBurger-Coder_Tiny-Swarm-World&pullRequest=335"
+      ]
+    },
+    {
+      "run_id": 34726472444,
+      "actual_checkout_sha": "c921e69533450fba86d908e2990c106bef87769a",
+      "scm_revision": "c921e69533450fba86d908e2990c106bef87769a",
+      "status": "EXTERNAL_GATE_VERIFIED",
+      "original_log_sha256": "244b64d5d5615aaade0517dde0d8f9987cf0aeef1dee912abdffe09302ca2a98",
+      "allowlisted_log_lines": [
+        "2026-09-12T23:51:03.4819999Z HEAD is now at c921e695 Merge pull request #335 from MatthiasBurger-Coder/fix/rc1-r01-pr-20260913",
+        "2026-09-12T23:52:15.8656307Z 23:52:15.864 INFO  SCM revision ID 'c921e69533450fba86d908e2990c106bef87769a'",
+        "2026-09-12T23:52:35.0059772Z 23:52:35.005 INFO  QUALITY GATE STATUS: PASSED - View details on https://sonarcloud.io/dashboard?id=MatthiasBurger-Coder_Tiny-Swarm-World"
+      ]
+    }
+  ],
+  "scans": {
+    "dependencies": {
+      "started_at": "2026-09-12T23:42:37.923629+00:00",
+      "duration_seconds": 1.0,
+      "exit_code": 0
+    },
+    "sbom": {
+      "started_at": "2026-09-12T23:42:38.923903+00:00",
+      "duration_seconds": 0.578,
+      "exit_code": 0
+    },
+    "container-config": {
+      "started_at": "2026-09-12T23:43:58.832651+00:00",
+      "duration_seconds": 3.865,
+      "exit_code": 0,
+      "scanner_image": "aquasec/trivy@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969",
+      "scanner_version": "0.74.0",
+      "initial_attempt_exit_code": 125,
+      "retry_reason": "Operator WSL handover removed the original host Docker bridge; the trusted scanner retried with host networking, a read-only config mount and no Docker socket."
+    }
+  },
+  "scan_input_sha256": {
+    "requirements.lock": "0b491230b9d4630bf34d36f70d1489a04d7c563472369788ee5c392bc56a2767",
+    "requirements.txt": "67bf29769d4b3d095085da1a034e58a797aef7685e8afeb561887afe2b130590",
+    "tools/security_gate.py": "724aa39fce411e1a4766465b5394b927cac71a3f86a15543bccc6948fc33696f",
+    "infra/config/compose/infisical/docker-compose.yml": "f2db7fd5e95f3bded6997b3cc0f7a4d15212ffe730dd15081b42ef5b7ffffa21",
+    "infra/config/compose/jenkins/docker-compose.yml": "8fe4de324297dcb4d700f19cdeeb2c9176884ba737aad8e4863fc9511444843d",
+    "infra/config/compose/jenkins/image/Dockerfile": "1467e2ef951b3a8f8fb00335e9cc9bd7c0aa16538625298dece9d81ee3ee697d",
+    "infra/config/compose/jenkins/image/casc.yaml": "e8e148a1f6a17bd0a7a663d774392b348f9b6640d58af47104d63ae586d160c0",
+    "infra/config/compose/jenkins/image/setup.groovy": "4674d7e678fa7a62521a8ea1152a3d7c91b4b83e8a71d5e0311c57513c21df34",
+    "infra/config/compose/nexus/docker-compose.yml": "ee8eab68f1a69b65c278923a896a55974ce842aaa1c56588af0157de55bc19e9",
+    "infra/config/compose/portainer/docker-compose.yml": "fcfa1cd87ba899197976f26be5d257d261fd200e17fa9fd89ff8a042c8e275a9",
+    "infra/config/compose/pulsar/docker-compose.yml": "6f328e308f577099f83433aa3fbad9eb6c4241d37c0231551aec12f8e8cb79c9",
+    "infra/config/compose/service-access/dashboard/Dockerfile": "f1b7cb4de0f73626a86cd7848e6a5a97351df1f080645fea56f63c4fc1e32709",
+    "infra/config/compose/service-access/dashboard/index.html": "f440c4823e5a32488d4bdbb8106f0a93dba501eb07ccd255c9b5e34af777cc6c",
+    "infra/config/compose/service-access/docker-compose.yml": "aa020178c3df48a2aff56fae72726c680bf91eef8cf891fc2ee895eff897f40f",
+    "infra/config/compose/service-access/nginx/Dockerfile": "6873d7c88f0c94ad9df5d34b87c3f92c0e47816f1fbce13be57e8bd0c816428a",
+    "infra/config/compose/service-access/nginx/default.conf": "7c5175da8caba1cd4a046dbb3105812c369b39bafdc20ed8c7cc1a561c43c11c",
+    "infra/config/compose/service-access/nginx/generate-self-signed-cert.sh": "59e3df0a00ac13ec512227f60dcbe60bc4803b3f8c487cde0532d2d5f59551c5",
+    "infra/config/compose/sonarqube/docker-compose.yml": "4d91cd6fa70bb88c6292c1c7b80c25508651d0c8b0927c27bfa7651aeb7add04",
+    "infra/config/compose/swagger/docker-compose.yml": "583ea96151d5b74c4ea9c2d91e13523290cad348898609af4e3e991a7842b0ae",
+    "infra/config/compose/swagger/nginx/default.conf": "bd202589fa5399adab46028efa0bab9ea076eaf57af597d00a8b77593c01fb50",
+    "infra/config/compose/swagger/swagger/openapi.json": "390fce63966337be4280585e5672a55bc4cb0f4459f10149d840f12f1306cb78",
+    "infra/config/compose/traefik/docker-compose.yml": "ababd586dfb0d2d3d608ae7a6d49922481896ae1b185fe5ea18ebeabe7f6ae8c",
+    "infra/config/compose/traefik/dynamic/tls.yml": "0cbc2fee8bebe86179730aa54159e97b4700c32e507dfab9502ea8ce75928e55"
+  },
+  "scope": "13 locked Python dependencies and CycloneDX SBOM; three Dockerfiles, 60 successful checks, zero HIGH/CRITICAL configuration findings. No built-image vulnerability conclusion."
+}

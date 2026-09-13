@@ -1,0 +1,39 @@
+{
+  "SchemaVersion": 2,
+  "Trivy": {
+    "Version": "0.74.0"
+  },
+  "ReportID": "01a09801-aff0-7a6b-a63f-09063d5d6c39",
+  "CreatedAt": "2026-09-12T23:44:02.54468454Z",
+  "ArtifactName": "/scan",
+  "ArtifactType": "filesystem",
+  "Results": [
+    {
+      "Target": "jenkins/image/Dockerfile",
+      "Class": "config",
+      "Type": "dockerfile",
+      "MisconfSummary": {
+        "Successes": 20,
+        "Failures": 0
+      }
+    },
+    {
+      "Target": "service-access/dashboard/Dockerfile",
+      "Class": "config",
+      "Type": "dockerfile",
+      "MisconfSummary": {
+        "Successes": 20,
+        "Failures": 0
+      }
+    },
+    {
+      "Target": "service-access/nginx/Dockerfile",
+      "Class": "config",
+      "Type": "dockerfile",
+      "MisconfSummary": {
+        "Successes": 20,
+        "Failures": 0
+      }
+    }
+  ]
+}
