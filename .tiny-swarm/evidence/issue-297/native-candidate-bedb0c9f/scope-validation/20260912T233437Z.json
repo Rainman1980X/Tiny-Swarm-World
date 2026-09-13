@@ -1,0 +1,259 @@
+[
+  {
+    "script": "rc1_image_transition.py",
+    "arguments": [
+      "--mode",
+      "fault",
+      "--approve-live"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "result": {
+      "timestamp": "2026-09-12T23:34:37.825424+00:00",
+      "mode": "fault",
+      "source_image": "127.0.0.1:13500/jenkins:0.2.0",
+      "source_pinned": "127.0.0.1:13500/jenkins@sha256:634a7289addc84da91785c8f5d6ed3dc5aa5d27c303b6591fe7c8ea6cdbdf78c",
+      "source_id": "sha256:020b3abc4f5e34559d89a27a5015b0d76834b909cef612ab8f8b4385e8e8399d",
+      "target_image": "127.0.0.1:13500/jenkins:rc1-controlled-fault-20260913",
+      "target_id": "sha256:102cbcf1f7066e46c0f44dd9442debfaf1125493dc37ae48aedac11215c52454",
+      "target_digests": [
+        "127.0.0.1:13500/jenkins@sha256:ebde05f216260bffc792ac00434558caa1fe480ff4d75e1601d06bd371023c15"
+      ],
+      "build_exit_code": 0,
+      "push_exit_code": 0,
+      "distinct_content": true,
+      "scope": "intentional entrypoint failure; original image and volume retained for canonical recovery"
+    }
+  },
+  {
+    "script": "rc1_update_execute.py",
+    "arguments": [
+      "update",
+      "--env-file",
+      "<protected-original-env>",
+      "--approve-live",
+      "--to-image",
+      "127.0.0.1:13500/jenkins:rc1-controlled-fault-20260913"
+    ],
+    "exit_code": 1,
+    "expected_exit_code": 1,
+    "result": {
+      "operation": "update",
+      "started_at": "2026-09-12T23:34:37.880623Z",
+      "finished_at": "2026-09-12T23:34:43.504865Z",
+      "duration_seconds": 5.624,
+      "exit_code": 1,
+      "summary": {
+        "result": "failed_to_verify",
+        "status": "failed_to_verify",
+        "message": "Update did not establish target convergence; original recovery state is retained.",
+        "reason": null,
+        "phase_results": {
+          "count": 0,
+          "failed": []
+        },
+        "verification": "failed_to_verify",
+        "mutation": "failed_to_verify",
+        "result_count": 1,
+        "verification_results": [
+          {
+            "status": "failed_to_verify",
+            "target_id": "update:jenkins:jenkins"
+          }
+        ],
+        "typed_update_reasons": [
+          "rollout_failed"
+        ]
+      },
+      "phase": "update",
+      "candidate": "bedb0c9f1d5f2fdfddf6f14624242a18fce55f25",
+      "host": "7.0.0-31-generic",
+      "python": "3.12.14"
+    }
+  },
+  {
+    "script": "rc1_update_execute.py",
+    "arguments": [
+      "recovery",
+      "--env-file",
+      "<protected-original-env>",
+      "--approve-live"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "result": {
+      "operation": "recovery",
+      "started_at": "2026-09-12T23:34:43.568874Z",
+      "finished_at": "2026-09-12T23:34:53.622315Z",
+      "duration_seconds": 10.053,
+      "exit_code": 0,
+      "summary": {
+        "result": "passed",
+        "status": "completed",
+        "message": "update workflow completed.",
+        "reason": null,
+        "phase_results": {
+          "count": 0,
+          "failed": []
+        },
+        "verification": "verified",
+        "mutation": "converged",
+        "result_count": 3,
+        "verification_results": [],
+        "typed_update_reasons": []
+      },
+      "phase": "recovery",
+      "candidate": "bedb0c9f1d5f2fdfddf6f14624242a18fce55f25",
+      "host": "7.0.0-31-generic",
+      "python": "3.12.14"
+    }
+  },
+  {
+    "script": "rc1_update_probe.py",
+    "arguments": [
+      "controlled-fault-recovered",
+      "--env-file",
+      "<protected-original-env>",
+      "--approve-live"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "result": {
+      "phase": "controlled-fault-recovered",
+      "timestamp": "2026-09-12T23:34:56.425323+00:00",
+      "candidate": "bedb0c9f1d5f2fdfddf6f14624242a18fce55f25",
+      "script_sha256": "737f232b19c4d941ab7c7682147a02b7675aa04ec18a85e683973ae96c524ef8",
+      "fixture": "tsw-rc1-continuity-20260913",
+      "original_build": 1,
+      "artifact_sha256": "ab8559f89c39c3bce463d214dd92efbf79d8bd129ed1f1fddd33a50bef5aecab",
+      "preserved": {
+        "service_ids": true,
+        "node_ids": true,
+        "cluster_id": true,
+        "home": true,
+        "storage_node": true,
+        "private_home_configuration": true,
+        "private_job_inventory": true,
+        "fixture_configuration": true,
+        "fixture_artifact": true
+      },
+      "changed_service_configurations": [],
+      "desired_image": "127.0.0.1:13500/jenkins:0.2.0",
+      "running_image_id": "sha256:020b3abc4f5e34559d89a27a5015b0d76834b909cef612ab8f8b4385e8e8399d",
+      "task_id": "ch6f8g1pk3io",
+      "container_id": "9536846ec476",
+      "passed": true
+    }
+  },
+  {
+    "script": "rc1_update_execute.py",
+    "arguments": [
+      "fault-recovery-authenticated",
+      "--env-file",
+      "<protected-original-env>",
+      "--approve-live"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "result": {
+      "operation": "recovery_authenticated",
+      "started_at": "2026-09-12T23:34:56.535104Z",
+      "finished_at": "2026-09-12T23:35:53.920822Z",
+      "duration_seconds": 57.386,
+      "exit_code": 0,
+      "summary": {
+        "result": "passed",
+        "reason": null,
+        "readiness_before_tests": 8,
+        "readiness_after_tests": 8,
+        "expected_browser_tests": 9,
+        "browser_tests": 9,
+        "expected_api_checks": 7,
+        "api_checks": 7,
+        "live_tests": 25,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failure_types": []
+      },
+      "phase": "fault-recovery-authenticated",
+      "candidate": "bedb0c9f1d5f2fdfddf6f14624242a18fce55f25",
+      "host": "7.0.0-31-generic",
+      "python": "3.12.14"
+    }
+  },
+  {
+    "script": "rc1_update_execute.py",
+    "arguments": [
+      "repeat-recovery",
+      "--env-file",
+      "<protected-original-env>",
+      "--approve-live"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "result": {
+      "operation": "recovery",
+      "started_at": "2026-09-12T23:35:53.987468Z",
+      "finished_at": "2026-09-12T23:35:54.746726Z",
+      "duration_seconds": 0.759,
+      "exit_code": 0,
+      "summary": {
+        "result": "passed",
+        "status": "completed",
+        "message": "update workflow completed.",
+        "reason": null,
+        "phase_results": {
+          "count": 0,
+          "failed": []
+        },
+        "verification": "verified",
+        "mutation": "no_op",
+        "result_count": 1,
+        "verification_results": [],
+        "typed_update_reasons": []
+      },
+      "phase": "repeat-recovery",
+      "candidate": "bedb0c9f1d5f2fdfddf6f14624242a18fce55f25",
+      "host": "7.0.0-31-generic",
+      "python": "3.12.14"
+    }
+  },
+  {
+    "script": "rc1_update_probe.py",
+    "arguments": [
+      "controlled-fault-repeat-recovery",
+      "--env-file",
+      "<protected-original-env>",
+      "--approve-live"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "result": {
+      "phase": "controlled-fault-repeat-recovery",
+      "timestamp": "2026-09-12T23:35:56.566277+00:00",
+      "candidate": "bedb0c9f1d5f2fdfddf6f14624242a18fce55f25",
+      "script_sha256": "737f232b19c4d941ab7c7682147a02b7675aa04ec18a85e683973ae96c524ef8",
+      "fixture": "tsw-rc1-continuity-20260913",
+      "original_build": 1,
+      "artifact_sha256": "ab8559f89c39c3bce463d214dd92efbf79d8bd129ed1f1fddd33a50bef5aecab",
+      "preserved": {
+        "service_ids": true,
+        "node_ids": true,
+        "cluster_id": true,
+        "home": true,
+        "storage_node": true,
+        "private_home_configuration": true,
+        "private_job_inventory": true,
+        "fixture_configuration": true,
+        "fixture_artifact": true
+      },
+      "changed_service_configurations": [],
+      "desired_image": "127.0.0.1:13500/jenkins:0.2.0",
+      "running_image_id": "sha256:020b3abc4f5e34559d89a27a5015b0d76834b909cef612ab8f8b4385e8e8399d",
+      "task_id": "ch6f8g1pk3io",
+      "container_id": "9536846ec476",
+      "passed": true
+    }
+  }
+]

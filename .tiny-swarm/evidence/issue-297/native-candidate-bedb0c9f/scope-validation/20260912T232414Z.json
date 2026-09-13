@@ -1,0 +1,43 @@
+[
+  {
+    "script": "rc1_update_execute.py",
+    "arguments": [
+      "update",
+      "--env-file",
+      "<protected-original-env>",
+      "--approve-live"
+    ],
+    "exit_code": 1,
+    "expected_exit_code": 0,
+    "result": {
+      "operation": "update",
+      "started_at": "2026-09-12T23:24:14.473739Z",
+      "finished_at": "2026-09-12T23:24:24.704420Z",
+      "duration_seconds": 10.231,
+      "exit_code": 1,
+      "summary": {
+        "result": "failed_to_verify",
+        "status": "failed_to_verify",
+        "message": "Update did not establish target convergence; original recovery state is retained.",
+        "reason": null,
+        "phase_results": {
+          "count": 0,
+          "failed": []
+        },
+        "verification": "failed_to_verify",
+        "mutation": "failed_to_verify",
+        "result_count": 1,
+        "verification_results": [
+          {
+            "status": "failed_to_verify",
+            "target_id": "update:jenkins:jenkins"
+          }
+        ]
+      },
+      "phase": "update",
+      "candidate": "3b68ca9524d07a9258f7bd715b0a6536b027053c",
+      "host": "7.0.0-31-generic",
+      "python": "3.12.14"
+    }
+  }
+]

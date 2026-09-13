@@ -1,0 +1,26 @@
+{
+  "phase": "fresh-post-reconcile",
+  "timestamp": "2026-09-13T00:24:00.813509+00:00",
+  "candidate": "c921e69533450fba86d908e2990c106bef87769a",
+  "script_sha256": "be04670e115b8bf4e1c6d798cb5b20009b2f5ab22e2bd1574447de416221f09d",
+  "fixture": "tsw-rc1-continuity-20260913",
+  "original_build": 1,
+  "artifact_sha256": "ab8559f89c39c3bce463d214dd92efbf79d8bd129ed1f1fddd33a50bef5aecab",
+  "preserved": {
+    "service_ids": true,
+    "node_ids": true,
+    "cluster_id": true,
+    "home": true,
+    "storage_node": true,
+    "private_home_configuration": true,
+    "private_job_inventory": true,
+    "fixture_configuration": true,
+    "fixture_artifact": true
+  },
+  "changed_service_configurations": [],
+  "desired_image": "127.0.0.1:13500/jenkins:0.2.0",
+  "running_image_id": "sha256:9dcfd7c5f3b33436b85e4eae38dc5b4ae7aea51b4478effc165e0e1449278ef3",
+  "task_id": "7fx84rnc7932",
+  "container_id": "fb90535f3b49",
+  "passed": true
+}

@@ -1,0 +1,26 @@
+{
+  "phase": "fresh-post-update",
+  "timestamp": "2026-09-13T00:25:14.657303+00:00",
+  "candidate": "c921e69533450fba86d908e2990c106bef87769a",
+  "script_sha256": "be04670e115b8bf4e1c6d798cb5b20009b2f5ab22e2bd1574447de416221f09d",
+  "fixture": "tsw-rc1-continuity-20260913",
+  "original_build": 1,
+  "artifact_sha256": "ab8559f89c39c3bce463d214dd92efbf79d8bd129ed1f1fddd33a50bef5aecab",
+  "preserved": {
+    "service_ids": true,
+    "node_ids": true,
+    "cluster_id": true,
+    "home": true,
+    "storage_node": true,
+    "private_home_configuration": true,
+    "private_job_inventory": true,
+    "fixture_configuration": true,
+    "fixture_artifact": true
+  },
+  "changed_service_configurations": [],
+  "desired_image": "127.0.0.1:13500/jenkins:rc1-proof-b-20260913",
+  "running_image_id": "sha256:33810bc7d2ee4bf57e55d5c34abf4f2c0d8a9ca8f98b25f214e1e9509e518697",
+  "task_id": "uuc054bpuhpa",
+  "container_id": "4e9e448c5147",
+  "passed": true
+}

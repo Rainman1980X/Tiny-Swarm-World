@@ -1,0 +1,260 @@
+{
+  "candidate": "c921e69533450fba86d908e2990c106bef87769a",
+  "started_at": "2026-09-13T00:16:06.302751+00:00",
+  "operations": [
+    {
+      "phase": "update",
+      "exit_code": 0,
+      "result": {
+        "operation": "update",
+        "started_at": "2026-09-13T00:16:06.367791Z",
+        "finished_at": "2026-09-13T00:16:19.740661Z",
+        "duration_seconds": 13.373,
+        "exit_code": 0,
+        "summary": {
+          "result": "passed",
+          "status": "completed",
+          "message": "update workflow completed.",
+          "reason": null,
+          "phase_results": {
+            "count": 0,
+            "failed": []
+          },
+          "verification": "verified",
+          "mutation": "converged",
+          "result_count": 2,
+          "verification_results": [],
+          "typed_update_reasons": []
+        },
+        "phase": "update",
+        "candidate": "c921e69533450fba86d908e2990c106bef87769a",
+        "host": "6.18.33.2-microsoft-standard-WSL2",
+        "python": "3.12.3"
+      }
+    },
+    {
+      "phase": "fresh-idempotency-update",
+      "exit_code": 0,
+      "result": {
+        "phase": "fresh-idempotency-update",
+        "timestamp": "2026-09-13T00:16:23.460893+00:00",
+        "candidate": "c921e69533450fba86d908e2990c106bef87769a",
+        "script_sha256": "737f232b19c4d941ab7c7682147a02b7675aa04ec18a85e683973ae96c524ef8",
+        "fixture": "tsw-rc1-continuity-20260913",
+        "original_build": 1,
+        "artifact_sha256": "ab8559f89c39c3bce463d214dd92efbf79d8bd129ed1f1fddd33a50bef5aecab",
+        "preserved": {
+          "service_ids": true,
+          "node_ids": true,
+          "cluster_id": true,
+          "home": true,
+          "storage_node": true,
+          "private_home_configuration": true,
+          "private_job_inventory": true,
+          "fixture_configuration": true,
+          "fixture_artifact": true
+        },
+        "changed_service_configurations": [],
+        "desired_image": "127.0.0.1:13500/jenkins:rc1-proof-b-20260913",
+        "running_image_id": "sha256:f5fe22e5563e0be131bf2b0ca4fbc68d581f4f396b2793377548aa540a254725",
+        "task_id": "kk4dyfsjc66l",
+        "container_id": "fc5886dd0d63",
+        "passed": true
+      }
+    },
+    {
+      "phase": "repeat-update",
+      "exit_code": 0,
+      "result": {
+        "operation": "update",
+        "started_at": "2026-09-13T00:16:23.585655Z",
+        "finished_at": "2026-09-13T00:16:24.461415Z",
+        "duration_seconds": 0.876,
+        "exit_code": 0,
+        "summary": {
+          "result": "passed",
+          "status": "completed",
+          "message": "update workflow completed.",
+          "reason": null,
+          "phase_results": {
+            "count": 0,
+            "failed": []
+          },
+          "verification": "verified",
+          "mutation": "no_op",
+          "result_count": 1,
+          "verification_results": [],
+          "typed_update_reasons": []
+        },
+        "phase": "repeat-update",
+        "candidate": "c921e69533450fba86d908e2990c106bef87769a",
+        "host": "6.18.33.2-microsoft-standard-WSL2",
+        "python": "3.12.3"
+      }
+    },
+    {
+      "phase": "fresh-idempotency-repeat-update",
+      "exit_code": 0,
+      "result": {
+        "phase": "fresh-idempotency-repeat-update",
+        "timestamp": "2026-09-13T00:16:26.945232+00:00",
+        "candidate": "c921e69533450fba86d908e2990c106bef87769a",
+        "script_sha256": "737f232b19c4d941ab7c7682147a02b7675aa04ec18a85e683973ae96c524ef8",
+        "fixture": "tsw-rc1-continuity-20260913",
+        "original_build": 1,
+        "artifact_sha256": "ab8559f89c39c3bce463d214dd92efbf79d8bd129ed1f1fddd33a50bef5aecab",
+        "preserved": {
+          "service_ids": true,
+          "node_ids": true,
+          "cluster_id": true,
+          "home": true,
+          "storage_node": true,
+          "private_home_configuration": true,
+          "private_job_inventory": true,
+          "fixture_configuration": true,
+          "fixture_artifact": true
+        },
+        "changed_service_configurations": [],
+        "desired_image": "127.0.0.1:13500/jenkins:rc1-proof-b-20260913",
+        "running_image_id": "sha256:f5fe22e5563e0be131bf2b0ca4fbc68d581f4f396b2793377548aa540a254725",
+        "task_id": "kk4dyfsjc66l",
+        "container_id": "fc5886dd0d63",
+        "passed": true
+      }
+    },
+    {
+      "phase": "recovery",
+      "exit_code": 0,
+      "result": {
+        "operation": "recovery",
+        "started_at": "2026-09-13T00:16:27.060687Z",
+        "finished_at": "2026-09-13T00:16:40.225881Z",
+        "duration_seconds": 13.165,
+        "exit_code": 0,
+        "summary": {
+          "result": "passed",
+          "status": "completed",
+          "message": "update workflow completed.",
+          "reason": null,
+          "phase_results": {
+            "count": 0,
+            "failed": []
+          },
+          "verification": "verified",
+          "mutation": "converged",
+          "result_count": 2,
+          "verification_results": [],
+          "typed_update_reasons": []
+        },
+        "phase": "recovery",
+        "candidate": "c921e69533450fba86d908e2990c106bef87769a",
+        "host": "6.18.33.2-microsoft-standard-WSL2",
+        "python": "3.12.3"
+      }
+    },
+    {
+      "phase": "fresh-idempotency-recovery",
+      "exit_code": 0,
+      "result": {
+        "phase": "fresh-idempotency-recovery",
+        "timestamp": "2026-09-13T00:16:43.472546+00:00",
+        "candidate": "c921e69533450fba86d908e2990c106bef87769a",
+        "script_sha256": "737f232b19c4d941ab7c7682147a02b7675aa04ec18a85e683973ae96c524ef8",
+        "fixture": "tsw-rc1-continuity-20260913",
+        "original_build": 1,
+        "artifact_sha256": "ab8559f89c39c3bce463d214dd92efbf79d8bd129ed1f1fddd33a50bef5aecab",
+        "preserved": {
+          "service_ids": true,
+          "node_ids": true,
+          "cluster_id": true,
+          "home": true,
+          "storage_node": true,
+          "private_home_configuration": true,
+          "private_job_inventory": true,
+          "fixture_configuration": true,
+          "fixture_artifact": true
+        },
+        "changed_service_configurations": [],
+        "desired_image": "127.0.0.1:13500/jenkins:0.2.0",
+        "running_image_id": "sha256:468ac52db3f4da845eabe25fc941ac1c84988a3eb950e036d0c20ae863164545",
+        "task_id": "pouof2mf5ers",
+        "container_id": "fd78063b1729",
+        "passed": true
+      }
+    },
+    {
+      "phase": "repeat-recovery",
+      "exit_code": 0,
+      "result": {
+        "operation": "recovery",
+        "started_at": "2026-09-13T00:16:43.607027Z",
+        "finished_at": "2026-09-13T00:16:44.523232Z",
+        "duration_seconds": 0.916,
+        "exit_code": 0,
+        "summary": {
+          "result": "passed",
+          "status": "completed",
+          "message": "update workflow completed.",
+          "reason": null,
+          "phase_results": {
+            "count": 0,
+            "failed": []
+          },
+          "verification": "verified",
+          "mutation": "no_op",
+          "result_count": 1,
+          "verification_results": [],
+          "typed_update_reasons": []
+        },
+        "phase": "repeat-recovery",
+        "candidate": "c921e69533450fba86d908e2990c106bef87769a",
+        "host": "6.18.33.2-microsoft-standard-WSL2",
+        "python": "3.12.3"
+      }
+    },
+    {
+      "phase": "fresh-idempotency-repeat-recovery",
+      "exit_code": 0,
+      "result": {
+        "phase": "fresh-idempotency-repeat-recovery",
+        "timestamp": "2026-09-13T00:16:47.010421+00:00",
+        "candidate": "c921e69533450fba86d908e2990c106bef87769a",
+        "script_sha256": "737f232b19c4d941ab7c7682147a02b7675aa04ec18a85e683973ae96c524ef8",
+        "fixture": "tsw-rc1-continuity-20260913",
+        "original_build": 1,
+        "artifact_sha256": "ab8559f89c39c3bce463d214dd92efbf79d8bd129ed1f1fddd33a50bef5aecab",
+        "preserved": {
+          "service_ids": true,
+          "node_ids": true,
+          "cluster_id": true,
+          "home": true,
+          "storage_node": true,
+          "private_home_configuration": true,
+          "private_job_inventory": true,
+          "fixture_configuration": true,
+          "fixture_artifact": true
+        },
+        "changed_service_configurations": [],
+        "desired_image": "127.0.0.1:13500/jenkins:0.2.0",
+        "running_image_id": "sha256:468ac52db3f4da845eabe25fc941ac1c84988a3eb950e036d0c20ae863164545",
+        "task_id": "pouof2mf5ers",
+        "container_id": "fd78063b1729",
+        "passed": true
+      }
+    }
+  ],
+  "comparisons": {
+    "update_original_plan_preserved": true,
+    "repeat-update_original_plan_preserved": true,
+    "repeat-update_reported_no_op": true,
+    "repeat-update_same_task": true,
+    "repeat-update_same_container": true,
+    "recovery_original_plan_preserved": true,
+    "repeat-recovery_original_plan_preserved": true,
+    "repeat-recovery_reported_no_op": true,
+    "repeat-recovery_same_task": true,
+    "repeat-recovery_same_container": true
+  },
+  "passed": true,
+  "finished_at": "2026-09-13T00:16:47.087753+00:00"
+}

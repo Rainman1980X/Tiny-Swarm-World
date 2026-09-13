@@ -1,44 +1,26 @@
 # RC1-R01 Requirement Matrix
 
-Issue: #297 — Implement and verify the canonical Classic update workflow
-Source: https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/issues/297
-Parent: #294; native/WSL consumers: #298/#299; Nightly: #301; final audit: #302.
-Repair publication branch: `fix/rc1-r01-pr-20260913`
-Base: `1bac487e6ca1e86b1df6d813ed58037b1cbe253a` (`origin/main`).
+Issue: [#297](https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/issues/297).
+Frozen product candidate: `c921e69533450fba86d908e2990c106bef87769a`. Status: `DONE`; audit: `PASS`.
 
-Status: `INCOMPLETE`. The existing requirement IDs below remain authoritative.
-This publication assembles only the four explicitly selected R01 commits;
-current-branch scoped verification passed. Historical local results do
-not establish live acceptance or close #297/#294. GitHub currently reports
-#297 closed; that administrative state is not evidence of completed R01 gates.
+The existing twelve requirement IDs are retained. Original independent findings
+and repair history remain in `historical-repair-publication/`.
 
-## Repair findings mapped before assembly
-
-| ID | Requirement / owning rows | Source evidence to assemble | Verification | Status |
+| ID | Requirement | Implementation evidence | Verification evidence | Status |
 |---|---|---|---|---|
-| R01-F01 | Qualify actual runtime source and active task image/state convergence (R01-04/05/07/09). | `ca71a3d6` runtime port, adapter and workflow | Source review; runtime/workflow/adapter regressions | VERIFIED_LOCAL |
-| R01-F02 | Preserve original recovery metadata, including repeated recovery after completed rollback (R01-06/09). | `ca71a3d6`, `a6baac14` | Repeat recovery and forward-failure regressions | VERIFIED_LOCAL |
-| R01-F03 | Reject corrupt state fields and unknown task states before mutation or history filtering (R01-05/06/09). | `a6baac14` | Strict schema and malformed observation regressions | VERIFIED_LOCAL |
-| R01-F04 | Require complete authenticated runner evidence and truthful failure propagation (R01-10/11/12). | `7083e1f7` | Canonical runner and authenticated acceptance runner tests | VERIFIED_LOCAL |
-| R01-F05 | Explain static preview, observed apply, metadata limits and explicit configuration intent (R01-01/06/12). | `524e7c4f` | Source/text consistency and CLI regressions | VERIFIED_LOCAL |
+| R01-01 | Define update versus reconcile and a safe reversible scenario. | ADR classic update contract; same-binary marker image A to distinct B. | ADR, marker-transition.json and focused update tests. | VERIFIED |
+| R01-02 | Canonical command has help and argument validation. | Existing platform update CLI. | tests.test_classic_update_cli; full candidate quality. | VERIFIED |
+| R01-03 | Mutating update requires explicit live consent and truthful refusal. | Existing CLI guard and protected canonical runner. | CLI consent regressions and blocked hosted run in issue-301. | VERIFIED |
+| R01-04 | Preview validates intended transition before mutation. | Typed plans, configured membership and live runtime preflight. | Preview, source mismatch and blocked-transition regressions. | VERIFIED |
+| R01-05 | Unsupported, malformed or unavailable transitions do not mutate. | Runtime port, strict adapter schema and typed errors. | Malformed task/state, unknown status and invalid-argument regressions. | VERIFIED |
+| R01-06 | Executable state protection and original-direction recovery. | Atomic private update plan; platform update --recover; no service-data migration. | Both-host recovery, repeat-recovery and original-plan equality artifacts. | VERIFIED |
+| R01-07 | Apply and verify supported change on healthy WSL2 and native Linux. | Existing deployment ports and runtime task convergence. | Hosted WSL 34725969899; native full c921 lifecycle and bedb scoped run. | VERIFIED |
+| R01-08 | Preserve identities, persistent data, unrelated configuration and credentials. | Selected Jenkins stack/image boundary; no global Infisical re-bootstrap. | Both-host continuity booleans; no changed unrelated ServiceSpecs; all seven API checks. | VERIFIED |
+| R01-09 | Repeated updates are idempotent and failed rollout recovers safely. | Original recovery plan retained across repeat/no-op and failure. | WSL fresh-idempotency.json; native scopefix-comparison.json; both typed rollout_failed sequences. | VERIFIED |
+| R01-10 | Canonical post-update service/browser/API acceptance on both hosts. | Existing Classic authenticated acceptance runner. | Each update/recovery phase has 25 live tests, including nine browser tests, plus seven API checks; zero errors/failures/skips. | VERIFIED |
+| R01-11 | Host lifecycle and Classic Nightly use the same command. | tools/live/run_classic_acceptance.py and nightly-classic-live.yml. | Actual 14-operation hosted WSL and manual native chains; runner contract tests. | VERIFIED |
+| R01-12 | Regression, documentation and redacted live evidence complete. | Merged PRs 333/334/335, ADR and usage update instructions; checksummed packages. | 2066-test candidate quality, exact candidate CI/Sonar and this completion audit. | VERIFIED |
 
-## Original acceptance requirements
-
-| ID | Requirement | Type | Implementation evidence | Verification evidence | Status |
-|---|---|---|---|---|---|
-| R01-01 | Define update versus reconcile and select one safe reversible update scenario. | architecture / governance | `documentation/arc42/09_decisions/adr-classic-update-contract.adoc` | Three-Amigos decision; focused contract tests | VERIFIED_LOCAL |
-| R01-02 | Provide one canonical update command with help and argument validation. | functional | CLI `platform update` | CLI help and invalid-argument tests | VERIFIED_LOCAL |
-| R01-03 | Require live consent for a mutating update and report refusal clearly. | security / resilience | Existing CLI consent guard applied to update | CLI consent tests; refusal smoke check | VERIFIED_LOCAL |
-| R01-04 | Preview and validate the intended transition before mutation. | functional | Update plan and preflight validation | Preview and blocked-transition tests; preview smoke check | VERIFIED_LOCAL |
-| R01-05 | Reject unsupported transitions without downstream mutation. | resilience | Update transition validator | Unsupported-transition tests | VERIFIED_LOCAL |
-| R01-06 | Define executable backup/state protection and rollback/recovery behavior. | resilience | Private JSON state store, rollback plan and `platform update --recover` | State-store, workflow recovery and CLI tests | VERIFIED_LOCAL |
-| R01-07 | Apply and verify a supported change on healthy WSL2 and native Linux. | live | Existing deployment ports consumed by update workflow | First WSL update/continuity passed at `a2ff63fe`; complete WSL/native scenarios pending | OPEN |
-| R01-08 | Preserve identities, persistent data, unrelated configuration and effective credentials. | resilience / security | Update scope limited to selected stack/image; no reset/bootstrap path | Composition and workflow tests; live evidence pending | VERIFIED_LOCAL_PENDING_LIVE |
-| R01-09 | Make repeated updates idempotent and recover interrupted updates safely. | resilience | Observed source/target convergence, preserved original transition and recovery | Repeat/failure/recovery tests; live evidence pending | VERIFIED_LOCAL_PENDING_LIVE |
-| R01-10 | Run post-update service/browser/API acceptance on both hosts. | live | Canonical runner phase contract | Authorized WSL2/native runs pending | BLOCKED |
-| R01-11 | Consume the same command from host lifecycle packages and Classic Nightly. | integration | `tools/live/run_classic_acceptance.py`, `.github/workflows/nightly-classic-live.yml` | Static command consistency test; runner execution pending | VERIFIED_LOCAL_PENDING_LIVE |
-| R01-12 | Complete regression, documentation and redacted live evidence. | quality / documentation | Issue evidence package and operator guide | Full local quality gate; live evidence pending | VERIFIED_LOCAL_PENDING_LIVE |
-
-R01 is `INCOMPLETE`: first WSL update evidence is partial, not cross-host
-acceptance. See `test_results.md` for inspected artifacts and pending gates.
-Main owns further consented execution, final evidence and merge readiness.
+R01-F01 through R01-F05 are resolved by the mapped runtime observer, original
+recovery-state preservation, strict schema, complete runner summaries and ADR
+changes. The actual cross-host evidence above closes their former live gaps.
