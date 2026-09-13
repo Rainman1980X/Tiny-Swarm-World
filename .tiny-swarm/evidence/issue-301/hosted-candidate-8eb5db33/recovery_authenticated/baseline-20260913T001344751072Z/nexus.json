@@ -1,0 +1,8 @@
+{
+  "evidence_kind": "routed_browser_e2e_result",
+  "redacted_reason": "",
+  "result": "passed",
+  "route_name": "nexus",
+  "status": "passed",
+  "url": "https://nexus.tsw.local"
+}

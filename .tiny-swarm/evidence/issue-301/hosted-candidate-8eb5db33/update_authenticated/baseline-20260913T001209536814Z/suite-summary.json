@@ -1,0 +1,94 @@
+{
+  "evidence_kind": "routed_browser_e2e_suite_summary",
+  "result": "passed",
+  "route_results": [
+    {
+      "evidence_kind": "routed_browser_e2e_result",
+      "redacted_reason": "",
+      "result": "passed",
+      "route_name": "infisical",
+      "status": "passed",
+      "url": "https://infisical.tsw.local"
+    },
+    {
+      "evidence_kind": "routed_browser_e2e_result",
+      "redacted_reason": "",
+      "result": "passed",
+      "route_name": "jenkins",
+      "status": "passed",
+      "url": "https://jenkins.tsw.local"
+    },
+    {
+      "evidence_kind": "routed_browser_e2e_result",
+      "redacted_reason": "",
+      "result": "passed",
+      "route_name": "nexus",
+      "status": "passed",
+      "url": "https://nexus.tsw.local"
+    },
+    {
+      "evidence_kind": "routed_browser_e2e_result",
+      "redacted_reason": "",
+      "result": "passed",
+      "route_name": "portainer",
+      "status": "passed",
+      "url": "https://portainer.tsw.local"
+    },
+    {
+      "evidence_kind": "routed_browser_e2e_result",
+      "redacted_reason": "",
+      "result": "passed",
+      "route_name": "pulsar-admin-api",
+      "status": "passed",
+      "url": "https://pulsar-api.tsw.local/admin/v2/clusters"
+    },
+    {
+      "evidence_kind": "routed_browser_e2e_result",
+      "redacted_reason": "",
+      "result": "passed",
+      "route_name": "pulsar-manager",
+      "status": "passed",
+      "url": "https://pulsar.tsw.local"
+    },
+    {
+      "evidence_kind": "routed_browser_e2e_result",
+      "redacted_reason": "",
+      "result": "passed",
+      "route_name": "service-access",
+      "status": "passed",
+      "url": "https://service-access.tsw.local"
+    },
+    {
+      "evidence_kind": "routed_browser_e2e_result",
+      "redacted_reason": "",
+      "result": "passed",
+      "route_name": "sonarqube",
+      "status": "passed",
+      "url": "https://sonarqube.tsw.local"
+    },
+    {
+      "evidence_kind": "routed_browser_e2e_result",
+      "redacted_reason": "",
+      "result": "passed",
+      "route_name": "swagger",
+      "status": "passed",
+      "url": "https://swagger.tsw.local"
+    }
+  ],
+  "status_matrix": {
+    "failed": [],
+    "missing": [],
+    "passed": [
+      "infisical",
+      "jenkins",
+      "nexus",
+      "portainer",
+      "pulsar-admin-api",
+      "pulsar-manager",
+      "service-access",
+      "sonarqube",
+      "swagger"
+    ],
+    "skipped": []
+  }
+}

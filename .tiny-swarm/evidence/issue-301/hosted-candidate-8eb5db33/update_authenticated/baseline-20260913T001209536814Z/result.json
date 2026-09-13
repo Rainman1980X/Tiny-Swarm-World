@@ -1,0 +1,270 @@
+{
+  "acceptance_summary": {
+    "api_checks": 7,
+    "browser_tests": 9,
+    "errors": 0,
+    "expected_api_checks": 7,
+    "expected_browser_tests": 9,
+    "failure_types": [],
+    "failures": 0,
+    "live_tests": 25,
+    "passed": true,
+    "readiness_after_tests": 8,
+    "readiness_before_tests": 8,
+    "schema": "classic_authenticated_acceptance_v1",
+    "skipped": 0
+  },
+  "artifacts": "value-free JSON only; screenshots, traces and raw runner output excluded",
+  "cleanup": "browser sessions closed; no service configuration or credential changes",
+  "command": "python -m tests.e2e.classic.run_authenticated_acceptance_live --approve-live --phase baseline",
+  "consent": "explicit_operator_complete_issue_run",
+  "dirty_checkout": false,
+  "duration_seconds": 79.552,
+  "exit_code": 0,
+  "finished_at_utc": "2026-09-13T00:13:29.088429+00:00",
+  "host": "wsl2",
+  "inventory": [
+    {
+      "api_authentication_required": true,
+      "credential_reference": "platform/infisical",
+      "failure_signal": "explicit_invalid_login_rejection_and_failed_authenticated_access",
+      "principal": "configured_login_email",
+      "route": "infisical",
+      "ui_login_required": true
+    },
+    {
+      "api_authentication_required": true,
+      "credential_reference": "platform/jenkins",
+      "failure_signal": "explicit_invalid_login_rejection_and_failed_authenticated_access",
+      "principal": "admin",
+      "route": "jenkins",
+      "ui_login_required": true
+    },
+    {
+      "api_authentication_required": true,
+      "credential_reference": "platform/nexus",
+      "failure_signal": "explicit_invalid_login_rejection_and_failed_authenticated_access",
+      "principal": "admin",
+      "route": "nexus",
+      "ui_login_required": true
+    },
+    {
+      "api_authentication_required": true,
+      "credential_reference": "platform/portainer",
+      "failure_signal": "explicit_invalid_login_rejection_and_failed_authenticated_access",
+      "principal": "admin",
+      "route": "portainer",
+      "ui_login_required": true
+    },
+    {
+      "api_authentication_required": true,
+      "credential_reference": "platform/pulsar",
+      "failure_signal": "explicit_invalid_login_rejection_and_failed_authenticated_access",
+      "principal": "admin",
+      "route": "pulsar-admin-api",
+      "ui_login_required": false
+    },
+    {
+      "api_authentication_required": true,
+      "credential_reference": "platform/pulsar-manager",
+      "failure_signal": "explicit_invalid_login_rejection_and_failed_authenticated_access",
+      "principal": "admin",
+      "route": "pulsar-manager",
+      "ui_login_required": true
+    },
+    {
+      "api_authentication_required": false,
+      "credential_reference": "",
+      "failure_signal": "explicit_invalid_login_rejection_and_failed_authenticated_access",
+      "principal": "",
+      "route": "service-access",
+      "ui_login_required": false
+    },
+    {
+      "api_authentication_required": true,
+      "credential_reference": "platform/sonarqube",
+      "failure_signal": "explicit_invalid_login_rejection_and_failed_authenticated_access",
+      "principal": "admin",
+      "route": "sonarqube",
+      "ui_login_required": true
+    },
+    {
+      "api_authentication_required": false,
+      "credential_reference": "",
+      "failure_signal": "explicit_invalid_login_rejection_and_failed_authenticated_access",
+      "principal": "",
+      "route": "swagger",
+      "ui_login_required": false
+    }
+  ],
+  "phase": "baseline",
+  "profile": "service-access",
+  "readiness_after": {
+    "duration_seconds": 1.253,
+    "errors": [],
+    "failure_types": [],
+    "failures": [],
+    "passed": true,
+    "skipped": [],
+    "tests": 8
+  },
+  "readiness_before": {
+    "duration_seconds": 1.167,
+    "errors": [],
+    "failure_types": [],
+    "failures": [],
+    "passed": true,
+    "skipped": [],
+    "tests": 8
+  },
+  "restart": "externally orchestrated; this phase alone does not prove task replacement",
+  "revision": "8eb5db338aed9965a49ed6879198fd1053b97dcc",
+  "routes": [
+    {
+      "api": {
+        "authenticated_access_verified": true,
+        "invalid_rejected": true,
+        "redacted_failure_reason": ""
+      },
+      "browser": {
+        "duration_seconds": 13.098,
+        "errors": [],
+        "failure_types": [],
+        "failures": [],
+        "passed": true,
+        "skipped": [],
+        "tests": 1
+      },
+      "route": "infisical"
+    },
+    {
+      "api": {
+        "authenticated_access_verified": true,
+        "invalid_rejected": true,
+        "redacted_failure_reason": ""
+      },
+      "browser": {
+        "duration_seconds": 8.717,
+        "errors": [],
+        "failure_types": [],
+        "failures": [],
+        "passed": true,
+        "skipped": [],
+        "tests": 1
+      },
+      "route": "jenkins"
+    },
+    {
+      "api": {
+        "authenticated_access_verified": true,
+        "invalid_rejected": true,
+        "redacted_failure_reason": ""
+      },
+      "browser": {
+        "duration_seconds": 14.15,
+        "errors": [],
+        "failure_types": [],
+        "failures": [],
+        "passed": true,
+        "skipped": [],
+        "tests": 1
+      },
+      "route": "nexus"
+    },
+    {
+      "api": {
+        "authenticated_access_verified": true,
+        "invalid_rejected": true,
+        "redacted_failure_reason": ""
+      },
+      "browser": {
+        "duration_seconds": 10.161,
+        "errors": [],
+        "failure_types": [],
+        "failures": [],
+        "passed": true,
+        "skipped": [],
+        "tests": 1
+      },
+      "route": "portainer"
+    },
+    {
+      "api": {
+        "authenticated_access_verified": true,
+        "invalid_rejected": true,
+        "redacted_failure_reason": ""
+      },
+      "browser": {
+        "duration_seconds": 3.839,
+        "errors": [],
+        "failure_types": [],
+        "failures": [],
+        "passed": true,
+        "skipped": [],
+        "tests": 1
+      },
+      "route": "pulsar-admin-api"
+    },
+    {
+      "api": {
+        "authenticated_access_verified": true,
+        "invalid_rejected": true,
+        "redacted_failure_reason": ""
+      },
+      "browser": {
+        "duration_seconds": 8.469,
+        "errors": [],
+        "failure_types": [],
+        "failures": [],
+        "passed": true,
+        "skipped": [],
+        "tests": 1
+      },
+      "route": "pulsar-manager"
+    },
+    {
+      "browser": {
+        "duration_seconds": 3.478,
+        "errors": [],
+        "failure_types": [],
+        "failures": [],
+        "passed": true,
+        "skipped": [],
+        "tests": 1
+      },
+      "route": "service-access"
+    },
+    {
+      "api": {
+        "authenticated_access_verified": true,
+        "invalid_rejected": true,
+        "redacted_failure_reason": ""
+      },
+      "browser": {
+        "duration_seconds": 10.523,
+        "errors": [],
+        "failure_types": [],
+        "failures": [],
+        "passed": true,
+        "skipped": [],
+        "tests": 1
+      },
+      "route": "sonarqube"
+    },
+    {
+      "browser": {
+        "duration_seconds": 3.438,
+        "errors": [],
+        "failure_types": [],
+        "failures": [],
+        "passed": true,
+        "skipped": [],
+        "tests": 1
+      },
+      "route": "swagger"
+    }
+  ],
+  "started_at_utc": "2026-09-13T00:12:09.536814+00:00",
+  "status": "LIVE_VERIFIED",
+  "storage_qualified_before_browser": true
+}

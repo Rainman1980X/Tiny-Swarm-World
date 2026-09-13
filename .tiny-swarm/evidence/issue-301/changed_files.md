@@ -1,12 +1,8 @@
 # RC1-R05 Changed Files
 
-- tools/live/run_classic_acceptance.py
-- src/tiny_swarm_world/application/services/platform/workflow/update.py
-- tests/test_ci_workflow_contract.py
-- tests/application/services/platform/test_classic_update_workflow.py
-- tests/tools/test_secure_runtime_paths.py
-- src/tiny_swarm_world/infrastructure/adapters/host/linux_host_signal_reader.py
-- tests/infrastructure/adapters/host/test_host_environment_detector.py
-- .github/workflows/nightly-classic-live.yml
-- documentation/evidence/wsl2-secure-live-path.md
-- .tiny-swarm/evidence/issue-301/
+- .tiny-swarm/evidence/issue-301/: seven completion documents plus the checksummed hosted artifact package.
+- .codex/evidence/slice-RC1-E05-final-distribution.md and slice-RC1-E05-final-consolidation.md: scope and review records.
+- documentation/release/rc1-decision.md: only the protected-runner row now references the current fresh success and controlled rejection.
+
+The overall RC1 decision is unchanged. No source, tests, runtime configuration,
+workflow, security policy or credential file is modified by this PR.

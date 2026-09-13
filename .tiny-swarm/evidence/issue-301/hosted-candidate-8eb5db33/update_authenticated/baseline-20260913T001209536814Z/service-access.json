@@ -1,0 +1,8 @@
+{
+  "evidence_kind": "routed_browser_e2e_result",
+  "redacted_reason": "",
+  "result": "passed",
+  "route_name": "service-access",
+  "status": "passed",
+  "url": "https://service-access.tsw.local"
+}
