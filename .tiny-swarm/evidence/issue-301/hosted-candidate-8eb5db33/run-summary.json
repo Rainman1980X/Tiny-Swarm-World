@@ -1,0 +1,374 @@
+{
+  "consent_state": "LIVE_APPROVED",
+  "credential_rotation": {
+    "reference_present": false,
+    "reference_value": "not_recorded",
+    "status": "not_applicable_test_only"
+  },
+  "evidence_storage": {
+    "accepted": "true",
+    "directory": "true",
+    "exists": "true",
+    "filesystem_classification": "wsl_linux",
+    "group_verified": "true",
+    "mode_verified": "true",
+    "owner_verified": "true",
+    "parent_exists": "true",
+    "parent_group_verified": "true",
+    "parent_mode_verified": "true",
+    "parent_owner_verified": "true",
+    "purpose": "evidence_directory",
+    "reasons": "",
+    "regular_file": "false"
+  },
+  "execution_profile": "disposable_test",
+  "finished_at_utc": "2026-09-13T00:15:06.731016Z",
+  "host": {
+    "class": "wsl2",
+    "kernel_release": "6.18.33.2-microsoft-standard-WSL2",
+    "pid1": "systemd",
+    "systemd_directory_present": true
+  },
+  "host_class": "wsl2",
+  "operations": [
+    {
+      "command": "python3 tools/install_debugger.py --live",
+      "duration_seconds": 0.135,
+      "evidence_directory": "diagnostics",
+      "exit_code": 0,
+      "finished_at_utc": "2026-09-12T23:39:18.255810Z",
+      "operation": "diagnostics",
+      "started_at_utc": "2026-09-12T23:39:18.120393Z",
+      "summary": {
+        "result": "completed_without_structured_summary"
+      }
+    },
+    {
+      "command": "bash tsw --live --approve-live --json setup run",
+      "duration_seconds": 1723.846,
+      "evidence_directory": "setup",
+      "exit_code": 0,
+      "finished_at_utc": "2026-09-13T00:08:02.105362Z",
+      "operation": "setup",
+      "started_at_utc": "2026-09-12T23:39:18.259532Z",
+      "summary": {
+        "message": "setup run completed all configured phases.",
+        "mutation": null,
+        "phase_results": {
+          "count": 18,
+          "failed": []
+        },
+        "reason": "preflight, platform, artifacts, deployment, and verification phases completed",
+        "result": "passed",
+        "result_count": 0,
+        "status": "completed",
+        "verification": null,
+        "verification_results": []
+      }
+    },
+    {
+      "command": "bash tsw --json platform verify",
+      "duration_seconds": 2.957,
+      "evidence_directory": "platform_verify",
+      "exit_code": 0,
+      "finished_at_utc": "2026-09-13T00:08:05.075346Z",
+      "operation": "platform_verify",
+      "started_at_utc": "2026-09-13T00:08:02.118369Z",
+      "summary": {
+        "message": "verify workflow completed.",
+        "mutation": "not_applicable",
+        "phase_results": {
+          "count": 0,
+          "failed": []
+        },
+        "reason": null,
+        "result": "passed",
+        "result_count": 6,
+        "status": "completed",
+        "verification": "verified",
+        "verification_results": []
+      }
+    },
+    {
+      "command": "env PYTHONPATH=src TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest tests.e2e.classic.test_post_install_browser_live.PostInstallBrowserLiveTest",
+      "duration_seconds": 4.314,
+      "evidence_directory": "classic_e2e",
+      "exit_code": 0,
+      "finished_at_utc": "2026-09-13T00:08:09.393163Z",
+      "operation": "classic_e2e",
+      "started_at_utc": "2026-09-13T00:08:05.079076Z",
+      "summary": {
+        "expected_tests": 8,
+        "failure_types": [],
+        "reason": null,
+        "result": "passed",
+        "runtime_seconds": 3.91,
+        "skipped": 0,
+        "tests": 8
+      }
+    },
+    {
+      "command": "env PYTHONPATH=src python3 -m tests.e2e.classic.run_authenticated_acceptance_live --approve-live --phase baseline --env-file <protected>",
+      "duration_seconds": 134.594,
+      "evidence_directory": "classic_authenticated",
+      "exit_code": 0,
+      "finished_at_utc": "2026-09-13T00:10:23.991285Z",
+      "operation": "classic_authenticated",
+      "started_at_utc": "2026-09-13T00:08:09.397294Z",
+      "summary": {
+        "api_checks": 7,
+        "browser_tests": 9,
+        "errors": 0,
+        "expected_api_checks": 7,
+        "expected_browser_tests": 9,
+        "failure_types": [],
+        "failures": 0,
+        "live_tests": 25,
+        "readiness_after_tests": 8,
+        "readiness_before_tests": 8,
+        "reason": null,
+        "result": "passed",
+        "skipped": 0
+      }
+    },
+    {
+      "command": "bash tsw --live --approve-live --json platform reconcile",
+      "duration_seconds": 1.257,
+      "evidence_directory": "reconcile",
+      "exit_code": 0,
+      "finished_at_utc": "2026-09-13T00:10:25.252033Z",
+      "operation": "reconcile",
+      "started_at_utc": "2026-09-13T00:10:23.995081Z",
+      "summary": {
+        "message": "reconcile workflow completed.",
+        "mutation": "no_op",
+        "phase_results": {
+          "count": 0,
+          "failed": []
+        },
+        "reason": null,
+        "result": "passed",
+        "result_count": 3,
+        "status": "completed",
+        "verification": "verified",
+        "verification_results": []
+      }
+    },
+    {
+      "command": "env PYTHONPATH=src TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest tests.e2e.classic.test_post_install_browser_live.PostInstallBrowserLiveTest",
+      "duration_seconds": 1.788,
+      "evidence_directory": "reconcile_e2e",
+      "exit_code": 0,
+      "finished_at_utc": "2026-09-13T00:10:27.043521Z",
+      "operation": "reconcile_e2e",
+      "started_at_utc": "2026-09-13T00:10:25.255965Z",
+      "summary": {
+        "expected_tests": 8,
+        "failure_types": [],
+        "reason": null,
+        "result": "passed",
+        "runtime_seconds": 1.354,
+        "skipped": 0,
+        "tests": 8
+      }
+    },
+    {
+      "command": "env PYTHONPATH=src python3 -m tests.e2e.classic.run_authenticated_acceptance_live --approve-live --phase baseline --env-file <protected>",
+      "duration_seconds": 80.841,
+      "evidence_directory": "reconcile_authenticated",
+      "exit_code": 0,
+      "finished_at_utc": "2026-09-13T00:11:47.887952Z",
+      "operation": "reconcile_authenticated",
+      "started_at_utc": "2026-09-13T00:10:27.047363Z",
+      "summary": {
+        "api_checks": 7,
+        "browser_tests": 9,
+        "errors": 0,
+        "expected_api_checks": 7,
+        "expected_browser_tests": 9,
+        "failure_types": [],
+        "failures": 0,
+        "live_tests": 25,
+        "readiness_after_tests": 8,
+        "readiness_before_tests": 8,
+        "reason": null,
+        "result": "passed",
+        "skipped": 0
+      }
+    },
+    {
+      "command": "bash tsw --live --approve-live --json platform update --stack <configured> --service <configured>",
+      "duration_seconds": 13.346,
+      "evidence_directory": "update",
+      "exit_code": 0,
+      "finished_at_utc": "2026-09-13T00:12:01.239388Z",
+      "operation": "update",
+      "started_at_utc": "2026-09-13T00:11:47.893194Z",
+      "summary": {
+        "message": "update workflow completed.",
+        "mutation": "converged",
+        "phase_results": {
+          "count": 0,
+          "failed": []
+        },
+        "reason": null,
+        "result": "passed",
+        "result_count": 2,
+        "status": "completed",
+        "verification": "verified",
+        "verification_results": []
+      }
+    },
+    {
+      "command": "env PYTHONPATH=src TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest tests.e2e.classic.test_post_install_browser_live.PostInstallBrowserLiveTest",
+      "duration_seconds": 7.963,
+      "evidence_directory": "update_e2e",
+      "exit_code": 0,
+      "finished_at_utc": "2026-09-13T00:12:09.206500Z",
+      "operation": "update_e2e",
+      "started_at_utc": "2026-09-13T00:12:01.243240Z",
+      "summary": {
+        "expected_tests": 8,
+        "failure_types": [],
+        "reason": null,
+        "result": "passed",
+        "runtime_seconds": 7.567,
+        "skipped": 0,
+        "tests": 8
+      }
+    },
+    {
+      "command": "env PYTHONPATH=src python3 -m tests.e2e.classic.run_authenticated_acceptance_live --approve-live --phase baseline --env-file <protected>",
+      "duration_seconds": 79.961,
+      "evidence_directory": "update_authenticated",
+      "exit_code": 0,
+      "finished_at_utc": "2026-09-13T00:13:29.171467Z",
+      "operation": "update_authenticated",
+      "started_at_utc": "2026-09-13T00:12:09.210916Z",
+      "summary": {
+        "api_checks": 7,
+        "browser_tests": 9,
+        "errors": 0,
+        "expected_api_checks": 7,
+        "expected_browser_tests": 9,
+        "failure_types": [],
+        "failures": 0,
+        "live_tests": 25,
+        "readiness_after_tests": 8,
+        "readiness_before_tests": 8,
+        "reason": null,
+        "result": "passed",
+        "skipped": 0
+      }
+    },
+    {
+      "command": "bash tsw --live --approve-live --json platform update --recover --stack <configured> --service <configured>",
+      "duration_seconds": 13.256,
+      "evidence_directory": "recovery",
+      "exit_code": 0,
+      "finished_at_utc": "2026-09-13T00:13:42.431113Z",
+      "operation": "recovery",
+      "started_at_utc": "2026-09-13T00:13:29.175260Z",
+      "summary": {
+        "message": "update workflow completed.",
+        "mutation": "converged",
+        "phase_results": {
+          "count": 0,
+          "failed": []
+        },
+        "reason": null,
+        "result": "passed",
+        "result_count": 2,
+        "status": "completed",
+        "verification": "verified",
+        "verification_results": []
+      }
+    },
+    {
+      "command": "env PYTHONPATH=src TSW_RUN_POST_INSTALL_BROWSER_LIVE=1 python3 -m unittest tests.e2e.classic.test_post_install_browser_live.PostInstallBrowserLiveTest",
+      "duration_seconds": 1.974,
+      "evidence_directory": "recovery_e2e",
+      "exit_code": 0,
+      "finished_at_utc": "2026-09-13T00:13:44.409893Z",
+      "operation": "recovery_e2e",
+      "started_at_utc": "2026-09-13T00:13:42.435415Z",
+      "summary": {
+        "expected_tests": 8,
+        "failure_types": [],
+        "reason": null,
+        "result": "passed",
+        "runtime_seconds": 1.549,
+        "skipped": 0,
+        "tests": 8
+      }
+    },
+    {
+      "command": "env PYTHONPATH=src python3 -m tests.e2e.classic.run_authenticated_acceptance_live --approve-live --phase baseline --env-file <protected>",
+      "duration_seconds": 82.317,
+      "evidence_directory": "recovery_authenticated",
+      "exit_code": 0,
+      "finished_at_utc": "2026-09-13T00:15:06.730778Z",
+      "operation": "recovery_authenticated",
+      "started_at_utc": "2026-09-13T00:13:44.413791Z",
+      "summary": {
+        "api_checks": 7,
+        "browser_tests": 9,
+        "errors": 0,
+        "expected_api_checks": 7,
+        "expected_browser_tests": 9,
+        "failure_types": [],
+        "failures": 0,
+        "live_tests": 25,
+        "readiness_after_tests": 8,
+        "readiness_before_tests": 8,
+        "reason": null,
+        "result": "passed",
+        "skipped": 0
+      }
+    }
+  ],
+  "reason": null,
+  "redaction": "raw stdout, stderr, credentials and environment values were not written",
+  "repository_commit": "8eb5db338aed9965a49ed6879198fd1053b97dcc",
+  "run_id": "20260912T233918.107391Z",
+  "runner": {
+    "label": "tsw-classic",
+    "name": "tsw-rc1-isolated",
+    "target_owner_reference_present": true
+  },
+  "scenario": "classic_live_chain",
+  "secret_storage": {
+    "accepted": "true",
+    "directory": "false",
+    "exists": "true",
+    "filesystem_classification": "wsl_linux",
+    "group_verified": "true",
+    "mode_verified": "true",
+    "owner_verified": "true",
+    "parent_exists": "true",
+    "parent_group_verified": "true",
+    "parent_mode_verified": "true",
+    "parent_owner_verified": "true",
+    "purpose": "secret_file",
+    "reasons": "",
+    "regular_file": "true"
+  },
+  "source_filesystem": {
+    "accepted": "false",
+    "directory": "true",
+    "exists": "true",
+    "filesystem_classification": "wsl_linux",
+    "group_verified": "true",
+    "mode_verified": "false",
+    "owner_verified": "true",
+    "parent_exists": "true",
+    "parent_group_verified": "true",
+    "parent_mode_verified": "true",
+    "parent_owner_verified": "true",
+    "purpose": "evidence_directory",
+    "reasons": "evidence_mode_not_0700",
+    "regular_file": "false"
+  },
+  "started_at_utc": "2026-09-12T23:39:18.107391Z",
+  "status": "LIVE_VERIFIED"
+}

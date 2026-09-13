@@ -1,0 +1,8 @@
+{
+  "evidence_kind": "routed_browser_e2e_result",
+  "redacted_reason": "",
+  "result": "passed",
+  "route_name": "infisical",
+  "status": "passed",
+  "url": "https://infisical.tsw.local"
+}

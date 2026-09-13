@@ -1,0 +1,78 @@
+{
+  "conclusion": "failure",
+  "databaseId": 34727197058,
+  "headSha": "07cfd558b02ddc0f86d09b3b6b6ea9133184eeef",
+  "jobs": [
+    {
+      "completedAt": "2026-09-13T00:15:26Z",
+      "conclusion": "failure",
+      "databaseId": 103644116865,
+      "name": "Qualify Classic live runner",
+      "startedAt": "2026-09-13T00:15:15Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-09-13T00:15:19Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-09-13T00:15:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-13T00:15:20Z",
+          "conclusion": "success",
+          "name": "Checkout",
+          "number": 2,
+          "startedAt": "2026-09-13T00:15:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-13T00:15:20Z",
+          "conclusion": "failure",
+          "name": "Reject blocked manual execution",
+          "number": 3,
+          "startedAt": "2026-09-13T00:15:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-13T00:15:20Z",
+          "conclusion": "skipped",
+          "name": "Require Linux and owned live target",
+          "number": 4,
+          "startedAt": "2026-09-13T00:15:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-13T00:15:21Z",
+          "conclusion": "success",
+          "name": "Post Checkout",
+          "number": 8,
+          "startedAt": "2026-09-13T00:15:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-13T00:15:21Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 9,
+          "startedAt": "2026-09-13T00:15:21Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34727197058/job/103644116865"
+    },
+    {
+      "completedAt": "2026-09-13T00:15:26Z",
+      "conclusion": "skipped",
+      "databaseId": 103644143256,
+      "name": "Execute Classic live chain",
+      "startedAt": "2026-09-13T00:15:27Z",
+      "status": "completed",
+      "steps": [],
+      "url": "https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34727197058/job/103644143256"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34727197058"
+}
