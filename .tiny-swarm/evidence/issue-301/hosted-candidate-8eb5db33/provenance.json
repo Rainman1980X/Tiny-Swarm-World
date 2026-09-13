@@ -1,0 +1,17 @@
+{
+  "hosted_run": 34725969899,
+  "url": "https://github.com/MatthiasBurger-Coder/Tiny-Swarm-World/actions/runs/34725969899",
+  "executed_sha": "8eb5db338aed9965a49ed6879198fd1053b97dcc",
+  "product_candidate_sha": "c921e69533450fba86d908e2990c106bef87769a",
+  "whole_git_tree": "a14e635dd22cb02fc063a319d73383f676572bca",
+  "whole_tree_equivalence_verified": true,
+  "runner": "tsw-rc1-isolated",
+  "runner_id": 24,
+  "target_owner": "tsw-rc1-isolated-20260913",
+  "fresh_target": "TSW-RC1-Isolated, zero Incus instances before setup; immutable base image only, no previous workload volumes",
+  "blocked_run": 34727197058,
+  "blocked_sha": "07cfd558b02ddc0f86d09b3b6b6ea9133184eeef",
+  "blocked_scope": "Same product and workflow inputs; evidence-only descendant 07cfd558; expected qualification failure, skipped live chain",
+  "historical_failure": "First attempt used an incorrect operator Windows bridge distribution/path; no Incus nodes were created. Corrected protected PATH and explicit bridge distribution before the fresh successful run.",
+  "scope": "Actual approved manual lifecycle and intentionally blocked manual dispatch. Scheduled event input/approval/concurrency semantics are covered by the existing workflow contracts, not claimed as an observed timer-triggered run."
+}

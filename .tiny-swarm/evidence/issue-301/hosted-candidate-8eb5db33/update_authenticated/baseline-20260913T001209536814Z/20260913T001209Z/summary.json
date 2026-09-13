@@ -1,0 +1,356 @@
+{
+  "generated_utc": "2026-09-13T00:12:10Z",
+  "records": [
+    {
+      "content_type": "text/html",
+      "kind": "service",
+      "reachable": true,
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "service-access",
+      "status_code": 200,
+      "url": "http://localhost:10000"
+    },
+    {
+      "content_type": "text/html",
+      "kind": "service",
+      "reachable": true,
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "service-access-route:infisical",
+      "status_code": 200,
+      "url": "https://infisical.tsw.local"
+    },
+    {
+      "content_type": "text/html;charset=utf-8",
+      "kind": "service",
+      "reachable": true,
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "service-access-route:jenkins",
+      "status_code": 403,
+      "url": "https://jenkins.tsw.local"
+    },
+    {
+      "content_type": "text/html",
+      "kind": "service",
+      "reachable": true,
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "service-access-route:nexus",
+      "status_code": 200,
+      "url": "https://nexus.tsw.local"
+    },
+    {
+      "content_type": "text/html; charset=utf-8",
+      "kind": "service",
+      "reachable": true,
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "service-access-route:portainer",
+      "status_code": 200,
+      "url": "https://portainer.tsw.local"
+    },
+    {
+      "content_type": "text/html;charset=iso-8859-1",
+      "kind": "service",
+      "reachable": true,
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "service-access-route:pulsar-admin-api",
+      "status_code": 401,
+      "url": "https://pulsar-api.tsw.local/admin/v2/clusters"
+    },
+    {
+      "content_type": "text/html",
+      "kind": "service",
+      "reachable": true,
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "service-access-route:pulsar-manager",
+      "status_code": 200,
+      "url": "https://pulsar.tsw.local"
+    },
+    {
+      "content_type": "text/html",
+      "kind": "service",
+      "reachable": true,
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "service-access-route:service-access",
+      "status_code": 200,
+      "url": "https://service-access.tsw.local"
+    },
+    {
+      "content_type": "text/html;charset=utf-8",
+      "kind": "service",
+      "reachable": true,
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "service-access-route:sonarqube",
+      "status_code": 200,
+      "url": "https://sonarqube.tsw.local"
+    },
+    {
+      "content_type": "text/html",
+      "kind": "service",
+      "reachable": true,
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "service-access-route:swagger",
+      "status_code": 302,
+      "url": "https://swagger.tsw.local"
+    },
+    {
+      "attempts": 1,
+      "duration_seconds": 0.138,
+      "kind": "service_readiness",
+      "pending_services": [],
+      "result": "passed"
+    },
+    {
+      "hostname": "infisical.tsw.local",
+      "kind": "hostname_resolution",
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "infisical"
+    },
+    {
+      "hostname": "jenkins.tsw.local",
+      "kind": "hostname_resolution",
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "jenkins"
+    },
+    {
+      "hostname": "nexus.tsw.local",
+      "kind": "hostname_resolution",
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "nexus"
+    },
+    {
+      "hostname": "portainer.tsw.local",
+      "kind": "hostname_resolution",
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "portainer"
+    },
+    {
+      "hostname": "pulsar-api.tsw.local",
+      "kind": "hostname_resolution",
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "pulsar-admin-api"
+    },
+    {
+      "hostname": "pulsar.tsw.local",
+      "kind": "hostname_resolution",
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "pulsar-manager"
+    },
+    {
+      "hostname": "service-access.tsw.local",
+      "kind": "hostname_resolution",
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "service-access"
+    },
+    {
+      "hostname": "sonarqube.tsw.local",
+      "kind": "hostname_resolution",
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "sonarqube"
+    },
+    {
+      "hostname": "swagger.tsw.local",
+      "kind": "hostname_resolution",
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "swagger"
+    },
+    {
+      "hostname": "infisical.tsw.local",
+      "kind": "https_route",
+      "reachable": true,
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "infisical",
+      "status_code": 200,
+      "tls_status": "https_reachable_verified"
+    },
+    {
+      "hostname": "jenkins.tsw.local",
+      "kind": "https_route",
+      "reachable": true,
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "jenkins",
+      "status_code": 403,
+      "tls_status": "https_reachable_verified"
+    },
+    {
+      "hostname": "nexus.tsw.local",
+      "kind": "https_route",
+      "reachable": true,
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "nexus",
+      "status_code": 200,
+      "tls_status": "https_reachable_verified"
+    },
+    {
+      "hostname": "portainer.tsw.local",
+      "kind": "https_route",
+      "reachable": true,
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "portainer",
+      "status_code": 200,
+      "tls_status": "https_reachable_verified"
+    },
+    {
+      "hostname": "pulsar-api.tsw.local",
+      "kind": "https_route",
+      "reachable": true,
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "pulsar-admin-api",
+      "status_code": 401,
+      "tls_status": "https_reachable_verified"
+    },
+    {
+      "hostname": "pulsar.tsw.local",
+      "kind": "https_route",
+      "reachable": true,
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "pulsar-manager",
+      "status_code": 200,
+      "tls_status": "https_reachable_verified"
+    },
+    {
+      "hostname": "service-access.tsw.local",
+      "kind": "https_route",
+      "reachable": true,
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "service-access",
+      "status_code": 200,
+      "tls_status": "https_reachable_verified"
+    },
+    {
+      "hostname": "sonarqube.tsw.local",
+      "kind": "https_route",
+      "reachable": true,
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "sonarqube",
+      "status_code": 200,
+      "tls_status": "https_reachable_verified"
+    },
+    {
+      "hostname": "swagger.tsw.local",
+      "kind": "https_route",
+      "reachable": true,
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "swagger",
+      "status_code": 200,
+      "tls_status": "https_reachable_verified"
+    },
+    {
+      "expected_infisical_item": "platform/portainer",
+      "item_present": true,
+      "kind": "infisical_item",
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "portainer"
+    },
+    {
+      "expected_infisical_item": "platform/nexus",
+      "item_present": true,
+      "kind": "infisical_item",
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "nexus"
+    },
+    {
+      "expected_infisical_item": "platform/jenkins",
+      "item_present": true,
+      "kind": "infisical_item",
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "jenkins"
+    },
+    {
+      "expected_infisical_item": "platform/pulsar",
+      "item_present": true,
+      "kind": "infisical_item",
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "pulsar"
+    },
+    {
+      "expected_infisical_item": "platform/pulsar-manager",
+      "item_present": true,
+      "kind": "infisical_item",
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "pulsar-manager"
+    },
+    {
+      "expected_infisical_item": "platform/sonarqube",
+      "item_present": true,
+      "kind": "infisical_item",
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "sonarqube"
+    },
+    {
+      "expected_infisical_item": "platform/infisical",
+      "item_present": true,
+      "kind": "infisical_item",
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "infisical"
+    },
+    {
+      "expected_credential_count": 11,
+      "installed": true,
+      "kind": "infisical_management",
+      "present_credential_count": 11,
+      "project_present": true,
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "infisical",
+      "super_admin_present": true
+    },
+    {
+      "configured_login_valid": true,
+      "default_login_disabled": true,
+      "kind": "sonarqube_management",
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "sonarqube"
+    },
+    {
+      "configured_login_valid": true,
+      "kind": "pulsar_management",
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "pulsar",
+      "unauthenticated_rejected": true
+    },
+    {
+      "configured_login_valid": true,
+      "csrf_available": true,
+      "kind": "pulsar_manager_management",
+      "redacted_failure_reason": "",
+      "result": "passed",
+      "service": "pulsar-manager"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "evidence_kind": "routed_browser_e2e_result",
+  "redacted_reason": "",
+  "result": "passed",
+  "route_name": "pulsar-admin-api",
+  "status": "passed",
+  "url": "https://pulsar-api.tsw.local/admin/v2/clusters"
+}

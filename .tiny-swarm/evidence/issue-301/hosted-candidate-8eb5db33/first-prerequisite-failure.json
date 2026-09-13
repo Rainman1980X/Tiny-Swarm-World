@@ -1,0 +1,163 @@
+{
+  "consent_state": "LIVE_APPROVED",
+  "credential_rotation": {
+    "reference_present": false,
+    "reference_value": "not_recorded",
+    "status": "not_applicable_test_only"
+  },
+  "evidence_storage": {
+    "accepted": "true",
+    "directory": "true",
+    "exists": "true",
+    "filesystem_classification": "wsl_linux",
+    "group_verified": "true",
+    "mode_verified": "true",
+    "owner_verified": "true",
+    "parent_exists": "true",
+    "parent_group_verified": "true",
+    "parent_mode_verified": "true",
+    "parent_owner_verified": "true",
+    "purpose": "evidence_directory",
+    "reasons": "",
+    "regular_file": "false"
+  },
+  "execution_profile": "disposable_test",
+  "finished_at_utc": "2026-09-12T23:35:19.975544Z",
+  "host": {
+    "class": "wsl2",
+    "kernel_release": "6.18.33.2-microsoft-standard-WSL2",
+    "pid1": "systemd",
+    "systemd_directory_present": true
+  },
+  "host_class": "wsl2",
+  "operations": [
+    {
+      "command": "python3 tools/install_debugger.py --live",
+      "duration_seconds": 0.137,
+      "evidence_directory": "diagnostics",
+      "exit_code": 0,
+      "finished_at_utc": "2026-09-12T23:35:17.289887Z",
+      "operation": "diagnostics",
+      "started_at_utc": "2026-09-12T23:35:17.152935Z",
+      "summary": {
+        "result": "completed_without_structured_summary"
+      }
+    },
+    {
+      "command": "bash tsw --live --approve-live --json setup run",
+      "duration_seconds": 2.682,
+      "evidence_directory": "setup",
+      "exit_code": 1,
+      "finished_at_utc": "2026-09-12T23:35:19.975511Z",
+      "operation": "setup",
+      "started_at_utc": "2026-09-12T23:35:17.293739Z",
+      "summary": {
+        "message": "setup run stopped during phase 'host prepare'.",
+        "mutation": null,
+        "phase_results": {
+          "count": 18,
+          "failed": [
+            {
+              "name": "host prepare"
+            },
+            {
+              "name": "host verify"
+            },
+            {
+              "name": "platform init"
+            },
+            {
+              "name": "platform reconcile"
+            },
+            {
+              "name": "cluster docker"
+            },
+            {
+              "name": "cluster swarm bootstrap"
+            },
+            {
+              "name": "cluster verify"
+            },
+            {
+              "name": "platform expose"
+            },
+            {
+              "name": "deployment bootstrap"
+            },
+            {
+              "name": "artifact bootstrap"
+            },
+            {
+              "name": "artifact readiness gate"
+            },
+            {
+              "name": "artifacts prepare"
+            },
+            {
+              "name": "artifacts verify"
+            },
+            {
+              "name": "deployment apply"
+            },
+            {
+              "name": "deployment verify"
+            },
+            {
+              "name": "platform verify"
+            }
+          ]
+        },
+        "reason": "phase 'host prepare' returned FAILED",
+        "result": "failed",
+        "result_count": 0,
+        "status": "failed",
+        "verification": null,
+        "verification_results": []
+      }
+    }
+  ],
+  "reason": null,
+  "redaction": "raw stdout, stderr, credentials and environment values were not written",
+  "repository_commit": "8eb5db338aed9965a49ed6879198fd1053b97dcc",
+  "run_id": "20260912T233517.140396Z",
+  "runner": {
+    "label": "tsw-classic",
+    "name": "tsw-rc1-isolated",
+    "target_owner_reference_present": true
+  },
+  "scenario": "classic_live_chain",
+  "secret_storage": {
+    "accepted": "true",
+    "directory": "false",
+    "exists": "true",
+    "filesystem_classification": "wsl_linux",
+    "group_verified": "true",
+    "mode_verified": "true",
+    "owner_verified": "true",
+    "parent_exists": "true",
+    "parent_group_verified": "true",
+    "parent_mode_verified": "true",
+    "parent_owner_verified": "true",
+    "purpose": "secret_file",
+    "reasons": "",
+    "regular_file": "true"
+  },
+  "source_filesystem": {
+    "accepted": "false",
+    "directory": "true",
+    "exists": "true",
+    "filesystem_classification": "wsl_linux",
+    "group_verified": "true",
+    "mode_verified": "false",
+    "owner_verified": "true",
+    "parent_exists": "true",
+    "parent_group_verified": "true",
+    "parent_mode_verified": "true",
+    "parent_owner_verified": "true",
+    "purpose": "evidence_directory",
+    "reasons": "evidence_mode_not_0700",
+    "regular_file": "false"
+  },
+  "started_at_utc": "2026-09-12T23:35:17.140396Z",
+  "status": "LIVE_FAILED_AFTER_MUTATION"
+}

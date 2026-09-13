@@ -1,0 +1,7 @@
+{
+  "scope": "empty target isolation prequalification; no platform lifecycle proof",
+  "before_interop": true,
+  "terminate_exit": 0,
+  "after_interop": true,
+  "original_project_processes_preserved": true
+}
